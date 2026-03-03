@@ -1,7 +1,9 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const { rateLimit } = require('express-rate-limit');
 const { validateCsrf } = require('../middleware/csrf');
 const { getJobs, getJobBySlug } = require('../jobs');
+const { pool } = require('../db');
 
 const router = express.Router();
 
@@ -106,6 +108,8 @@ router.post('/api/leads/application', submitLimiter, validateCsrf, async (req, r
     city,
     country,
     mobile,
+    password1,
+    password2,
     job_title,
     source_page,
     website,
@@ -132,6 +136,40 @@ router.post('/api/leads/application', submitLimiter, validateCsrf, async (req, r
   const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
   if (!apiBase) {
     return res.status(500).send('Bewerbung konnte nicht gespeichert werden (API nicht konfiguriert).');
+  }
+
+  // Optional auto-account creation on Headline (same credentials as application form)
+  const pw1 = String(password1 || '');
+  const pw2 = String(password2 || '');
+  if (pw1 || pw2) {
+    if (pw1 !== pw2) return res.status(400).send('Passwörter stimmen nicht überein.');
+    if (pw1.length < 8) return res.status(400).send('Passwort muss mindestens 8 Zeichen lang sein.');
+
+    try {
+      const existing = await pool.query('SELECT id FROM users WHERE email = $1', [applicantEmail]);
+      if (existing.rowCount === 0) {
+        const hash = await bcrypt.hash(pw1, 12);
+        await pool.query(
+          `INSERT INTO users (email, password_hash, first_name, last_name, phone, birth_date, address_line, zip, city, country)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [
+            applicantEmail,
+            hash,
+            fn || applicantName,
+            ln || '-',
+            String(mobile || '').trim() || null,
+            applicantBirthDate || null,
+            String(address || '').trim() || null,
+            String(zip || '').trim() || null,
+            String(city || '').trim() || null,
+            String(country || '').trim() || null,
+          ]
+        );
+      }
+    } catch (err) {
+      console.error('[decoupled] auto-account create failed', err);
+      return res.status(502).send('Bewerbung gespeichert, aber Konto konnte nicht erstellt werden. Bitte über /konto/registrieren anlegen.');
+    }
   }
 
   try {
