@@ -14,6 +14,15 @@
   <div class="container">
     <% const job = pageData.job || {}; %>
     <% const jobFacts = job.facts || {}; %>
+    <% const description = job.description || job.summary || ''; %>
+    <% const requirements = (job.requirements && job.requirements.length ? job.requirements : job.profile) || []; %>
+    <% const tasks = (job.tasks && job.tasks.length ? job.tasks : []) || []; %>
+    <% const benefits = (job.benefits && job.benefits.length ? job.benefits : job.offer) || []; %>
+    <% const employmentType = job.type_of_employment || job.employment_type || job.employmentType || jobFacts.employment || '-'; %>
+    <% const workingModel = job.working_model || job.workingModel || '-'; %>
+    <% const location = job.location || jobFacts.location || '-'; %>
+    <% const salaryText = job.ad_text || job.adText || jobFacts.salary || '-'; %>
+    <% const salaryRange = ((job.min_salary || job.minSalary || job.max_salary || job.maxSalary) ? `${job.min_salary || job.minSalary || 0} - ${job.max_salary || job.maxSalary || 0} EUR` : '-'); %>
     <% if (query.ok) { %>
       <div class="form-success">Vielen Dank. Ihre Bewerbung wurde erfolgreich uebermittelt.</div>
     <% } %>
@@ -23,32 +32,32 @@
         <div class="codex-contact-items">
           <div style="margin-bottom:32px;">
             <h3 style="margin-bottom:20px;"><%= job.title %></h3>
-            <% if (job.summary) { %>
-              <p style="margin-bottom:20px;"><%= job.summary %></p>
+            <% if (description) { %>
+              <p style="margin-bottom:20px;"><%= description %></p>
             <% } %>
 
-            <% if (job.tasks && job.tasks.length) { %>
-              <h4 style="margin-bottom:12px;">Ihre Aufgaben</h4>
+            <% if (tasks.length) { %>
+              <h4 style="margin-bottom:12px;">Aufgaben</h4>
               <ul style="list-style:disc; padding-left:22px; margin-bottom:20px; line-height:1.8;">
-                <% job.tasks.forEach((entry) => { %>
+                <% tasks.forEach((entry) => { %>
                   <li><%= entry %></li>
                 <% }) %>
               </ul>
             <% } %>
 
-            <% if (job.profile && job.profile.length) { %>
-              <h4 style="margin-bottom:12px;">Ihr Profil</h4>
+            <% if (requirements.length) { %>
+              <h4 style="margin-bottom:12px;">Anforderungen</h4>
               <ul style="list-style:disc; padding-left:22px; margin-bottom:20px; line-height:1.8;">
-                <% job.profile.forEach((entry) => { %>
+                <% requirements.forEach((entry) => { %>
                   <li><%= entry %></li>
                 <% }) %>
               </ul>
             <% } %>
 
-            <% if (job.offer && job.offer.length) { %>
-              <h4 style="margin-bottom:12px;">Unser Angebot</h4>
+            <% if (benefits.length) { %>
+              <h4 style="margin-bottom:12px;">Benefits</h4>
               <ul style="list-style:disc; padding-left:22px; margin-bottom:0; line-height:1.8;">
-                <% job.offer.forEach((entry) => { %>
+                <% benefits.forEach((entry) => { %>
                   <li><%= entry %></li>
                 <% }) %>
               </ul>
@@ -98,13 +107,13 @@
 
       <div class="col-xl-4 col-lg-5">
         <div class="codex-contact-items" style="padding:0 28px 28px;">
-          <h3 style="font-size:28px; line-height:1.25; margin:0 0 18px;">Allgemeine Fakten</h3>
+          <h3 style="font-size:28px; line-height:1.25; margin:0 0 18px;">Stellen Details</h3>
           <div style="display:grid; gap:14px;">
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Datum:</strong><span><%= jobFacts.date || '-' %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Gehalt:</strong><span><%= jobFacts.salary || '-' %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Anstellung:</strong><span><%= jobFacts.employment || '-' %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Vorerfahrung:</strong><span><%= jobFacts.experience || '-' %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Bewerbungsfrist:</strong><span><%= jobFacts.deadline || '-' %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Anstellung:</strong><span><%= employmentType %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Arbeitsmodell:</strong><span><%= workingModel %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Standort:</strong><span><%= location %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Gehaltstext:</strong><span><%= salaryText %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Gehaltsrahmen:</strong><span><%= salaryRange %></span></div>
           </div>
         </div>
       </div>
