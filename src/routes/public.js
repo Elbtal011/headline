@@ -101,6 +101,11 @@ router.post('/api/leads/application', submitLimiter, validateCsrf, async (req, r
     email_address,
     birth_date,
     dob,
+    address,
+    zip,
+    city,
+    country,
+    mobile,
     source_page,
     website,
   } = req.body || {};
@@ -119,7 +124,49 @@ router.post('/api/leads/application', submitLimiter, validateCsrf, async (req, r
     return res.status(400).send('Bitte alle Pflichtfelder ausfüllen.');
   }
 
-  console.log('[decoupled] application form accepted', { applicantEmail, source_page: redirectTarget });
+  const [fn, ...rest] = applicantName.split(' ');
+  const ln = rest.join(' ').trim();
+  const jobSlug = redirectTarget.startsWith('/Bewerbung/') ? redirectTarget.replace('/Bewerbung/', '').split('?')[0] : null;
+
+  const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
+  if (!apiBase) {
+    return res.status(500).send('Bewerbung konnte nicht gespeichert werden (API nicht konfiguriert).');
+  }
+
+  try {
+    const payload = {
+      first_name: fn || applicantName,
+      last_name: ln || '-',
+      full_name: applicantName,
+      email: applicantEmail,
+      phone: String(mobile || '').trim(),
+      birth_date: applicantBirthDate,
+      address: String(address || '').trim(),
+      zip: String(zip || '').trim(),
+      city: String(city || '').trim(),
+      country: String(country || '').trim(),
+      source_page: redirectTarget,
+      job_slug: jobSlug,
+      status: 'pending',
+    };
+
+    const resp = await fetch(`${apiBase}/api/public/job-applications`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!resp.ok) {
+      const txt = await resp.text().catch(() => '');
+      console.error('[decoupled] application forward failed', resp.status, txt);
+      return res.status(502).send('Bewerbung konnte aktuell nicht übermittelt werden. Bitte erneut versuchen.');
+    }
+  } catch (err) {
+    console.error('[decoupled] application forward error', err);
+    return res.status(502).send('Bewerbung konnte aktuell nicht übermittelt werden. Bitte erneut versuchen.');
+  }
+
+  console.log('[decoupled] application form accepted+forwarded', { applicantEmail, source_page: redirectTarget });
   return res.redirect(`${redirectTarget}${redirectTarget.includes('?') ? '&' : '?'}ok=1`);
 });
 
