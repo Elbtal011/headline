@@ -108,7 +108,65 @@ async function getUserDocuments(userId) {
 }
 
 function parseProfileTab(input) {
-  return input === 'documents' ? 'documents' : 'profile';
+  const allowed = new Set(['dashboard', 'tasks', 'earnings', 'profile', 'documents', 'support']);
+  return allowed.has(String(input || '')) ? String(input) : 'dashboard';
+}
+
+async function getUserDashboardData(user) {
+  const email = String(user?.email || '').trim().toLowerCase();
+  if (!email) {
+    return {
+      totalApplications: 0,
+      openApplications: 0,
+      inReviewApplications: 0,
+      closedApplications: 0,
+      latestApplications: [],
+      documentsCount: 0,
+      profileCompletion: 0,
+    };
+  }
+
+  const [appsRes, docsRes] = await Promise.all([
+    pool.query(
+      `SELECT id, full_name, status, source_page, created_at
+       FROM leads
+       WHERE type = 'application' AND lower(email) = $1
+       ORDER BY created_at DESC
+       LIMIT 25`,
+      [email]
+    ),
+    pool.query('SELECT COUNT(*)::int AS count FROM user_documents WHERE user_id = $1', [user.id])
+  ]);
+
+  const rows = appsRes.rows || [];
+  const documentsCount = docsRes.rows?.[0]?.count || 0;
+  const totalApplications = rows.length;
+  const openApplications = rows.filter((x) => x.status === 'new').length;
+  const inReviewApplications = rows.filter((x) => x.status === 'in_review' || x.status === 'contacted').length;
+  const closedApplications = rows.filter((x) => x.status === 'closed').length;
+
+  const completedFields = [
+    user.first_name,
+    user.last_name,
+    user.email,
+    user.phone,
+    user.birth_date,
+    user.address_line,
+    user.zip,
+    user.city,
+    user.country,
+  ].filter(Boolean).length;
+  const profileCompletion = Math.round((completedFields / 9) * 100);
+
+  return {
+    totalApplications,
+    openApplications,
+    inReviewApplications,
+    closedApplications,
+    latestApplications: rows.slice(0, 6),
+    documentsCount,
+    profileCompletion,
+  };
 }
 
 router.get('/konto', (req, res) => {
@@ -168,7 +226,7 @@ router.post('/konto/login', authLimiter, validateCsrf, async (req, res) => {
   };
   req.session.captcha = null;
 
-  return res.redirect('/konto/profil');
+  return res.redirect('/konto/profil?tab=dashboard');
 });
 
 router.get('/konto/registrieren', (req, res) => {
@@ -227,7 +285,7 @@ router.post('/konto/registrieren', authLimiter, validateCsrf, async (req, res) =
 
   req.session.user = insert.rows[0];
   req.session.captcha = null;
-  return res.redirect('/konto/profil');
+  return res.redirect('/konto/profil?tab=dashboard');
 });
 
 router.post('/konto/logout', validateCsrf, requireUser, (req, res) => {
@@ -243,9 +301,11 @@ router.get('/konto/profil', requireUser, async (req, res) => {
   }
 
   const documents = await getUserDocuments(req.session.user.id);
+  const dashboard = await getUserDashboardData(user);
   return renderPage(res, 'pages/account-profile', { currentPath: '/konto/profil' }, {
     user,
     documents,
+    dashboard,
     docTypeOptions,
     activeTab: parseProfileTab(req.query.tab),
     success: '',

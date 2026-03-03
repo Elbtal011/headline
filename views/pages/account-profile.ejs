@@ -30,8 +30,12 @@
           <p><%= user.email %></p>
         </div>
         <nav class="account-nav">
+          <a href="/konto/profil?tab=dashboard" class="account-nav-item <%= activeTab === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+          <a href="/konto/profil?tab=tasks" class="account-nav-item <%= activeTab === 'tasks' ? 'active' : '' %>">Aufgaben</a>
+          <a href="/konto/profil?tab=earnings" class="account-nav-item <%= activeTab === 'earnings' ? 'active' : '' %>">Einnahmen</a>
           <a href="/konto/profil?tab=profile" class="account-nav-item <%= activeTab === 'profile' ? 'active' : '' %>">Persönliche Daten</a>
           <a href="/konto/profil?tab=documents" class="account-nav-item <%= activeTab === 'documents' ? 'active' : '' %>">Dokumente</a>
+          <a href="/konto/profil?tab=support" class="account-nav-item <%= activeTab === 'support' ? 'active' : '' %>">Support</a>
         </nav>
         <form method="post" action="/konto/logout">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -47,7 +51,60 @@
           <div class="alert error"><%= error %></div>
         <% } %>
 
-        <% if (activeTab === 'profile') { %>
+        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], documentsCount: 0, profileCompletion: 0 }; %>
+        <% if (activeTab === 'dashboard') { %>
+          <header class="account-card-head">
+            <h3>Willkommen zurück, <%= user.first_name || 'User' %>!</h3>
+            <p class="account-muted">Hier ist dein Überblick zu Bewerbungen, Profil und Dokumenten.</p>
+          </header>
+          <div class="account-form-grid" style="margin-top:8px;">
+            <div class="account-doc-item"><div><h5>Bewerbungen gesamt</h5><p><%= dash.totalApplications %></p></div></div>
+            <div class="account-doc-item"><div><h5>Offen</h5><p><%= dash.openApplications %></p></div></div>
+            <div class="account-doc-item"><div><h5>In Prüfung</h5><p><%= dash.inReviewApplications %></p></div></div>
+            <div class="account-doc-item"><div><h5>Abgeschlossen</h5><p><%= dash.closedApplications %></p></div></div>
+            <div class="account-doc-item"><div><h5>Dokumente</h5><p><%= dash.documentsCount %></p></div></div>
+            <div class="account-doc-item"><div><h5>Profil-Status</h5><p><%= dash.profileCompletion %>% vollständig</p></div></div>
+          </div>
+
+          <h4 class="account-section-title">Letzte Bewerbungen</h4>
+          <div class="account-doc-list">
+            <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
+              <p class="account-muted" style="margin-top:14px;">Noch keine Bewerbungen vorhanden.</p>
+            <% } else { %>
+              <% dash.latestApplications.forEach((app) => { %>
+                <article class="account-doc-item">
+                  <div>
+                    <h5><%= app.source_page || 'Bewerbung' %></h5>
+                    <p>Status: <strong><%= app.status %></strong></p>
+                    <small><%= new Date(app.created_at).toLocaleString('de-DE') %></small>
+                  </div>
+                </article>
+              <% }) %>
+            <% } %>
+          </div>
+
+        <% } else if (activeTab === 'tasks') { %>
+          <header class="account-card-head">
+            <h3>Aufgaben</h3>
+            <p class="account-muted">Deine Aufgaben-Ansicht wird im nächsten Schritt mit Live-Daten angebunden.</p>
+          </header>
+          <p class="account-muted" style="margin-top:14px;">Placeholder: Aufgabenbereich ist vorbereitet.</p>
+
+        <% } else if (activeTab === 'earnings') { %>
+          <header class="account-card-head">
+            <h3>Einnahmen</h3>
+            <p class="account-muted">Deine Einnahmen-Ansicht wird im nächsten Schritt mit Live-Daten angebunden.</p>
+          </header>
+          <p class="account-muted" style="margin-top:14px;">Placeholder: Einnahmenbereich ist vorbereitet.</p>
+
+        <% } else if (activeTab === 'support') { %>
+          <header class="account-card-head">
+            <h3>Support</h3>
+            <p class="account-muted">Für Hilfe kontaktiere uns über die bekannte Kontaktseite oder den Chat.</p>
+          </header>
+          <p class="account-muted" style="margin-top:14px;">Kontakt: <a href="/Kontakt">/Kontakt</a></p>
+
+        <% } else if (activeTab === 'profile') { %>
           <header class="account-card-head">
             <h3>Persönliche Daten</h3>
             <p class="account-muted">Pflegen Sie Ihre Kontaktdaten und halten Sie Ihr Profil aktuell.</p>
