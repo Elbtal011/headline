@@ -19,11 +19,7 @@
             <li><span>Öffnungszeiten:</span> <a href="#">Mo - fr: 8:00 bis 17:00 Uhr</a></li>
           </ul>
         </div>
-        <% if (user) { %>
-          <a href="/konto/profil" class="theme-btn">Mein Profil <i class="fa-solid fa-arrow-right"></i></a>
-        <% } else { %>
-          <a href="/konto/login" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
-        <% } %>
+        <a href="<%= profileLoginUrl %>" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
       </div>
     </div>
   </div>
@@ -48,22 +44,14 @@
                   <li class="<%= pageData.currentPath === '/Bewerbung' ? 'active' : '' %>"><a href="/Bewerbung">Karriere & Stellen</a></li>
                   <li class="<%= pageData.currentPath === '/Kontakt' ? 'active' : '' %>"><a href="/Kontakt">Kontakt</a></li>
                   <li class="mobile-only-profile">
-                    <% if (user) { %>
-                      <a href="/konto/profil">Mein Profil</a>
-                    <% } else { %>
-                      <a href="/konto/login">Profil Login</a>
-                    <% } %>
+                    <a href="<%= profileLoginUrl %>">Profil Login</a>
                   </li>
                 </ul>
               </nav>
             </div>
           </div>
           <div class="header-right d-flex justify-content-end align-items-center">
-            <% if (user) { %>
-              <a href="/konto/profil" class="theme-btn">Mein Profil <i class="fa-solid fa-arrow-right"></i></a>
-            <% } else { %>
-              <a href="/konto/login" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
-            <% } %>
+            <a href="<%= profileLoginUrl %>" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
             <div class="header__hamburger d-xl-none my-auto"><div class="sidebar__toggle"><i class="fas fa-bars"></i></div></div>
           </div>
         </div>

@@ -17,10 +17,6 @@
           <a href="<%= item.href %>" class="<%= pageData.currentPath === item.href ? 'active' : '' %>"><%= item.label %></a>
         <% }) %>
       </div>
-      <% if (user) { %>
-        <a class="cta" href="/konto/profil">Mein Profil</a>
-      <% } else { %>
-        <a class="cta" href="/konto/login">Profil Login</a>
-      <% } %>
+      <a class="cta" href="<%= profileLoginUrl %>">Profil Login</a>
     </div>
   </nav>

@@ -26,6 +26,9 @@ app.set('views', path.join(__dirname, '..', 'views'));
 app.set('trust proxy', 1);
 app.locals.magicvicsChatUrl = process.env.MAGICVICS_CHAT_URL || 'https://magicvics-production.up.railway.app/support';
 app.locals.magicvicsApiBase = process.env.MAGICVICS_API_BASE || 'https://backend-production-4c3c.up.railway.app';
+app.locals.magicvicsAppUrl = process.env.MAGICVICS_APP_URL || 'https://magicvics-production.up.railway.app';
+app.locals.profileLoginUrl = `${app.locals.magicvicsAppUrl.replace(/\/$/, '')}/login`;
+app.locals.profileRegisterUrl = `${app.locals.magicvicsAppUrl.replace(/\/$/, '')}/register`;
 
 app.use(
   helmet({
@@ -68,6 +71,13 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/', publicRouter);
+
+// In decoupled mode, route account entrypoints to MagicVics auth pages.
+if (!legacyBackendEnabled) {
+  app.get('/konto', (_req, res) => res.redirect(app.locals.profileLoginUrl));
+  app.get('/konto/login', (_req, res) => res.redirect(app.locals.profileLoginUrl));
+  app.get('/konto/registrieren', (_req, res) => res.redirect(app.locals.profileRegisterUrl));
+}
 
 if (legacyBackendEnabled) {
   const { adminRouter } = require('./routes/admin');
