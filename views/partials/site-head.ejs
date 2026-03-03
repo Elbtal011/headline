@@ -260,6 +260,98 @@
       gap: 12px;
       margin-top: 18px;
     }
+    .dash-hero {
+      border: 1px solid #d7e5f2;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #f6fbff 0%, #edf5ff 100%);
+      padding: 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .dash-kicker {
+      margin: 0 0 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2f5f91;
+    }
+    .dash-hero h4 {
+      margin: 0 0 6px;
+      color: #102947;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+    .dash-hero p {
+      margin: 0;
+      color: #3f5d7d;
+      font-size: 14px;
+    }
+    .dash-hero-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .dash-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .dash-stat-card {
+      border: 1px solid #d5e4f1;
+      border-radius: 14px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(15, 40, 71, 0.05);
+      padding: 14px;
+      display: grid;
+      gap: 6px;
+    }
+    .dash-stat-card span {
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #47698c;
+      font-weight: 700;
+    }
+    .dash-stat-card strong {
+      font-size: 28px;
+      line-height: 1;
+      color: #0f2744;
+    }
+    .dash-panel {
+      border: 1px solid #d7e4ef;
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(15, 40, 71, 0.05);
+    }
+    .dash-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+    .dash-panel-head h4 {
+      margin: 0;
+      color: #113254;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .dash-link {
+      color: #0d4f9b;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .dash-link:hover {
+      text-decoration: underline;
+    }
     .account-doc-item {
       border: 1px solid #d4e1ee;
       border-radius: 14px;
@@ -555,6 +647,16 @@
       }
       .account-form-grid {
         grid-template-columns: 1fr;
+      }
+      .dash-hero {
+        flex-direction: column;
+      }
+      .dash-stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .dash-panel-head {
+        flex-direction: column;
+        align-items: flex-start;
       }
       .account-actions-end {
         justify-content: flex-start;
