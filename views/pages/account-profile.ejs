@@ -1,0 +1,126 @@
+﻿<%- include('../partials/site-head', { title: 'Headline Agentur | Mein Profil' }) %>
+<%- include('../partials/site-header') %>
+
+<section class="breadcrumb-wrapper">
+  <div class="container">
+    <div class="page-heading">
+      <h1>Mein Profil</h1>
+      <p>Konto verwalten</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container account-shell">
+    <% const birthDateInput = (() => {
+      if (!user || !user.birth_date) return '';
+      const raw = user.birth_date;
+      if (typeof raw === 'string') return raw.slice(0, 10);
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return '';
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    })(); %>
+    <div class="account-layout">
+      <aside class="account-sidebar">
+        <div class="account-sidebar-head">
+          <h4><%= [user.first_name, user.last_name].filter(Boolean).join(' ') %></h4>
+          <p><%= user.email %></p>
+        </div>
+        <nav class="account-nav">
+          <a href="/konto/profil?tab=profile" class="account-nav-item <%= activeTab === 'profile' ? 'active' : '' %>">Persönliche Daten</a>
+          <a href="/konto/profil?tab=documents" class="account-nav-item <%= activeTab === 'documents' ? 'active' : '' %>">Dokumente</a>
+        </nav>
+        <form method="post" action="/konto/logout">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn btn-secondary account-logout" type="submit">Logout</button>
+        </form>
+      </aside>
+
+      <div class="account-card" style="max-width:none;">
+        <% if (success) { %>
+          <div class="alert success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert error"><%= error %></div>
+        <% } %>
+
+        <% if (activeTab === 'profile') { %>
+          <header class="account-card-head">
+            <h3>Persönliche Daten</h3>
+            <p class="account-muted">Pflegen Sie Ihre Kontaktdaten und halten Sie Ihr Profil aktuell.</p>
+          </header>
+
+          <form method="post" action="/konto/profil">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <h4 class="account-section-title">Basisdaten</h4>
+            <div class="account-form-grid">
+              <div class="account-field"><label for="pf-first">Vorname</label><input id="pf-first" name="first_name" required value="<%= user.first_name || '' %>" /></div>
+              <div class="account-field"><label for="pf-last">Nachname</label><input id="pf-last" name="last_name" required value="<%= user.last_name || '' %>" /></div>
+              <div class="account-field"><label for="pf-email">E-Mail</label><input id="pf-email" name="email" type="email" required value="<%= user.email || '' %>" /></div>
+              <div class="account-field"><label for="pf-phone">Telefon</label><input id="pf-phone" name="phone" value="<%= user.phone || '' %>" /></div>
+              <div class="account-field"><label for="pf-birth">Geburtsdatum</label><input id="pf-birth" name="birth_date" type="date" value="<%= birthDateInput %>" /></div>
+              <div class="account-field"><label for="pf-pass">Neues Passwort (optional)</label><input id="pf-pass" name="new_password" type="password" /></div>
+            </div>
+            <h4 class="account-section-title">Adressdaten</h4>
+            <div class="account-form-grid">
+              <div class="account-field full"><label for="pf-address">Anschrift</label><input id="pf-address" name="address_line" value="<%= user.address_line || '' %>" /></div>
+              <div class="account-field"><label for="pf-zip">PLZ</label><input id="pf-zip" name="zip" value="<%= user.zip || '' %>" /></div>
+              <div class="account-field"><label for="pf-city">Stadt</label><input id="pf-city" name="city" value="<%= user.city || '' %>" /></div>
+              <div class="account-field"><label for="pf-country">Land</label><input id="pf-country" name="country" value="<%= user.country || '' %>" /></div>
+            </div>
+            <div class="account-actions account-actions-end"><button class="theme-btn" type="submit">Profil speichern <i class="fa-solid fa-arrow-right"></i></button></div>
+          </form>
+        <% } else { %>
+          <header class="account-card-head">
+            <h3>Dokumente</h3>
+            <p class="account-muted">Laden Sie angeforderte Unterlagen hoch, zum Beispiel Ausweis oder Gehaltsnachweise.</p>
+          </header>
+
+          <form method="post" action="/konto/profil/dokumente?_csrf=<%= encodeURIComponent(csrfToken) %>" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <div class="account-form-grid">
+              <div class="account-field">
+                <label for="doc-type">Dokumenttyp</label>
+                <select id="doc-type" name="doc_type" required>
+                  <option value="">Bitte wählen</option>
+                  <% docTypeOptions.forEach((opt) => { %>
+                    <option value="<%= opt.value %>"><%= opt.label %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="account-field">
+                <label for="doc-file">Datei (PDF/JPG/PNG/WEBP, max. 10 MB)</label>
+                <input id="doc-file" name="document_file" type="file" required />
+              </div>
+              <div class="account-actions">
+                <button class="theme-btn" type="submit">Dokument hochladen <i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+              </div>
+            </div>
+          </form>
+
+          <div class="account-doc-list">
+            <% if (!documents || documents.length === 0) { %>
+              <p class="account-muted" style="margin-top:14px;">Noch keine Dokumente hochgeladen.</p>
+            <% } else { %>
+              <% documents.forEach((doc) => { %>
+                <article class="account-doc-item">
+                  <div>
+                    <h5><%= doc.doc_type_label %></h5>
+                    <p><%= doc.original_name %></p>
+                    <small><%= new Date(doc.created_at).toLocaleString('de-DE') %> · <%= Math.ceil(doc.size_bytes / 1024) %> KB</small>
+                  </div>
+                  <a class="btn btn-secondary" href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">Ansehen</a>
+                </article>
+              <% }) %>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/site-footer') %>

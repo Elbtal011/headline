@@ -1,0 +1,41 @@
+<%- include('../partials/site-head', { title: 'Headline Agentur | Karriere' }) %>
+<%- include('../partials/site-header') %>
+
+<section class="breadcrumb-wrapper">
+  <div class="container">
+    <div class="page-heading">
+      <h1>Karriere</h1>
+      <p>Headline Agentur Karriere & Stellen</p>
+    </div>
+  </div>
+</section>
+
+<section class="contact-wrapper section-padding pt-5">
+  <div class="container">
+    <div class="codex-contact-items">
+      <h3 style="margin-bottom:8px;">Offene Stellen</h3>
+      <p style="margin-bottom:22px;">Waehl eine Stelle aus. Mit Klick auf den Titel oeffnet sich die Detailseite mit Beschreibung und Bewerbungsformular.</p>
+
+      <% const jobs = pageData.jobs || []; %>
+      <% if (jobs.length === 0) { %>
+        <p>Aktuell sind keine Stellen ausgeschrieben.</p>
+      <% } else { %>
+        <div style="display:grid; gap:16px;">
+          <% jobs.forEach((job) => { %>
+            <article style="border:1px solid #e6e8ec; border-radius:12px; padding:18px 20px; background:#fff;">
+              <h4 style="margin:0 0 8px;">
+                <a href="/Bewerbung/<%= job.slug %>" style="color:#10223e; text-decoration:none;"><%= job.title %></a>
+              </h4>
+              <% if (job.summary) { %>
+                <p style="margin:0 0 12px; color:#374151;"><%= job.summary %></p>
+              <% } %>
+              <a href="/Bewerbung/<%= job.slug %>" class="theme-btn">Zur Stelle <i class="fa-solid fa-arrow-right"></i></a>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/site-footer') %>

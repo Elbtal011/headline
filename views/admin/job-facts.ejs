@@ -1,0 +1,238 @@
+﻿<%- include('../partials/head', { title: 'Stellenverwaltung | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item" href="/admin666/users">Users</a>
+        <a class="admin-nav-item active" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top" style="align-items:flex-start; gap:12px;">
+      <div>
+        <h1 style="margin-bottom:6px;">Stellenverwaltung</h1>
+        <p style="margin:0; color:#5b6c80;">Aktive Stellen: <strong><%= (jobs || []).length %></strong></p>
+      </div>
+      <div class="admin-actions">
+        <a class="btn btn-primary" href="#new-job-form">Neue Stelle</a>
+      </div>
+    </div>
+
+    <% if (success) { %>
+      <div class="alert success"><%= success %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <style>
+      .jobs-grid { display:grid; gap:14px; margin-bottom:20px; }
+      .job-card { border:1px solid #d5e2ef; border-radius:14px; background:#fff; padding:16px; }
+      .job-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+      .job-title { margin:0; font-size:26px; line-height:1.2; }
+      .job-meta { margin:6px 0 10px; color:#4f6278; font-size:13px; }
+      .job-summary { margin:0 0 10px; color:#2f4258; }
+      .facts-row { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 10px; }
+      .fact-chip { font-size:12px; background:#eef4fb; color:#274968; border:1px solid #cfe0f1; border-radius:999px; padding:5px 10px; }
+      .job-links { display:flex; gap:8px; flex-wrap:wrap; }
+      .job-edit { margin-top:12px; border-top:1px solid #e3ecf5; padding-top:12px; }
+      .job-edit summary { cursor:pointer; color:#0d4f9b; font-weight:700; }
+      .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+      .form-grid-2 .full { grid-column:1 / -1; }
+      .job-edit textarea { min-height:90px; }
+      @media (max-width: 960px) { .form-grid-2 { grid-template-columns:1fr; } }
+    </style>
+
+    <% if (!jobs || jobs.length === 0) { %>
+      <article class="note-item" style="margin-bottom:20px;">
+        <p style="margin:0;">Keine Stellen vorhanden. Lege unten die erste Stelle an.</p>
+      </article>
+    <% } else { %>
+      <div class="jobs-grid">
+        <% jobs.forEach((job) => { %>
+          <% const facts = job.facts || {}; %>
+          <article class="job-card">
+            <div class="job-top">
+              <div>
+                <h2 class="job-title"><%= job.title %></h2>
+                <p class="job-meta">Slug: <code><%= job.slug %></code></p>
+              </div>
+            </div>
+
+            <% if (job.summary) { %>
+              <p class="job-summary"><%= job.summary %></p>
+            <% } %>
+
+            <div class="facts-row">
+              <span class="fact-chip">Datum: <%= facts.date || '-' %></span>
+              <span class="fact-chip">Gehalt: <%= facts.salary || '-' %></span>
+              <span class="fact-chip">Anstellung: <%= facts.employment || '-' %></span>
+              <span class="fact-chip">Vorerfahrung: <%= facts.experience || '-' %></span>
+              <span class="fact-chip">Frist: <%= facts.deadline || '-' %></span>
+            </div>
+
+            <div class="job-links">
+              <a class="btn btn-secondary" href="/Bewerbung/<%= job.slug %>" target="_blank" rel="noreferrer">Frontend ansehen</a>
+              <form method="post" action="/admin666/jobs/<%= job.slug %>/delete" onsubmit="return confirm('Stelle wirklich loeschen?');">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button class="btn btn-secondary" type="submit">Loeschen</button>
+              </form>
+            </div>
+
+            <details class="job-edit">
+              <summary>Stelle bearbeiten</summary>
+              <form method="post" action="/admin666/jobs" style="margin-top:12px;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="original_slug" value="<%= job.slug %>" />
+
+                <div class="form-grid-2">
+                  <div class="full">
+                    <label for="title-<%= job.slug %>">Titel</label>
+                    <input id="title-<%= job.slug %>" name="title" type="text" maxlength="240" value="<%= job.title %>" required />
+                  </div>
+
+                  <div>
+                    <label for="slug-<%= job.slug %>">Slug</label>
+                    <input id="slug-<%= job.slug %>" name="slug" type="text" maxlength="80" value="<%= job.slug %>" />
+                  </div>
+
+                  <div>
+                    <label for="date-<%= job.slug %>">Datum</label>
+                    <input id="date-<%= job.slug %>" name="date" type="text" maxlength="80" value="<%= facts.date || '' %>" />
+                  </div>
+
+                  <div>
+                    <label for="salary-<%= job.slug %>">Gehalt</label>
+                    <input id="salary-<%= job.slug %>" name="salary" type="text" maxlength="80" value="<%= facts.salary || '' %>" />
+                  </div>
+
+                  <div>
+                    <label for="employment-<%= job.slug %>">Anstellung</label>
+                    <input id="employment-<%= job.slug %>" name="employment" type="text" maxlength="80" value="<%= facts.employment || '' %>" />
+                  </div>
+
+                  <div>
+                    <label for="experience-<%= job.slug %>">Vorerfahrung</label>
+                    <input id="experience-<%= job.slug %>" name="experience" type="text" maxlength="80" value="<%= facts.experience || '' %>" />
+                  </div>
+
+                  <div class="full">
+                    <label for="deadline-<%= job.slug %>">Bewerbungsfrist</label>
+                    <input id="deadline-<%= job.slug %>" name="deadline" type="text" maxlength="80" value="<%= facts.deadline || '' %>" />
+                  </div>
+
+                  <div class="full">
+                    <label for="summary-<%= job.slug %>">Kurzbeschreibung</label>
+                    <textarea id="summary-<%= job.slug %>" name="summary" rows="2" maxlength="600"><%= job.summary || '' %></textarea>
+                  </div>
+
+                  <div class="full">
+                    <label for="tasks-<%= job.slug %>">Aufgaben (eine Zeile = ein Punkt)</label>
+                    <textarea id="tasks-<%= job.slug %>" name="tasks" rows="4"><%= (job.tasks || []).join('\n') %></textarea>
+                  </div>
+
+                  <div class="full">
+                    <label for="profile-<%= job.slug %>">Profil (eine Zeile = ein Punkt)</label>
+                    <textarea id="profile-<%= job.slug %>" name="profile" rows="4"><%= (job.profile || []).join('\n') %></textarea>
+                  </div>
+
+                  <div class="full">
+                    <label for="offer-<%= job.slug %>">Angebot (eine Zeile = ein Punkt)</label>
+                    <textarea id="offer-<%= job.slug %>" name="offer" rows="4"><%= (job.offer || []).join('\n') %></textarea>
+                  </div>
+                </div>
+
+                <div style="margin-top:10px;">
+                  <button class="btn btn-primary" type="submit">Aenderungen speichern</button>
+                </div>
+              </form>
+            </details>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <article id="new-job-form" class="note-item" style="max-width:980px;">
+      <h2 style="margin-top:0;">Neue Stelle anlegen</h2>
+      <form method="post" action="/admin666/jobs">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+        <div class="form-grid-2">
+          <div class="full">
+            <label for="new-title">Titel</label>
+            <input id="new-title" name="title" type="text" maxlength="240" required />
+          </div>
+
+          <div class="full">
+            <label for="new-slug">Slug (optional)</label>
+            <input id="new-slug" name="slug" type="text" maxlength="80" placeholder="z. B. junior-content-marketing" />
+          </div>
+
+          <div class="full">
+            <label for="new-summary">Kurzbeschreibung</label>
+            <textarea id="new-summary" name="summary" rows="2" maxlength="600"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="new-tasks">Aufgaben (eine Zeile = ein Punkt)</label>
+            <textarea id="new-tasks" name="tasks" rows="4"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="new-profile">Profil (eine Zeile = ein Punkt)</label>
+            <textarea id="new-profile" name="profile" rows="4"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="new-offer">Angebot (eine Zeile = ein Punkt)</label>
+            <textarea id="new-offer" name="offer" rows="4"></textarea>
+          </div>
+
+          <div>
+            <label for="new-date">Datum</label>
+            <input id="new-date" name="date" type="text" maxlength="80" />
+          </div>
+
+          <div>
+            <label for="new-salary">Gehalt</label>
+            <input id="new-salary" name="salary" type="text" maxlength="80" />
+          </div>
+
+          <div>
+            <label for="new-employment">Anstellung</label>
+            <input id="new-employment" name="employment" type="text" maxlength="80" />
+          </div>
+
+          <div>
+            <label for="new-experience">Vorerfahrung</label>
+            <input id="new-experience" name="experience" type="text" maxlength="80" />
+          </div>
+
+          <div class="full">
+            <label for="new-deadline">Bewerbungsfrist</label>
+            <input id="new-deadline" name="deadline" type="text" maxlength="80" />
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button class="btn btn-primary" type="submit">Neue Stelle speichern</button>
+        </div>
+      </form>
+    </article>
+  </section>
+</main>
+</body>
+</html>

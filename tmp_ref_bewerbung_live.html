@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Headline Agentur | Karriere</title>
+
+    <link rel="icon" type="image/png" href="assets/img/majorfav/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="assets/img/majorfav/favicon.svg" />
+    <link rel="shortcut icon" href="assets/img/majorfav/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/majorfav/apple-touch-icon.png" />
+    <link rel="manifest" href="assets/img/majorfav/site.webmanifest" />
+
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet" href="assets/css/magnific-popup.css">
+    <link rel="stylesheet" href="assets/css/meanmenu.css">
+    <link rel="stylesheet" href="assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="assets/css/nice-select.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="assets/css/services.css">
+	
+	<style>
+	.header-1 .header-logo {
+  display: inherit;
+}
+
+.majorservice_card {
+  border: 2px dotted #004F44;
+  border-radius: 30px;
+  padding: 30px 28px 28px;
+}
+
+.majorservice_wrapper {
+  max-width: 100%;
+}
+
+.majorservice_title {
+  font-size: 1.7rem;
+  font-weight: 550;
+}
+
+.header-main .main-menu ul li a {
+  font-size: 18px;
+  font-weight: 400;
+  text-transform: none;
+}
+
+.header-main .main-menu ul li.active a {
+  color:var(--theme);
+  font-weight:650;
+}
+
+.breadcrumb-wrapper .page-heading h1 {
+  text-transform: none;
+  font-weight: 550;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-transform: none;
+}
+
+.theme-btn {
+  font-weight: 400;
+  text-transform:none;
+
+}
+
+	.header-logo {
+    width: 350px;
+}
+
+.footer-logo {
+    width: 280px;
+}
+  
+@media (max-width: 1024px) {
+  .header-logo {
+    width: 230px;
+  }
+
+  .footer-logo {
+    width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-logo {
+    width: 210px;
+  }
+
+  .footer-logo {
+    width: 200px;
+  }
+}
+
+.codex-hero-3 .codex-hero-content h1 {
+  font-size: 50px;
+  text-transform: none;
+  font-weight: 550;
+}
+</style>
+
+  <style>
+.majorjob_container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0px;
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  background: none;
+  border-radius: 0px;
+  border: none;
+  box-sizing: border-box;
+}
+
+.contact-wrapper .codex-contact-items .contact-form-box .form-clt input, .contact-wrapper .codex-contact-items .contact-form-box .form-clt textarea, .contact-wrapper .codex-contact-items .contact-form-box .form-clt select {
+  text-transform: none;
+}
+
+.majorjob_list {
+  list-style: decimal;
+}
+
+    .majorjob_header {
+      border-left: 6px solid #004F44;
+      padding-left: 16px;
+      margin-bottom: 22px;
+    }
+
+    .majorjob_title {
+      margin: 0;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: #004F44;
+    }
+
+    .majorjob_intro {
+      font-size: 0.96rem;
+      margin-top: 6px;
+      color: #1a1a1a;
+    }
+
+    .majorjob_tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0;
+    }
+
+    .majorjob_tag {
+      font-size: 0.82rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid #004F44;
+      color: #004F44;
+      background: #ffffff;
+    }
+
+    .majorjob_section-title {
+      font-size: 1.1rem;
+      margin: 18px 0 8px 0;
+      color: #004F44;
+      font-weight: 600;
+    }
+
+    .majorjob_text {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0 0 10px 0;
+      color: #222;
+    }
+
+    .majorjob_list {
+      padding-left: 20px;
+      margin-bottom: 14px;
+    }
+
+    .majorjob_list li {
+      margin-bottom: 6px;
+      font-size: 0.94rem;
+    }
+
+    .majorjob_button {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: #004F44;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid #004F44;
+      text-decoration: none;
+      transition: 0.15s ease;
+    }
+
+    .majorjob_button:hover {
+      background: #0A6657;
+      box-shadow: 0 6px 16px rgba(0, 79, 68, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .majorjob_hint {
+      font-size: 0.85rem;
+      margin-top: 10px;
+      color: #444;
+    }
+	
+	.offcanvas__logo a img {
+  width: 250px;
+}
+
+.codex-footer-wrapper .codex-footer-widget-items .codex-footer-content .codex-footer-btn .footer-btn {
+  font-weight: 400;
+}
+  </style>
+</head>
+
+<body>
+
+
+    <button id="back-top" class="back-to-top show">
+        <i class="fa-regular fa-arrow-up"></i>
+    </button>
+	
+        <div class="fix-area">
+            <div class="offcanvas__info">
+                <div class="offcanvas__wrapper">
+                    <div class="offcanvas__content">
+                        <div class="offcanvas__top mb-5 d-flex justify-content-between align-items-center">
+                            <div class="offcanvas__logo">
+                                <a href="index.php">
+                                        <img src="assets/img/major_dark.png" class="header-logo" alt="logo-img">
+                                    </a>
+                            </div>
+                            <div class="offcanvas__close">
+                                <button>
+                                    <i class="fas fa-times"></i>
+                                    </button>
+                            </div>
+                        </div>
+                        <h3 class="offcanvas-title">Willkommen!</h3>
+                        <p>Wir sind Ihr verlässlicher Ansprechpartner in allen Bereichen rund um Digitalisierung.</p>
+                        <div class="mobile-menu fix mt-3"></div>
+                      
+
+                        <div class="offcanvas__contact">
+                            <h3>Kontaktdaten</h3>
+                            <ul class="contact-list">
+                                <li>
+                                    <span>
+                                            Anschrift:
+                                        </span> Sch&ouml;nebecker Str. 33
+, 42283 Wuppertal                                </li>
+                                <li>
+                                    <span>
+                                            Kundendienst:
+                                        </span>
+                                    <a href="/cdn-cgi/l/email-protection#95fcfbf3fad5f8f4fffae7b8f4f2f0fbe1e0e7bbf1f0"><span class="__cf_email__" data-cfemail="e38a8d858ca38e82898c91ce8284868d979691cd8786">[email&#160;protected]</span></a>
+                                </li>
+                                <li>
+                                    <span>
+                                            Öffnungszeiten:
+                                        </span>
+                                    <a href="#">Mo - fr: 8:00 bis 17:00 Uhr</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="Bewerbung" class="theme-btn">
+                            Jetzt bewerben
+                            <i class="fa-solid fa-arrow-up-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas__overlay"></div>  
+		
+  <header id="header-sticky" class="header-1 header-3">
+            <div class="container-fluid">
+                <div class="mega-menu-wrapper">
+                    <div class="header-main">
+                        <div class="logo">
+                            <a href="index.php" class="header-logo3">
+                                <img src="assets/img/major_dark.png" class="header-logo" alt="Headline Agentur">
+                            </a>
+                      
+                        </div>
+                        <div class="header-right-items">
+                             <div class="mean__menu-wrapper">
+                            <div class="main-menu">
+                                <nav id="mobile-menu">
+                                    <ul>
+                                        <li class="">
+                                            <a href="index.php">Startseite</a>
+                                        </li>
+										
+										<li class="">
+                                            <a href="Unternehmen">Unternehmen</a>
+                                        </li>
+										
+										<li class="">
+                                            <a href="Fachgebiete">Fachgebiete</a>
+                                        </li>
+										
+										<li class="active">
+                                            <a href="Bewerbung">Karriere & Stellen</a>
+                                        </li>
+										
+										<li class="">
+                                            <a href="Kontakt">Kontakt / Kundendienst</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="header-right d-flex justify-content-end align-items-center">
+                            
+                            <a href="Bewerbung" class="theme-btn">
+                               Jetzt bewerben
+                                <i class="fa-solid fa-arrow-up-right"></i>
+                            </a>
+                            <div class="header__hamburger d-xl-none my-auto">
+                                <div class="sidebar__toggle">
+                                    <i class="fas fa-bars"></i>
+                                </div>
+                            </div>
+                        </div>
+                        </div>  
+                       
+                    </div>
+                </div>
+            </div>
+        </header>   
+
+        <div class="breadcrumb-wrapper bg-cover" style="background-image: url('assets/img/inner/breadcrumb2.png');">
+            <div class="container">
+                <div class="page-heading">
+                    <div class="breadcrumb-sub-title">
+                        <h1 class="wow fadeInUp" data-wow-delay=".3s">Karriere</h1>
+                    </div>
+                    <ul class="breadcrumb-items wow fadeInUp" data-wow-delay=".5s">
+                        <li>
+                            <a href="index.php">
+                                Headline Agentur                            </a>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </li>
+                        <li>
+                           Karriere                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <section class="codex-news-details-section section-padding">
+            <div class="container">
+                
+                <div class="codex-news-details-wrapper">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="codex-left-content">
+							    <h3>Mitarbeiter*in (m/w/d) digitale Daten- und App Tests (m/w/d) – Remote / Homeoffice</h3>
+                                <p class="wow fadeInUp">
+									<div class="majorjob_container">  <h2 class="majorjob_section-title">Ihre Aufgaben</h2>  <ul class="majorjob_list">    <li>Sie prüfen Anwendungen Schritt für Schritt und bewerten, ob Funktionen wie vorgesehen genutzt werden können.</li>    <li>Sie testen verschiedene Geräte, Bildschirmgrößen und Systeme, um Unterschiede frühzeitig sichtbar zu machen.</li>    <li>Sie halten Auffälligkeiten schriftlich fest und schildern diese so, dass Entwicklung und Beratung sie leicht nachvollziehen können.</li>    <li>Sie vergleichen neue Versionen mit früheren Ständen und kontrollieren, ob gemeldete Punkte behoben wurden.</li>    <li>Sie orientieren sich an Testanleitungen, bringen aber auch eigene Beobachtungen ein, wenn Ihnen Besonderheiten auffallen.</li>    <li>Sie unterstützen das Team mit Rückmeldungen zur Bedienbarkeit, Navigation und Verständlichkeit einzelner Elemente.</li>  </ul>  <h2 class="majorjob_section-title">Ihr Profil</h2>  <ul class="majorjob_list">    <li>Sie arbeiten konzentriert, strukturiert und können auch bei wiederholten Abläufen sorgfältig bleiben.</li>    <li>Sie formulieren Ihre Beobachtungen klar, sachlich und nachvollziehbar.</li>    <li>Sie bringen Zuverlässigkeit im Homeoffice sowie eine stabile technische Grundausstattung mit.</li>    <li>Sie kommunizieren offen und fragen nach, wenn Informationen fehlen oder Abläufe unklar erscheinen.</li>    <li>Sie verfügen über gute Deutschkenntnisse in Wort und Schrift.</li>  </ul>  <h2 class="majorjob_section-title">Was wir Ihnen anbieten</h2>  <ul class="majorjob_list">    <li>Sie arbeiten vollständig remote, können Ihren Arbeitstag flexibel strukturieren und erhalten klare Ansprechpartner.</li>    <li>Sie bekommen eine Einführung in unsere internen Abläufe, Testmethoden und Kommunikationswege.</li>    <li>Sie erhalten Zugang zu Mitarbeiterbereichen, Testanleitungen, Beispielen und Materialien, die Sie Schritt für Schritt begleiten.</li>    <li>Sie arbeiten in einem Team, das Wert auf transparente Abläufe und respektvolle Zusammenarbeit legt.</li>  </ul></div>                                </p>
+								
+							
+								
+								
+                                <div class="row codex-tag-share-wrap mb-5 wow fadeInUp" data-wow-delay=".8s">
+                                       
+                                       
+                                    
+                                  <div class="comment-form-wrap pt-0">
+                                    <h2>Auf diese Stelle bewerben!</h2>
+                                    <p>Werden Sie jetzt ein Teil unseres aufstrebenden Unternehmens und bewerben Sie sich als <b>"Mitarbeiter*in (m/w/d) digitale Daten- und App Tests (m/w/d) – Remote / Homeoffice"</b>.</p>
+                                    <form action="" method="POST">
+                                        <div class="row g-4">
+										
+										
+										
+											
+											<!-- start form -->
+            <div class="col-md-6 mb-0">
+              <div class="form-clt">
+                <input name="name" required class="" placeholder="Vor- und Nachname" type="text">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-0">
+              <div class="form-clt">
+                <input name="email" required class="" placeholder="E-Mail Adresse" type="email">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-0" style="">
+              <div class="form-clt">
+                <input name="password1" required class="" placeholder="Passwort auswählen" type="password">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-0" style="">
+              <div class="form-clt">
+                <input name="password2" required class="" placeholder="Passwort wiederholen" type="password">
+              </div>
+            </div>
+
+            <div class="col-md-12 col-12 mb-0" style="">
+              <div class="form-clt">
+                <input type="text" placeholder="Anschrift" class="" name="address" required>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-4 mb-0" style="">
+              <div class="form-clt">
+                <input type="text" placeholder="Postleitzahl" class="" name="zip" required>
+              </div>
+            </div>
+
+            <div class="col-md-8 col-8 mb-0" style="">
+              <div class="form-clt">
+                <input type="text" placeholder="Stadt / Ort" class="" name="city" required>
+              </div>
+            </div>
+
+            <div class="col-md-12 col-12 mb-0" style="">
+              <div class="form-clt">
+                <input type="text" placeholder="Staatsangehörigkeit" class="" name="country" required>
+              </div>
+            </div>
+
+            <div class="col-md-12 col-12 mb-0" style="">
+              <div class="form-clt">
+                <input type="text" placeholder="Mobilnummer" class="" name="mobile" required>
+              </div>
+            </div>
+
+            <div class="col-md-12 col-12 mb-0" style="">
+              <div class="form-clt">
+                <label for="qualidob" class="mb-2">Geburtsdatum</label>
+                <input id="qualidob" type="date" placeholder="Geburtsdatum" name="dob" class="" required>
+              </div>
+            </div>
+			
+			<input type="hidden" name="do_register" value="1">
+            <!-- end form -->
+			
+			<div class="col-lg-12">
+                                                <button type="submit" name="register_now" class="theme-btn ">
+                                                    Diese Bewerbung jetzt übermitteln <i class="fa-solid fa-arrow-right"></i>
+                                                </button>
+                                            </div>
+											
+                                        </div>
+                                    </form>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-12">
+                           <div class="main-sideber sticky-style">
+                                 
+                                <div class="single-sideber-widget wow fadeInUp" data-wow-delay=".4s">
+                                    <div class="widget-title">
+                                        <h3>Allgemeine Fakten</h3>
+                                    </div>
+                                    <ul class="category-list">
+                                        <li><a href="#"><b>Datum:</b></a><span>18.11.2025</span></li>
+										<li><a href="#"><b>Gehalt:</b></a><span>603€ p.M.</span></li>
+										<li><a href="#"><b>Anstellung:</b></a><span>Minijob</span></li>
+										<li><a href="#"><b>Vorerfahrung:</b></a><span>keine nötig</span></li>
+										<li><a href="#"><b>Bewerbunsfrist:</b></a><span>01.04.2026</span></li>
+                                     
+                                    </ul>
+                                </div>
+								
+							
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+		
+		
+
+
+
+      
+          <footer class="codex-footer-section mt-0 fix footer-bg bg-cover" style="background-image: url('assets/img/home-3/footer-bg.jpg');">
+            <div class="container">
+                <div class="codex-footer-wrapper style-new-3">
+                    <div class="row justify-content-between">
+                        <div class="col-xl-3 col-lg-4  col-md-8 wow fadeInUp" data-wow-delay=".2s">
+                            <div class="codex-footer-widget-items">
+                                <div class="codex-widget-head">
+                                    <a href="index.php" class="footer-logo">
+                                        <img src="assets/img/major_light.png" class="footer-logo" alt="img">
+                                    </a>
+                                </div>
+                                <div class="codex-footer-content">
+                                    <p class="text-white">
+                                        Wir koordinieren Umsetzungen mit spezialisierten Fachleuten und behalten alle Fäden für Sie zusammen. Digitale Prozesse richten wir so ein, dass sie im Alltag Ihrer Mitarbeitenden wirklich funktionieren.
+                                    </p>
+                                    <div class="codex-footer-btn">
+                                        <a href="Bewerbung" class="footer-btn">
+                                        <i class="fa-solid fa-envelope"></i> Bewerbung
+                                        </a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-4 col-md-4 ps-lg-5 wow fadeInUp" data-wow-delay=".4s">
+                            <div class="codex-footer-widget-items ml-40">
+                                <div class="codex-widget-head">
+                                    <h3>Menü</h3>
+                                </div>
+                                <ul class="list-items">
+                                    <li>
+                                        <a href="index.php">Startseite</a>
+                                    </li>
+									<li>
+                                        <a href="Unternehmen">Unternehmen</a>
+                                    </li>
+									<li>
+                                        <a href="Fachgebiete">Fachgebiete</a>
+                                    </li>
+									<li>
+                                        <a href="Bewerbung">Karriere</a>
+                                    </li>
+                                  
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-4 col-md-6 ps-lg-5 wow fadeInUp" data-wow-delay=".6s">
+                            <div class="codex-footer-widget-items">
+                                <div class="codex-widget-head">
+                                    <h3>Sonstiges</h3>
+                                </div>
+                                <ul class="list-items">
+                                    <li>
+                                        <a href="Bewerbung">Bewerbung</a>
+                                    </li>
+									<li>
+                                        <a href="Kontakt">Kontakt</a>
+                                    </li>
+									<li>
+                                        <a href="Datenschutz">Datenschutz</a>
+                                    </li>
+									<li>
+                                        <a href="Impressum">Impressum</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-4  col-md-6 wow fadeInUp" data-wow-delay=".8s">
+                            <div class="codex-footer-widget-items">
+                                <div class="codex-widget-head">
+                                    <h3>Newsletter</h3>
+                                </div>
+                                <div class="codex-footer-content">
+                                    <form action="" method="POST" class="footer-input">
+                                        <input type="email" name="newsletter_mail" required="" placeholder="Ihre E-Mail Adresse...">
+                                        <button class="theme-btn" name="newsletter_add" type="submit">
+                                            Anmelden
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="codex-footer-bottom style-3">
+                <div class="container">
+                    <div class="codex-footer-bottom-wrapper">
+                        <p class="wow fadeInUp" data-wow-delay=".3s">Copyright &copy; 2026 by Headline Agentur</p>
+                        <div class="social-icon wow fadeInUp" data-wow-delay=".5s" style="color:#fff;">
+                            Alle Rechte vorbehalten
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="assets/js/jquery-3.7.1.min.js"></script>
+        <script src="assets/js/viewport.jquery.js"></script>
+        <script src="assets/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/js/jquery.nice-select.min.js"></script>
+        <script src="assets/js/jquery.waypoints.js"></script>
+        <script src="assets/js/jquery.counterup.min.js"></script>
+        <script src="assets/js/swiper-bundle.min.js"></script>
+        <script src="assets/js/jquery.meanmenu.min.js"></script>
+        <script src="assets/js/parallaxie.js"></script>
+        <script src="assets/js/jquery.magnific-popup.min.js"></script>
+        <script src="assets/js/wow.min.js"></script>
+        <script src="assets/js/main.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+				<script>
+    $(document).ready(function() {
+        let successMessage = "";
+        if (successMessage) {
+            Swal.fire({
+                title: "Erfolg!",
+                text: successMessage,
+                icon: "success",
+                confirmButtonText: "OK"
+            });
+        }
+    });
+</script>
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"c9842d52439849308eae74a9b098b677","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

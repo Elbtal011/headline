@@ -1,0 +1,91 @@
+<%- include('../partials/head', { title: 'Lead Detail | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item <%= section === 'application' ? 'active' : '' %>" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item <%= section === 'contact' ? 'active' : '' %>" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item <%= section === 'users' ? 'active' : '' %>" href="/admin666/users">Users</a>
+        <a class="admin-nav-item" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top">
+      <div>
+        <a class="admin-backlink" href="<%= backPath || '/admin666/leads' %>">Back to list</a>
+        <h1><%= lead.full_name %></h1>
+      </div>
+    </div>
+
+    <div class="admin-detail-grid">
+      <article class="note-item admin-summary">
+        <p><strong>Typ:</strong> <%= lead.type %></p>
+        <p><strong>E-Mail:</strong> <%= lead.email %></p>
+        <p><strong>Telefon:</strong> <%= lead.phone || '-' %></p>
+        <p><strong>Geburtsdatum:</strong> <%= birthDateDisplay %></p>
+        <p><strong>Quelle:</strong> <%= lead.source_page %></p>
+        <p><strong>Nachricht:</strong> <%= lead.message || '-' %></p>
+        <h3>Form Daten</h3>
+        <% if (orderedFormEntries && orderedFormEntries.length > 0) { %>
+          <div class="payload-list">
+            <% orderedFormEntries.forEach(([key, value]) => { %>
+              <p><strong><%= key %>:</strong> <%= value || '-' %></p>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p>-</p>
+        <% } %>
+      </article>
+
+      <article class="note-item">
+        <form class="form-inline" method="post" action="/admin666/leads/<%= lead.id %>/status">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <label>Status</label>
+          <select name="status">
+            <option value="new" <%= lead.status === 'new' ? 'selected' : '' %>>new</option>
+            <option value="contacted" <%= lead.status === 'contacted' ? 'selected' : '' %>>contacted</option>
+            <option value="in_review" <%= lead.status === 'in_review' ? 'selected' : '' %>>in_review</option>
+            <option value="closed" <%= lead.status === 'closed' ? 'selected' : '' %>>closed</option>
+          </select>
+          <label>Verification Level</label>
+          <select name="verification_level">
+            <option value="1" <%= Number(lead.verification_level || 1) === 1 ? 'selected' : '' %>>1</option>
+            <option value="2" <%= Number(lead.verification_level || 1) === 2 ? 'selected' : '' %>>2</option>
+            <option value="3" <%= Number(lead.verification_level || 1) === 3 ? 'selected' : '' %>>3</option>
+          </select>
+          <button class="btn btn-primary" type="submit">Status speichern</button>
+        </form>
+
+        <h2>Notizen</h2>
+        <form method="post" action="/admin666/leads/<%= lead.id %>/notes">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <textarea name="note" rows="4" required></textarea>
+          <button class="btn btn-secondary" type="submit">Notiz hinzufuegen</button>
+        </form>
+      </article>
+    </div>
+
+    <div class="notes">
+      <% notes.forEach((n) => { %>
+        <article class="note-item">
+          <p><%= n.note %></p>
+          <small><%= n.created_by %> - <%= new Date(n.created_at).toLocaleString('de-DE') %></small>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+</main>
+</body>
+</html>
+

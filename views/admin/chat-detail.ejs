@@ -1,0 +1,170 @@
+<%- include('../partials/head', { title: 'Chat Detail | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item active" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item" href="/admin666/users">Users</a>
+        <a class="admin-nav-item" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top">
+      <div>
+        <a class="admin-backlink" href="/admin666/chats">Back to chats</a>
+        <h1><%= chat.visitor_name || 'Besucher Chat' %></h1>
+      </div>
+    </div>
+
+    <div class="admin-detail-grid">
+      <article class="note-item admin-summary">
+        <p><strong>E-Mail:</strong> <%= chat.visitor_email || '-' %></p>
+        <p><strong>Telefon:</strong> <%= chat.visitor_phone || '-' %></p>
+        <p><strong>Quelle:</strong> <%= chat.source_page || '-' %></p>
+        <p><strong>Status:</strong> <span id="chat-status-value"><%= chat.status %></span></p>
+        <p><strong>Erstellt:</strong> <%= new Date(chat.created_at).toLocaleString('de-DE') %></p>
+
+        <form class="form-inline" method="post" action="/admin666/chats/<%= chat.id %>/status">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <label>Status</label>
+          <select name="status">
+            <option value="open" <%= chat.status === 'open' ? 'selected' : '' %>>open</option>
+            <option value="pending" <%= chat.status === 'pending' ? 'selected' : '' %>>pending</option>
+            <option value="closed" <%= chat.status === 'closed' ? 'selected' : '' %>>closed</option>
+          </select>
+          <button class="btn btn-primary" type="submit">Status speichern</button>
+        </form>
+      </article>
+
+      <article class="note-item">
+        <h2>Antwort an Besucher</h2>
+        <form class="chat-admin-compose" method="post" action="/admin666/chats/<%= chat.id %>/messages" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <textarea name="message" rows="4" placeholder="Nachricht an Besucher schreiben..."></textarea>
+          <input type="file" name="files" multiple />
+          <button class="btn btn-primary" type="submit">Antwort senden</button>
+        </form>
+      </article>
+    </div>
+
+    <div id="chat-thread-admin" class="chat-thread-admin">
+      <% messages.forEach((m) => { %>
+        <article class="chat-msg-item <%= m.sender_type === 'admin' ? 'from-admin' : 'from-visitor' %>">
+          <p><strong><%= m.sender_type === 'admin' ? 'Admin' : 'Besucher' %>:</strong> <%= m.message || '-' %></p>
+          <% if (m.attachments && m.attachments.length > 0) { %>
+            <div class="chat-files">
+              <% m.attachments.forEach((file) => { %>
+                <a class="admin-link" href="<%= file.file_url %>" target="_blank" rel="noopener noreferrer"><%= file.original_name %> (<%= Math.ceil(file.size_bytes / 1024) %> KB)</a>
+              <% }) %>
+            </div>
+          <% } %>
+          <small><%= new Date(m.created_at).toLocaleString('de-DE') %></small>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+</main>
+<script>
+  (function initAdminChatPolling() {
+    const chatId = '<%= chat.id %>';
+    const threadEl = document.getElementById('chat-thread-admin');
+    const statusEl = document.getElementById('chat-status-value');
+    if (!chatId || !threadEl) return;
+
+    let pollTimer = null;
+    let isFetching = false;
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderMessages(messages) {
+      threadEl.innerHTML = '';
+      messages.forEach((m) => {
+        const article = document.createElement('article');
+        article.className = `chat-msg-item ${m.sender_type === 'admin' ? 'from-admin' : 'from-visitor'}`;
+
+        const msg = document.createElement('p');
+        const sender = m.sender_type === 'admin' ? 'Admin' : 'Besucher';
+        msg.innerHTML = `<strong>${sender}:</strong> ${escapeHtml(m.message || '-')}`;
+        article.appendChild(msg);
+
+        if (Array.isArray(m.attachments) && m.attachments.length > 0) {
+          const files = document.createElement('div');
+          files.className = 'chat-files';
+          m.attachments.forEach((file) => {
+            const link = document.createElement('a');
+            link.className = 'admin-link';
+            link.href = file.file_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            const kb = Math.ceil((file.size_bytes || 0) / 1024);
+            link.textContent = `${file.original_name} (${kb} KB)`;
+            files.appendChild(link);
+          });
+          article.appendChild(files);
+        }
+
+        const time = document.createElement('small');
+        time.textContent = new Date(m.created_at).toLocaleString('de-DE');
+        article.appendChild(time);
+        threadEl.appendChild(article);
+      });
+
+      threadEl.scrollTop = threadEl.scrollHeight;
+    }
+
+    async function fetchAndRender() {
+      if (isFetching) return;
+      isFetching = true;
+      try {
+        const res = await fetch(`/api/admin/chats/${encodeURIComponent(chatId)}`, { method: 'GET' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (statusEl && data.chat && data.chat.status) {
+          statusEl.textContent = data.chat.status;
+        }
+        renderMessages(data.messages || []);
+      } catch (_err) {
+        // silent retry on next tick
+      } finally {
+        isFetching = false;
+      }
+    }
+
+    function startPolling() {
+      if (pollTimer) clearTimeout(pollTimer);
+      const interval = document.hidden ? 15000 : 8000;
+      pollTimer = setTimeout(async () => {
+        await fetchAndRender();
+        startPolling();
+      }, interval);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      startPolling();
+    });
+
+    startPolling();
+  })();
+</script>
+</body>
+</html>
+

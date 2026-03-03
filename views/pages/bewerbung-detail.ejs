@@ -1,0 +1,115 @@
+<%- include('../partials/site-head', { title: `Headline Agentur | ${pageData.job.title}` }) %>
+<%- include('../partials/site-header') %>
+
+<section class="breadcrumb-wrapper">
+  <div class="container">
+    <div class="page-heading">
+      <h1>Karriere</h1>
+      <p>Headline Agentur Karriere & Stellen</p>
+    </div>
+  </div>
+</section>
+
+<section class="contact-wrapper section-padding pt-5">
+  <div class="container">
+    <% const job = pageData.job || {}; %>
+    <% const jobFacts = job.facts || {}; %>
+    <% if (query.ok) { %>
+      <div class="form-success">Vielen Dank. Ihre Bewerbung wurde erfolgreich uebermittelt.</div>
+    <% } %>
+
+    <div class="row g-4">
+      <div class="col-xl-8 col-lg-7">
+        <div class="codex-contact-items">
+          <div style="margin-bottom:32px;">
+            <h3 style="margin-bottom:20px;"><%= job.title %></h3>
+            <% if (job.summary) { %>
+              <p style="margin-bottom:20px;"><%= job.summary %></p>
+            <% } %>
+
+            <% if (job.tasks && job.tasks.length) { %>
+              <h4 style="margin-bottom:12px;">Ihre Aufgaben</h4>
+              <ul style="list-style:disc; padding-left:22px; margin-bottom:20px; line-height:1.8;">
+                <% job.tasks.forEach((entry) => { %>
+                  <li><%= entry %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+
+            <% if (job.profile && job.profile.length) { %>
+              <h4 style="margin-bottom:12px;">Ihr Profil</h4>
+              <ul style="list-style:disc; padding-left:22px; margin-bottom:20px; line-height:1.8;">
+                <% job.profile.forEach((entry) => { %>
+                  <li><%= entry %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+
+            <% if (job.offer && job.offer.length) { %>
+              <h4 style="margin-bottom:12px;">Unser Angebot</h4>
+              <ul style="list-style:disc; padding-left:22px; margin-bottom:0; line-height:1.8;">
+                <% job.offer.forEach((entry) => { %>
+                  <li><%= entry %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+
+          <div class="contact-form-box">
+            <h2 style="font-size:56px; line-height:1.08; margin-bottom:20px;">Auf diese Stelle bewerben!</h2>
+            <p style="margin-bottom:28px;">Bewerben Sie sich jetzt fuer <strong>"<%= job.title %>"</strong>.</p>
+
+            <form method="post" action="/api/leads/application">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="source_page" value="/Bewerbung/<%= job.slug %>" />
+              <input type="hidden" name="job_title" value="<%= job.title %>" />
+              <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" />
+
+              <div class="row g-3">
+                <div class="col-md-6"><div class="form-clt"><input name="name" required placeholder="Vor- und Nachname" type="text" /></div></div>
+                <div class="col-md-6"><div class="form-clt"><input name="email" required placeholder="E-Mail Adresse" type="email" /></div></div>
+
+                <div class="col-md-6"><div class="form-clt"><input name="password1" required placeholder="Passwort auswaehlen" type="password" /></div></div>
+                <div class="col-md-6"><div class="form-clt"><input name="password2" required placeholder="Passwort wiederholen" type="password" /></div></div>
+
+                <div class="col-12"><div class="form-clt"><input name="address" required placeholder="Anschrift" type="text" /></div></div>
+
+                <div class="col-md-4"><div class="form-clt"><input name="zip" required placeholder="Postleitzahl" type="text" /></div></div>
+                <div class="col-md-8"><div class="form-clt"><input name="city" required placeholder="Stadt / Ort" type="text" /></div></div>
+
+                <div class="col-12"><div class="form-clt"><input name="country" required placeholder="Staatsangehoerigkeit" type="text" /></div></div>
+                <div class="col-12"><div class="form-clt"><input name="mobile" required placeholder="Mobilnummer" type="text" /></div></div>
+
+                <div class="col-12">
+                  <div class="form-clt">
+                    <label for="qualidob" class="mb-2">Geburtsdatum</label>
+                    <input id="qualidob" type="date" name="dob" required />
+                  </div>
+                </div>
+
+                <div class="col-12" style="margin-top:18px;">
+                  <button class="theme-btn" type="submit">Diese Bewerbung jetzt uebermitteln <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-lg-5">
+        <div class="codex-contact-items" style="padding:0 28px 28px;">
+          <h3 style="font-size:28px; line-height:1.25; margin:0 0 18px;">Allgemeine Fakten</h3>
+          <div style="display:grid; gap:14px;">
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Datum:</strong><span><%= jobFacts.date || '-' %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Gehalt:</strong><span><%= jobFacts.salary || '-' %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Anstellung:</strong><span><%= jobFacts.employment || '-' %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Vorerfahrung:</strong><span><%= jobFacts.experience || '-' %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Bewerbungsfrist:</strong><span><%= jobFacts.deadline || '-' %></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/site-footer') %>

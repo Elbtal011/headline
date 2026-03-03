@@ -1,0 +1,98 @@
+﻿<%- include('../partials/site-head', { title: 'Headline Agentur | Kontakt' }) %>
+<%- include('../partials/site-header') %>
+
+<section class="breadcrumb-wrapper">
+  <div class="container">
+    <div class="page-heading">
+      <h1>Kontakt</h1>
+      <p>Headline Agentur Kontakt</p>
+    </div>
+  </div>
+</section>
+
+<section class="codex-category-section fix section-padding" style="padding-top:45px; padding-bottom:30px;">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".2s">
+        <div class="codex-category-box-items-3 style-2">
+          <div class="codex-content">
+            <h4>Anschrift</h4>
+            <p>Hopfenmarkt 33, 20457 Hamburg, Deutschland</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".3s">
+        <div class="codex-category-box-items-3 style-2">
+          <div class="codex-content">
+            <h4>E-Mail</h4>
+            <p><a href="mailto:info@headline-agentur.com">info@headline-agentur.com</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".4s">
+        <div class="codex-category-box-items-3 style-2">
+          <div class="codex-content">
+            <h4>Telefon</h4>
+            <p><a href="tel:+491520849839">+49 1520 8498 39</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="codex-contact-section section-padding fix" style="padding-top:10px;">
+  <div class="container">
+    <div class="contact-wrapper">
+      <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9">
+          <div class="text-center">
+            <div class="section-title mb-3">
+              <h6 class="wow fadeInUp">Kontaktanfrage</h6>
+              <h2 class="wow fadeInUp" data-wow-delay=".2s">Wie können wir Ihnen weiterhelfen?</h2>
+            </div>
+            <p class="wow fadeInUp" data-wow-delay=".3s">Nachfolgend haben Sie die Möglichkeit, direkt mit der Headline GP GmbH in Kontakt zu treten. Wir freuen uns auf Ihre Nachricht.</p>
+          </div>
+
+          <% if (query.ok) { %>
+            <div class="form-success" style="margin-top:20px;">Vielen Dank. Ihre Kontaktanfrage wurde erfolgreich übermittelt.</div>
+          <% } %>
+
+          <div class="codex-contact-items">
+            <form method="post" action="/api/leads/contact" class="contact-form-box">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="source_page" value="/Kontakt" />
+              <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" />
+
+              <div class="row g-4 justify-content-center">
+                <div class="col-6 wow fadeInUp" data-wow-delay=".3s">
+                  <div class="form-clt"><input type="text" name="name" required placeholder="Vor- und Nachname" /></div>
+                </div>
+                <div class="col-6 wow fadeInUp" data-wow-delay=".3s">
+                  <div class="form-clt"><input type="email" name="email" required placeholder="E-Mail Adresse" /></div>
+                </div>
+                <div class="col-6 wow fadeInUp" data-wow-delay=".3s">
+                  <div class="form-clt"><input type="tel" name="phone" required placeholder="Telefonnummer" /></div>
+                </div>
+                <div class="col-6 wow fadeInUp" data-wow-delay=".3s">
+                  <div class="form-clt"><input type="text" name="subject" required placeholder="Betreff" /></div>
+                </div>
+                <div class="col-12 wow fadeInUp" data-wow-delay=".3s">
+                  <div class="form-clt"><textarea name="message" required cols="5" rows="5" placeholder="Wie können wir Ihnen behilflich sein?"></textarea></div>
+                </div>
+                <div class="col-12 wow fadeInUp" data-wow-delay=".6s">
+                  <div class="text-center">
+                    <button type="submit" class="theme-btn">Kontaktanfrage übermitteln <i class="fa-solid fa-arrow-right"></i></button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/site-footer') %>
+

@@ -1,0 +1,73 @@
+﻿<div class="fix-area">
+  <div class="offcanvas__info">
+    <div class="offcanvas__wrapper">
+      <div class="offcanvas__content">
+        <div class="offcanvas__top mb-5 d-flex justify-content-between align-items-center">
+          <div class="offcanvas__logo">
+            <a href="/index.php" class="brand-logo-link"><img src="/logo-headline-1.png" alt="Headline Agentur" class="brand-logo" /></a>
+          </div>
+          <div class="offcanvas__close"><button><i class="fas fa-times"></i></button></div>
+        </div>
+        <h3 class="offcanvas-title">Willkommen!</h3>
+        <p>Wir sind Ihr verlässlicher Ansprechpartner in allen Bereichen rund um Digitalisierung.</p>
+        <div class="mobile-menu fix mt-3"></div>
+        <div class="offcanvas__contact">
+          <h3>Kontaktdaten</h3>
+          <ul class="contact-list">
+            <li><span>Anschrift:</span> Schönebecker Str. 33, 42283 Wuppertal</li>
+            <li><span>Kundendienst:</span> <a href="mailto:info@vantagepointgermany.de">info@vantagepointgermany.de</a></li>
+            <li><span>Öffnungszeiten:</span> <a href="#">Mo - fr: 8:00 bis 17:00 Uhr</a></li>
+          </ul>
+        </div>
+        <% if (user) { %>
+          <a href="/konto/profil" class="theme-btn">Mein Profil <i class="fa-solid fa-arrow-right"></i></a>
+        <% } else { %>
+          <a href="/konto/login" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="offcanvas__overlay"></div>
+
+<header id="header-sticky" class="header-1 header-3">
+  <div class="container-fluid">
+    <div class="mega-menu-wrapper">
+      <div class="header-main">
+        <div class="logo">
+          <a href="/index.php" class="brand-logo-link"><img src="/logo-headline-1.png" alt="Headline Agentur" class="brand-logo" /></a>
+        </div>
+        <div class="header-right-items">
+          <div class="mean__menu-wrapper">
+            <div class="main-menu">
+              <nav id="mobile-menu">
+                <ul>
+                  <li class="<%= pageData.currentPath === '/index.php' ? 'active' : '' %>"><a href="/index.php">Startseite</a></li>
+                  <li class="<%= pageData.currentPath === '/Unternehmen' ? 'active' : '' %>"><a href="/Unternehmen">Unternehmen</a></li>
+                  <li class="<%= pageData.currentPath === '/Fachgebiete' ? 'active' : '' %>"><a href="/Fachgebiete">Fachgebiete</a></li>
+                  <li class="<%= pageData.currentPath === '/Bewerbung' ? 'active' : '' %>"><a href="/Bewerbung">Karriere & Stellen</a></li>
+                  <li class="<%= pageData.currentPath === '/Kontakt' ? 'active' : '' %>"><a href="/Kontakt">Kontakt</a></li>
+                  <li class="mobile-only-profile">
+                    <% if (user) { %>
+                      <a href="/konto/profil">Mein Profil</a>
+                    <% } else { %>
+                      <a href="/konto/login">Profil Login</a>
+                    <% } %>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+          <div class="header-right d-flex justify-content-end align-items-center">
+            <% if (user) { %>
+              <a href="/konto/profil" class="theme-btn">Mein Profil <i class="fa-solid fa-arrow-right"></i></a>
+            <% } else { %>
+              <a href="/konto/login" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
+            <% } %>
+            <div class="header__hamburger d-xl-none my-auto"><div class="sidebar__toggle"><i class="fas fa-bars"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

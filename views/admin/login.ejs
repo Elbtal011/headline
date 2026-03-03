@@ -1,0 +1,27 @@
+<%- include('../partials/head', { title: 'Admin Login | Headline Agentur' }) %>
+<main class="admin-shell">
+  <form class="admin-card" method="post" action="/admin666/login" autocomplete="on">
+    <h1 class="admin-login-title">Admin Login</h1>
+    <% if (typeof error !== 'undefined') { %>
+      <p class="alert error"><%= error %></p>
+    <% } %>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label for="admin-username">Username</label>
+    <input id="admin-username" name="username" type="text" autocomplete="username" value="<%= submittedUsername || '' %>" required />
+
+    <label for="admin-password">Passwort</label>
+    <input id="admin-password" name="password" type="password" autocomplete="current-password" required />
+
+    <label class="remember-option" for="remember-login">
+      <input id="remember-login" name="rememberLogin" type="checkbox" value="1" <%= rememberLogin ? 'checked' : '' %> />
+      <span>Passwort speichern</span>
+    </label>
+
+    <button class="btn btn-primary" type="submit">Anmelden</button>
+  </form>
+</main>
+</body>
+</html>
+
+
+

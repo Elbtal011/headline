@@ -1,0 +1,106 @@
+﻿<%- include('../partials/head', { title: 'Stellen | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item" href="/admin666/users">Users</a>
+        <a class="admin-nav-item active" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top">
+      <h1>Stellenverwaltung</h1>
+      <div class="admin-actions">
+        <a class="btn btn-primary" href="/admin666/jobs/new">Neue Stelle</a>
+      </div>
+    </div>
+
+    <% if (success) { %>
+      <div class="alert success"><%= success %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/admin666/jobs/delete-selected" onsubmit="return confirm('Ausgewaehlte Stellen wirklich loeschen?')">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <div class="admin-actions" style="margin-bottom:8px;">
+        <button class="btn btn-secondary" type="submit">Auswahl loeschen</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input id="jobs-select-all" type="checkbox" /></th>
+              <th>Titel</th>
+              <th>Slug</th>
+              <th>Anstellung</th>
+              <th>Bewerbungsfrist</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!jobs || jobs.length === 0) { %>
+              <tr>
+                <td colspan="6">Keine Stellen vorhanden.</td>
+              </tr>
+            <% } %>
+            <% (jobs || []).forEach((job) => { %>
+              <% const facts = job.facts || {}; %>
+              <tr>
+                <td><input class="jobs-select-item" type="checkbox" name="slugs" value="<%= job.slug %>" /></td>
+                <td>
+                  <strong><%= job.title %></strong>
+                  <% if (job.summary) { %>
+                    <div style="font-size:12px; color:#64748b; margin-top:4px;"><%= job.summary %></div>
+                  <% } %>
+                </td>
+                <td><code><%= job.slug %></code></td>
+                <td><%= facts.employment || '-' %></td>
+                <td><%= facts.deadline || '-' %></td>
+                <td>
+                  <div style="display:flex; gap:8px; justify-content:flex-end;">
+                    <a class="admin-link" href="/Bewerbung/<%= job.slug %>" target="_blank" rel="noreferrer">Frontend</a>
+                    <a class="admin-link" href="/admin666/jobs/<%= job.slug %>/edit">Bearbeiten</a>
+                    <form method="post" action="/admin666/jobs/<%= job.slug %>/delete" onsubmit="return confirm('Stelle wirklich loeschen?')">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button class="btn btn-secondary" type="submit" style="padding:4px 10px; min-height:auto;">Loeschen</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </section>
+</main>
+<script>
+  (function() {
+    const selectAll = document.getElementById('jobs-select-all');
+    if (!selectAll) return;
+    selectAll.addEventListener('change', function() {
+      document.querySelectorAll('.jobs-select-item').forEach((cb) => {
+        cb.checked = selectAll.checked;
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<%- include('../partials/site-head', { title: 'Headline Agentur | Login' }) %>
+<%- include('../partials/site-header') %>
+
+<section class="breadcrumb-wrapper">
+  <div class="container">
+    <div class="page-heading">
+      <h1>Login</h1>
+      <p>Konto Zugang</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container account-shell">
+    <div class="account-card" style="max-width:640px;margin:0 auto;">
+      <h3>Willkommen zurück</h3>
+      <p class="account-muted">Melden Sie sich an, um Ihr Profil und Ihre Daten zu verwalten.</p>
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+      <form method="post" action="/konto/login">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="account-form-grid">
+          <div class="account-field full">
+            <label for="login-email">E-Mail-Adresse</label>
+            <input id="login-email" name="email" type="email" required />
+          </div>
+          <div class="account-field full">
+            <label for="login-password">Passwort</label>
+            <input id="login-password" name="password" type="password" required />
+          </div>
+          <div class="account-field full">
+            <label for="login-captcha">Sicherheitsfrage: <span class="captcha-pill"><%= captchaQuestion %></span></label>
+            <input id="login-captcha" name="captcha_answer" type="text" required />
+          </div>
+          <div class="account-actions">
+            <button class="theme-btn" type="submit">Login <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </form>
+      <p class="account-links">Noch kein Konto? <a href="/konto/registrieren">Jetzt registrieren</a></p>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/site-footer') %>

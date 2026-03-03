@@ -1,0 +1,115 @@
+<footer class="codex-footer-section mt-0 fix footer-bg bg-cover" style="background: radial-gradient(circle at 20% 20%, rgba(11,78,162,0.28), transparent 35%), radial-gradient(circle at 80% 70%, rgba(30,110,161,0.2), transparent 32%), #0b1220;">
+  <div class="container">
+    <div class="codex-footer-wrapper style-new-3">
+      <div class="row justify-content-between">
+        <div class="col-xl-3 col-lg-4 col-md-8 wow fadeInUp" data-wow-delay=".2s">
+          <div class="codex-footer-widget-items">
+            <div class="codex-widget-head"><h3 style="color:#fff;">Headline Agentur</h3></div>
+            <div class="codex-footer-content">
+              <p class="text-white">Wir koordinieren Umsetzungen mit spezialisierten Fachleuten und behalten alle Fäden für Sie zusammen. Digitale Prozesse richten wir so ein, dass sie im Alltag Ihrer Mitarbeitenden wirklich funktionieren.</p>
+              <div class="codex-footer-btn"><a href="/Bewerbung" class="footer-btn"><i class="fa-solid fa-envelope"></i> Bewerbung</a></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-4 col-md-4 ps-lg-5 wow fadeInUp" data-wow-delay=".4s">
+          <div class="codex-footer-widget-items ml-40">
+            <div class="codex-widget-head"><h3>Men?</h3></div>
+            <ul class="list-items">
+              <li><a href="/index.php">Startseite</a></li>
+              <li><a href="/Unternehmen">Unternehmen</a></li>
+              <li><a href="/Fachgebiete">Fachgebiete</a></li>
+              <li><a href="/Bewerbung">Karriere</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-4 col-md-6 ps-lg-5 wow fadeInUp" data-wow-delay=".6s">
+          <div class="codex-footer-widget-items">
+            <div class="codex-widget-head"><h3>Sonstiges</h3></div>
+            <ul class="list-items">
+              <li><a href="/Bewerbung">Bewerbung</a></li>
+              <li><a href="/Kontakt">Kontakt</a></li>
+              <li><a href="/Datenschutz">Datenschutz</a></li>
+              <li><a href="/Impressum">Impressum</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".8s">
+          <div class="codex-footer-widget-items">
+            <div class="codex-widget-head"><h3>Newsletter</h3></div>
+            <div class="codex-footer-content">
+              <form action="/api/leads/newsletter" method="post" class="footer-input">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input
+                  type="hidden"
+                  name="source_page"
+                  value="<%= (pageData && pageData.currentPath) ? pageData.currentPath : '/index.php' %>"
+                />
+                <input type="text" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="display:none" />
+                <input type="email" name="newsletter_mail" placeholder="Ihre E-Mail Adresse..." />
+                <button class="theme-btn" type="submit">Anmelden</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="codex-footer-bottom style-3">
+    <div class="container">
+      <div class="codex-footer-bottom-wrapper">
+        <p class="wow fadeInUp" data-wow-delay=".3s">Copyright &copy; 2026 by Headline Agentur</p>
+        <div class="social-icon wow fadeInUp" data-wow-delay=".5s" style="color:#fff;">Alle Rechte vorbehalten</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button id="mv-chat-launcher" class="chat-launcher" type="button" aria-label="Chat öffnen">
+  <i class="fa-regular fa-comments"></i>
+</button>
+<section id="mv-chat-panel" class="chat-panel" aria-live="polite" style="display:none;flex-direction:column;">
+  <header class="chat-head">
+    <h4>Kundenservice-Chat</h4>
+    <button id="mv-chat-close" class="chat-close" type="button" aria-label="Chat schließen">&times;</button>
+  </header>
+  <div style="flex:1; min-height:420px; background:#fff;">
+    <iframe
+      id="mv-chat-iframe"
+      title="MagicVics Chat"
+      src="<%= magicvicsChatUrl %>"
+      style="width:100%;height:100%;border:0;"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allow="microphone; camera"
+    ></iframe>
+  </div>
+</section>
+
+<script>
+(function initMagicvicsEmbeddedChat(){
+  const launcher = document.getElementById('mv-chat-launcher');
+  const panel = document.getElementById('mv-chat-panel');
+  const closeBtn = document.getElementById('mv-chat-close');
+  if (!launcher || !panel) return;
+
+  const open = () => {
+    panel.style.display = 'flex';
+    panel.classList.add('open');
+    launcher.style.display = 'none';
+  };
+
+  const close = () => {
+    panel.classList.remove('open');
+    panel.style.display = 'none';
+    launcher.style.display = 'inline-flex';
+  };
+
+  launcher.addEventListener('click', open);
+  closeBtn && closeBtn.addEventListener('click', close);
+})();
+</script>
+
+<script defer src="https://major-agentur.de/assets/js/bootstrap.bundle.min.js"></script>
+<script defer src="/js/main.js?v=20260225-2"></script>
+</body>
+</html>

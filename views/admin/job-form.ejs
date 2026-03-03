@@ -1,0 +1,89 @@
+﻿<%- include('../partials/head', { title: isEdit ? 'Stelle bearbeiten | Admin' : 'Neue Stelle | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item" href="/admin666/users">Users</a>
+        <a class="admin-nav-item active" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top">
+      <div>
+        <a class="admin-backlink" href="/admin666/jobs">Back to list</a>
+        <h1><%= isEdit ? 'Stelle bearbeiten' : 'Neue Stelle anlegen' %></h1>
+      </div>
+    </div>
+
+    <article class="note-item" style="max-width:980px;">
+      <form method="post" action="<%= formAction %>">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <% if (isEdit) { %>
+          <input type="hidden" name="original_slug" value="<%= originalSlug %>" />
+        <% } %>
+
+        <div class="form-card" style="box-shadow:none; border:0; padding:0;">
+          <label for="job-title">Titel</label>
+          <input id="job-title" name="title" type="text" maxlength="240" value="<%= title %>" required />
+
+          <label for="job-slug">Slug (optional)</label>
+          <input id="job-slug" name="slug" type="text" maxlength="80" value="<%= slug %>" placeholder="z. B. junior-content-marketing" />
+
+          <label for="job-summary">Kurzbeschreibung</label>
+          <textarea id="job-summary" name="summary" rows="2" maxlength="600"><%= summary %></textarea>
+
+          <label for="job-tasks">Aufgaben (eine Zeile = ein Punkt)</label>
+          <textarea id="job-tasks" name="tasks" rows="4"><%= tasks %></textarea>
+
+          <label for="job-profile">Profil (eine Zeile = ein Punkt)</label>
+          <textarea id="job-profile" name="profile" rows="4"><%= profile %></textarea>
+
+          <label for="job-offer">Angebot (eine Zeile = ein Punkt)</label>
+          <textarea id="job-offer" name="offer" rows="4"><%= offer %></textarea>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label for="job-date">Datum</label>
+              <input id="job-date" name="date" type="text" maxlength="80" value="<%= date %>" />
+            </div>
+            <div>
+              <label for="job-salary">Gehalt</label>
+              <input id="job-salary" name="salary" type="text" maxlength="80" value="<%= salary %>" />
+            </div>
+            <div>
+              <label for="job-employment">Anstellung</label>
+              <input id="job-employment" name="employment" type="text" maxlength="80" value="<%= employment %>" />
+            </div>
+            <div>
+              <label for="job-experience">Vorerfahrung</label>
+              <input id="job-experience" name="experience" type="text" maxlength="80" value="<%= experience %>" />
+            </div>
+          </div>
+
+          <label for="job-deadline">Bewerbungsfrist</label>
+          <input id="job-deadline" name="deadline" type="text" maxlength="80" value="<%= deadline %>" />
+
+          <div style="margin-top:14px; display:flex; gap:10px;">
+            <button class="btn btn-primary" type="submit"><%= submitLabel %></button>
+            <a class="btn btn-secondary" href="/admin666/jobs">Abbrechen</a>
+          </div>
+        </div>
+      </form>
+    </article>
+  </section>
+</main>
+</body>
+</html>

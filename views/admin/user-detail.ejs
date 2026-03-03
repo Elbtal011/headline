@@ -1,0 +1,102 @@
+<%- include('../partials/head', { title: 'User Detail | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item active" href="/admin666/users">Users</a>
+        <a class="admin-nav-item" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <% const birthDateDisplay = (() => {
+      const raw = userDetail.birth_date;
+      if (!raw) return '-';
+      const toGerman = (iso) => {
+        const parts = String(iso).slice(0, 10).split('-');
+        if (parts.length !== 3) return '-';
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+      };
+      if (typeof raw === 'string') return toGerman(raw);
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return '-';
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${day}.${m}.${y}`;
+    })(); %>
+    <div class="admin-top">
+      <div>
+        <a class="admin-backlink" href="/admin666/users">Back to users</a>
+        <h1><%= [userDetail.first_name, userDetail.last_name].filter(Boolean).join(' ') %></h1>
+      </div>
+    </div>
+
+    <div class="admin-detail-grid">
+      <article class="note-item admin-summary">
+        <h3 style="margin-top:0;">Kontodaten</h3>
+        <p><strong>E-Mail:</strong> <%= userDetail.email %></p>
+        <p><strong>Telefon:</strong> <%= userDetail.phone || '-' %></p>
+        <p><strong>Geburtsdatum:</strong> <%= birthDateDisplay %></p>
+        <p><strong>Status:</strong> <%= userDetail.is_active ? 'active' : 'inactive' %></p>
+        <p><strong>Erstellt:</strong> <%= new Date(userDetail.created_at).toLocaleString('de-DE') %></p>
+        <p><strong>Aktualisiert:</strong> <%= new Date(userDetail.updated_at).toLocaleString('de-DE') %></p>
+      </article>
+
+      <article class="note-item admin-summary">
+        <h3 style="margin-top:0;">Adressdaten</h3>
+        <p><strong>Anschrift:</strong> <%= userDetail.address_line || '-' %></p>
+        <p><strong>PLZ:</strong> <%= userDetail.zip || '-' %></p>
+        <p><strong>Stadt:</strong> <%= userDetail.city || '-' %></p>
+        <p><strong>Land:</strong> <%= userDetail.country || '-' %></p>
+      </article>
+    </div>
+
+    <article class="note-item" style="margin-top:14px;">
+      <h3 style="margin-top:0;">Dokumenten-Nachweise</h3>
+      <% if (!documents || documents.length === 0) { %>
+        <p>Keine Dokumente vorhanden.</p>
+      <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Typ</th>
+                <th>Dateiname</th>
+                <th>Größe</th>
+                <th>Hochgeladen</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% documents.forEach((doc) => { %>
+                <tr>
+                  <td><%= doc.doc_type_label %></td>
+                  <td><%= doc.original_name %></td>
+                  <td><%= Math.ceil(Number(doc.size_bytes || 0) / 1024) %> KB</td>
+                  <td><%= new Date(doc.created_at).toLocaleString('de-DE') %></td>
+                  <td><a class="admin-link" href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">Ansehen</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </article>
+  </section>
+</main>
+</body>
+</html>
+

@@ -1,0 +1,107 @@
+<%- include('../partials/head', { title: 'Leads | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item <%= section === 'all' ? 'active' : '' %>" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item <%= section === 'application' ? 'active' : '' %>" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item <%= section === 'contact' ? 'active' : '' %>" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item <%= section === 'chats' ? 'active' : '' %>" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item <%= section === 'users' ? 'active' : '' %>" href="/admin666/users">Users</a>
+        <a class="admin-nav-item <%= section === 'jobs' ? 'active' : '' %>" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top">
+      <h1><%= sectionTitle %></h1>
+      <div class="admin-actions">
+        <a class="btn btn-secondary" href="/admin666/leads-export.csv">CSV Export</a>
+      </div>
+    </div>
+
+    <form class="filter-grid" method="get" action="<%= listPath || '/admin666/leads' %>">
+      <input name="q" placeholder="Suche Name/E-Mail" value="<%= filters.q %>" />
+      <% if (section === 'all') { %>
+        <select name="type">
+          <option value="">Alle Typen</option>
+          <option value="contact" <%= filters.type === 'contact' ? 'selected' : '' %>>Kontakt</option>
+          <option value="application" <%= filters.type === 'application' ? 'selected' : '' %>>Bewerbung</option>
+        </select>
+      <% } else { %>
+        <input type="hidden" name="type" value="<%= filters.type %>" />
+      <% } %>
+      <select name="status">
+        <option value="">Alle Status</option>
+        <option value="new" <%= filters.status === 'new' ? 'selected' : '' %>>Neu</option>
+        <option value="contacted" <%= filters.status === 'contacted' ? 'selected' : '' %>>Kontaktiert</option>
+        <option value="in_review" <%= filters.status === 'in_review' ? 'selected' : '' %>>In Pruefung</option>
+        <option value="closed" <%= filters.status === 'closed' ? 'selected' : '' %>>Geschlossen</option>
+      </select>
+      <input name="source" placeholder="Quelle z.B. /Kontakt" value="<%= filters.source %>" />
+      <button class="btn btn-primary" type="submit">Filtern</button>
+    </form>
+
+    <form method="post" action="/admin666/leads/delete-selected" onsubmit="return confirm('Ausgewählte Leads wirklich löschen?')">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="admin-actions" style="margin-bottom:8px;">
+        <button class="btn btn-secondary" type="submit">Auswahl löschen</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input id="leads-select-all" type="checkbox" /></th>
+              <th>Typ</th>
+              <th>Name</th>
+              <th>E-Mail</th>
+              <th>Status</th>
+              <th>Quelle</th>
+              <th>Eingang</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% leads.forEach((lead) => { %>
+              <tr>
+                <td><input class="lead-select-item" type="checkbox" name="ids" value="<%= lead.id %>" /></td>
+                <td><%= lead.type %></td>
+                <td><%= lead.full_name %></td>
+                <td><%= lead.email %></td>
+                <td>
+                  <span class="status status-<%= lead.status %>"><%= lead.status %></span>
+                  <span class="status status-verification">V<%= Number(lead.verification_level || 1) %></span>
+                </td>
+                <td><%= lead.source_page %></td>
+                <td><%= new Date(lead.created_at).toLocaleString('de-DE') %></td>
+                <td><a class="admin-link" href="/admin666/leads/<%= lead.id %>">Details</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </section>
+</main>
+<script>
+  (function() {
+    const selectAll = document.getElementById('leads-select-all');
+    if (!selectAll) return;
+    selectAll.addEventListener('change', function() {
+      document.querySelectorAll('.lead-select-item').forEach((cb) => {
+        cb.checked = selectAll.checked;
+      });
+    });
+  })();
+</script>
+</body>
+</html>
+

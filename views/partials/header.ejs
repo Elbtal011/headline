@@ -1,0 +1,26 @@
+﻿  <header class="top-head">
+    <div class="top-wrap container">
+      <div class="top-text">Willkommen! Wir sind Ihr verlässlicher Ansprechpartner in allen Bereichen rund um Digitalisierung.</div>
+      <div class="top-contact">
+        <span>Schönebecker Str. 33, 42283 Wuppertal</span>
+        <span><a href="mailto:info@vantagepointgermany.de">info@vantagepointgermany.de</a></span>
+        <span>Mo-Fr: 8:00 bis 17:00 Uhr</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="main-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/index.php">Headline Agentur</a>
+      <div class="nav-links">
+        <% navItems.forEach((item) => { %>
+          <a href="<%= item.href %>" class="<%= pageData.currentPath === item.href ? 'active' : '' %>"><%= item.label %></a>
+        <% }) %>
+      </div>
+      <% if (user) { %>
+        <a class="cta" href="/konto/profil">Mein Profil</a>
+      <% } else { %>
+        <a class="cta" href="/konto/login">Profil Login</a>
+      <% } %>
+    </div>
+  </nav>

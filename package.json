@@ -1,0 +1,28 @@
+{
+    "name": "german-job-listing-website",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/server.js",
+    "scripts": {
+        "start": "node src/server.js",
+        "dev": "node --watch src/server.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "compression": "^1.8.1",
+        "csv-stringify": "^6.6.0",
+        "dotenv": "^17.3.1",
+        "ejs": "^4.0.1",
+        "express": "^5.2.1",
+        "express-rate-limit": "^8.2.1",
+        "express-session": "^1.19.0",
+        "helmet": "^8.1.0",
+        "multer": "^2.0.2",
+        "nodemailer": "^6.10.1",
+        "pg": "^8.18.0"
+    }
+}

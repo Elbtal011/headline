@@ -1,0 +1,91 @@
+<%- include('../partials/head', { title: 'Chats | Admin' }) %>
+<main class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div>
+      <h2 class="admin-brand">Admin Bereich</h2>
+      <p class="admin-subtitle">Verwaltung und Pipeline</p>
+      <nav class="admin-nav">
+        <a class="admin-nav-item" href="/admin666/leads">Alle Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/application">Bewerbung Leads</a>
+        <a class="admin-nav-item" href="/admin666/leads/contact">Kontakt Leads</a>
+        <a class="admin-nav-item active" href="/admin666/chats">Chats</a>
+        <a class="admin-nav-item" href="/admin666/users">Users</a>
+        <a class="admin-nav-item" href="/admin666/jobs">Stellen</a>
+      </nav>
+    </div>
+
+    <form method="post" action="/admin666/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-secondary admin-logout" type="submit">Logout</button>
+    </form>
+  </aside>
+
+  <section class="page-shell admin-content">
+    <div class="admin-top">
+      <h1>Chats</h1>
+    </div>
+
+    <form class="filter-grid chat-filter" method="get" action="/admin666/chats">
+      <input name="q" placeholder="Suche Name / E-Mail / Telefon" value="<%= filters.q %>" />
+      <select name="status">
+        <option value="">Alle Status</option>
+        <option value="open" <%= filters.status === 'open' ? 'selected' : '' %>>open</option>
+        <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>pending</option>
+        <option value="closed" <%= filters.status === 'closed' ? 'selected' : '' %>>closed</option>
+      </select>
+      <button class="btn btn-primary" type="submit">Filtern</button>
+    </form>
+
+    <form method="post" action="/admin666/chats/delete-selected" onsubmit="return confirm('Ausgewählte Chats wirklich löschen?')">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="admin-actions" style="margin-bottom:8px;">
+        <button class="btn btn-secondary" type="submit">Auswahl löschen</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input id="chats-select-all" type="checkbox" /></th>
+              <th>Besucher</th>
+              <th>Kontakt</th>
+              <th>Status</th>
+              <th>Letzte Nachricht</th>
+              <th>Aktualisiert</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% chats.forEach((chat) => { %>
+              <tr>
+                <td><input class="chat-select-item" type="checkbox" name="ids" value="<%= chat.id %>" /></td>
+                <td><%= chat.visitor_name || 'Besucher' %></td>
+                <td>
+                  <div><%= chat.visitor_email || '-' %></div>
+                  <div><%= chat.visitor_phone || '-' %></div>
+                </td>
+                <td><span class="status status-<%= chat.status === 'open' ? 'new' : chat.status === 'pending' ? 'contacted' : 'closed' %>"><%= chat.status %></span></td>
+                <td><%= chat.last_message || '-' %></td>
+                <td><%= chat.updated_at ? new Date(chat.updated_at).toLocaleString('de-DE') : '-' %></td>
+                <td><a class="admin-link" href="/admin666/chats/<%= chat.id %>">Öffnen</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </section>
+</main>
+<script>
+  (function() {
+    const selectAll = document.getElementById('chats-select-all');
+    if (!selectAll) return;
+    selectAll.addEventListener('change', function() {
+      document.querySelectorAll('.chat-select-item').forEach((cb) => {
+        cb.checked = selectAll.checked;
+      });
+    });
+  })();
+</script>
+</body>
+</html>
+
