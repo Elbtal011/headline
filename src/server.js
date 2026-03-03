@@ -8,6 +8,7 @@ const { ensureCsrfToken } = require('./middleware/csrf');
 const { publicRouter } = require('./routes/public');
 
 const legacyBackendEnabled = String(process.env.LEGACY_BACKEND_ENABLED || '0') === '1';
+const accountEnabled = String(process.env.HEADLINE_ACCOUNT_ENABLED || '1') === '1';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,9 +27,6 @@ app.set('views', path.join(__dirname, '..', 'views'));
 app.set('trust proxy', 1);
 app.locals.magicvicsChatUrl = process.env.MAGICVICS_CHAT_URL || 'https://magicvics-production.up.railway.app/support';
 app.locals.magicvicsApiBase = process.env.MAGICVICS_API_BASE || 'https://backend-production-4c3c.up.railway.app';
-app.locals.magicvicsAppUrl = process.env.MAGICVICS_APP_URL || 'https://magicvics-production.up.railway.app';
-app.locals.profileLoginUrl = `${app.locals.magicvicsAppUrl.replace(/\/$/, '')}/login`;
-app.locals.profileRegisterUrl = `${app.locals.magicvicsAppUrl.replace(/\/$/, '')}/register`;
 
 app.use(
   helmet({
@@ -72,20 +70,16 @@ app.get('/health', (_req, res) => {
 
 app.use('/', publicRouter);
 
-// In decoupled mode, route account entrypoints to MagicVics auth pages.
-if (!legacyBackendEnabled) {
-  app.get('/konto', (_req, res) => res.redirect(app.locals.profileLoginUrl));
-  app.get('/konto/login', (_req, res) => res.redirect(app.locals.profileLoginUrl));
-  app.get('/konto/registrieren', (_req, res) => res.redirect(app.locals.profileRegisterUrl));
+if (accountEnabled) {
+  const { accountRouter } = require('./routes/account');
+  app.use('/', accountRouter);
 }
 
 if (legacyBackendEnabled) {
   const { adminRouter } = require('./routes/admin');
   const { chatRouter } = require('./routes/chat');
-  const { accountRouter } = require('./routes/account');
 
   app.use('/api', chatRouter);
-  app.use('/', accountRouter);
   app.use('/admin666', adminRouter);
   app.get('/admin', (_req, res) => {
     res.redirect('/admin666/login');
@@ -102,12 +96,12 @@ app.use((err, _req, res, _next) => {
 });
 
 async function start() {
-  if (legacyBackendEnabled) {
+  if (legacyBackendEnabled || accountEnabled) {
     const { initDb } = require('./initDb');
     await initDb();
-    console.log('[startup] legacy backend enabled');
+    console.log(`[startup] legacy backend ${legacyBackendEnabled ? 'enabled' : 'disabled'} | account ${accountEnabled ? 'enabled' : 'disabled'}`);
   } else {
-    console.log('[startup] legacy backend disabled (public-site mode)');
+    console.log('[startup] legacy backend disabled (public-site mode), account disabled');
   }
 
   app.listen(PORT, () => {
