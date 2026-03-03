@@ -25,6 +25,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 app.set('trust proxy', 1);
 app.locals.magicvicsChatUrl = process.env.MAGICVICS_CHAT_URL || 'https://magicvics-production.up.railway.app/support';
+app.locals.magicvicsApiBase = process.env.MAGICVICS_API_BASE || 'https://backend-production-4c3c.up.railway.app';
 
 app.use(
   helmet({

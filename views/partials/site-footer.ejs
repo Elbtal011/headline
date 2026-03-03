@@ -64,50 +64,30 @@
   </div>
 </footer>
 
-<button id="mv-chat-launcher" class="chat-launcher" type="button" aria-label="Chat öffnen">
+<script>
+  window.MAGICVICS_API_BASE = '<%= magicvicsApiBase %>';
+</script>
+<button id="chat-launcher" class="chat-launcher" type="button" aria-label="Chat öffnen">
   <i class="fa-regular fa-comments"></i>
 </button>
-<section id="mv-chat-panel" class="chat-panel" aria-live="polite" style="display:none;flex-direction:column;">
+<section id="chat-panel" class="chat-panel" aria-live="polite">
   <header class="chat-head">
     <h4>Kundenservice-Chat</h4>
-    <button id="mv-chat-close" class="chat-close" type="button" aria-label="Chat schließen">&times;</button>
+    <button id="chat-close" class="chat-close" type="button" aria-label="Chat schließen">&times;</button>
   </header>
-  <div style="flex:1; min-height:420px; background:#fff;">
-    <iframe
-      id="mv-chat-iframe"
-      title="MagicVics Chat"
-      src="<%= magicvicsChatUrl %>"
-      style="width:100%;height:100%;border:0;"
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      allow="microphone; camera"
-    ></iframe>
-  </div>
+  <div id="chat-messages" class="chat-messages"></div>
+  <form id="chat-form" class="chat-form">
+    <input type="hidden" id="chat-csrf" value="<%= csrfToken %>" />
+    <input type="hidden" id="chat-source" value="<%= (pageData && pageData.currentPath) ? pageData.currentPath : '/index.php' %>" />
+    <textarea id="chat-message-input" name="message" placeholder="Ihre Nachricht..." maxlength="2000"></textarea>
+    <div class="chat-form-actions">
+      <input id="chat-file-input" class="chat-file-input" type="file" name="files" multiple disabled />
+      <button id="chat-file-btn" class="chat-file-btn" type="button" disabled>Dateien (bald)</button>
+      <span id="chat-file-label" class="chat-file-label">Textchat aktiv</span>
+      <button class="chat-send" type="submit">Senden</button>
+    </div>
+  </form>
 </section>
-
-<script>
-(function initMagicvicsEmbeddedChat(){
-  const launcher = document.getElementById('mv-chat-launcher');
-  const panel = document.getElementById('mv-chat-panel');
-  const closeBtn = document.getElementById('mv-chat-close');
-  if (!launcher || !panel) return;
-
-  const open = () => {
-    panel.style.display = 'flex';
-    panel.classList.add('open');
-    launcher.style.display = 'none';
-  };
-
-  const close = () => {
-    panel.classList.remove('open');
-    panel.style.display = 'none';
-    launcher.style.display = 'inline-flex';
-  };
-
-  launcher.addEventListener('click', open);
-  closeBtn && closeBtn.addEventListener('click', close);
-})();
-</script>
 
 <script defer src="https://major-agentur.de/assets/js/bootstrap.bundle.min.js"></script>
 <script defer src="/js/main.js?v=20260225-2"></script>

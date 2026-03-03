@@ -1,85 +1,46 @@
-﻿(function initChatWidget() {
+(function initChatWidget() {
   const launcher = document.getElementById('chat-launcher');
   const panel = document.getElementById('chat-panel');
   const closeBtn = document.getElementById('chat-close');
   const form = document.getElementById('chat-form');
   const messageInput = document.getElementById('chat-message-input');
-  const fileInput = document.getElementById('chat-file-input');
   const fileBtn = document.getElementById('chat-file-btn');
   const fileLabel = document.getElementById('chat-file-label');
   const messagesEl = document.getElementById('chat-messages');
-  const csrfInput = document.getElementById('chat-csrf');
-  const sourceInput = document.getElementById('chat-source');
 
-  if (!launcher || !panel || !form || !messagesEl || !csrfInput) {
-    return;
-  }
+  if (!launcher || !panel || !form || !messagesEl) return;
 
-  const STORAGE_KEY = 'site_chat_session_v1';
-  let chatId = null;
-  let chatToken = null;
+  const API_BASE = String(window.MAGICVICS_API_BASE || '').replace(/\/$/, '');
+  const STORAGE_KEY = 'mv_guest_chat_v1';
+  const USER_KEY = 'mv_guest_user_v1';
+
+  let conversationId = null;
   let pollTimer = null;
 
-  function updateFileLabel() {
-    if (!fileLabel || !fileInput) return;
-    const files = fileInput.files;
-    if (!files || files.length === 0) {
-      fileLabel.textContent = 'Keine Datei ausgewählt';
-      return;
+  function ensureGuestUserId() {
+    let uid = localStorage.getItem(USER_KEY);
+    if (!uid) {
+      uid = `guest_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(USER_KEY, uid);
     }
-    if (files.length === 1) {
-      fileLabel.textContent = files[0].name;
-      return;
-    }
-    fileLabel.textContent = `${files.length} Dateien ausgewählt`;
+    return uid;
   }
 
   function loadSession() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      chatId = parsed.chatId || null;
-      chatToken = parsed.chatToken || null;
-    } catch (_err) {
-      chatId = null;
-      chatToken = null;
-    }
+    conversationId = localStorage.getItem(STORAGE_KEY) || null;
   }
 
   function saveSession() {
-    if (!chatId || !chatToken) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ chatId, chatToken }));
-  }
-
-  function clearSession() {
-    chatId = null;
-    chatToken = null;
-    localStorage.removeItem(STORAGE_KEY);
+    if (conversationId) localStorage.setItem(STORAGE_KEY, conversationId);
   }
 
   function appendMessageBubble(msg) {
     const bubble = document.createElement('article');
-    bubble.className = `chat-bubble ${msg.sender_type === 'visitor' ? 'visitor' : 'admin'}`;
+    bubble.className = `chat-bubble ${msg.sender_type === 'user' ? 'visitor' : 'admin'}`;
 
     const text = document.createElement('div');
-    text.textContent = msg.message || '(Datei)';
+    text.textContent = msg.content || '(leer)';
     bubble.appendChild(text);
-
-    if (Array.isArray(msg.attachments) && msg.attachments.length > 0) {
-      const filesWrap = document.createElement('div');
-      filesWrap.className = 'chat-files';
-      msg.attachments.forEach((file) => {
-        const link = document.createElement('a');
-        const tokenParam = chatToken ? `?chat_token=${encodeURIComponent(chatToken)}` : '';
-        link.href = `${file.file_url}${tokenParam}`;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.textContent = `${file.original_name} (${Math.ceil((file.size_bytes || 0) / 1024)} KB)`;
-        filesWrap.appendChild(link);
-      });
-      bubble.appendChild(filesWrap);
-    }
 
     const time = document.createElement('small');
     time.className = 'chat-bubble-time';
@@ -99,105 +60,52 @@
       messagesEl.appendChild(empty);
       return;
     }
-
     messages.forEach(appendMessageBubble);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  async function ensureChatSession() {
-    if (chatId && chatToken) return;
-
-    const response = await fetch('/api/chat/start', {
+  async function ensureConversation() {
+    if (conversationId) return;
+    const userId = ensureGuestUserId();
+    const response = await fetch(`${API_BASE}/api/chat/conversations`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-csrf-token': csrfInput.value,
-      },
-      body: JSON.stringify({
-        source_page: sourceInput ? sourceInput.value : window.location.pathname,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, title: 'Headline Website Chat', conversationType: 'general' }),
     });
-
-    if (!response.ok) {
-      throw new Error('Chat konnte nicht gestartet werden.');
-    }
-
+    if (!response.ok) throw new Error('Chat konnte nicht gestartet werden.');
     const data = await response.json();
-    chatId = data.chat_id;
-    chatToken = data.chat_token;
+    conversationId = data.conversation?.id || data.data?.id || null;
+    if (!conversationId) throw new Error('Keine Konversation-ID erhalten.');
     saveSession();
   }
 
   async function fetchMessages() {
-    if (!chatId || !chatToken) return;
-    const response = await fetch(
-      `/api/chat/${encodeURIComponent(chatId)}/messages?chat_token=${encodeURIComponent(chatToken)}`,
-      { method: 'GET' }
-    );
-
-    if (response.status === 401 || response.status === 404) {
-      clearSession();
-      return;
-    }
-
-    if (!response.ok) {
-      return;
-    }
-
+    if (!conversationId) return;
+    const response = await fetch(`${API_BASE}/api/chat/conversations/${encodeURIComponent(conversationId)}/messages?limit=100`, {
+      method: 'GET',
+    });
+    if (!response.ok) return;
     const data = await response.json();
     renderMessages(data.messages || []);
   }
 
-  async function postMessageWithCurrentSession(formData) {
-    return fetch(`/api/chat/${encodeURIComponent(chatId)}/messages`, {
-      method: 'POST',
-      body: formData,
-    });
-  }
-
   async function sendMessage(event) {
     event.preventDefault();
-
     const text = (messageInput.value || '').trim();
-    const files = fileInput.files;
-    if (!text && (!files || files.length === 0)) {
-      return;
-    }
+    if (!text) return;
 
     try {
-      await ensureChatSession();
-      const formData = new FormData();
-      formData.append('_csrf', csrfInput.value);
-      formData.append('chat_token', chatToken);
-      if (text) {
-        formData.append('message', text);
-      }
-      if (files && files.length > 0) {
-        for (let i = 0; i < Math.min(files.length, 3); i += 1) {
-          formData.append('files', files[i]);
-        }
-      }
+      await ensureConversation();
+      const userId = ensureGuestUserId();
+      const response = await fetch(`${API_BASE}/api/chat/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId, userId, content: text }),
+      });
 
-      let response = await postMessageWithCurrentSession(formData);
-
-      // If token/session became stale (e.g. server restart), reset and retry once.
-      if (response.status === 401 || response.status === 404) {
-        clearSession();
-        await ensureChatSession();
-        formData.set('chat_token', chatToken);
-        response = await postMessageWithCurrentSession(formData);
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Nachricht konnte nicht gesendet werden.');
-      }
-
-      const data = await response.json();
+      if (!response.ok) throw new Error('Nachricht konnte nicht gesendet werden.');
       messageInput.value = '';
-      fileInput.value = '';
-      updateFileLabel();
-      renderMessages(data.messages || []);
+      await fetchMessages();
     } catch (_err) {
       const errorBubble = document.createElement('article');
       errorBubble.className = 'chat-bubble admin';
@@ -207,9 +115,7 @@
   }
 
   function startPolling() {
-    if (pollTimer) {
-      clearInterval(pollTimer);
-    }
+    if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(fetchMessages, 8000);
   }
 
@@ -222,7 +128,7 @@
   async function openPanel() {
     panel.classList.add('open');
     try {
-      await ensureChatSession();
+      await ensureConversation();
       await fetchMessages();
     } catch (_err) {
       renderMessages([]);
@@ -236,22 +142,13 @@
   }
 
   launcher.addEventListener('click', () => {
-    if (panel.classList.contains('open')) {
-      closePanel();
-    } else {
-      openPanel();
-    }
+    if (panel.classList.contains('open')) closePanel();
+    else openPanel();
   });
 
-  if (closeBtn) {
-    closeBtn.addEventListener('click', closePanel);
-  }
-
-  if (fileBtn && fileInput) {
-    fileBtn.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', updateFileLabel);
-    updateFileLabel();
-  }
+  if (closeBtn) closeBtn.addEventListener('click', closePanel);
+  if (fileBtn) fileBtn.addEventListener('click', (e) => e.preventDefault());
+  if (fileLabel) fileLabel.textContent = 'Textchat aktiv';
 
   form.addEventListener('submit', sendMessage);
   loadSession();
