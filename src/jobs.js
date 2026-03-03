@@ -166,26 +166,63 @@ function normalizeJobs(input) {
   const source = Array.isArray(input) && input.length > 0 ? input : cloneDefaults();
   const usedSlugs = new Set();
 
-  return source
+  const normalized = source
     .map((job) => {
       const title = String(job && job.title ? job.title : '').trim();
-      if (!title) {
-        return null;
-      }
+      if (!title) return null;
 
       const baseSlug = slugify(job.slug || title) || 'stelle';
       const slug = ensureUniqueSlug(baseSlug, usedSlugs);
+
+      const employmentType = job.type_of_employment || job.employment_type || job.employmentType || '';
+      const workModel = job.working_model || job.workingModel || job.work_model || job.workModel || '';
+      const location = job.location || '';
+      const salaryDisplay = job.ad_text || job.adText || job.salary_display || job.salaryDisplay || '';
+      const minSalary = job.min_salary ?? job.minSalary ?? 0;
+      const maxSalary = job.max_salary ?? job.maxSalary ?? 0;
+
+      const facts = normalizeFacts(job.facts, {
+        employment: employmentType || undefined,
+        salary: salaryDisplay || undefined,
+      });
+      if (location) facts.location = location;
+
       return {
+        id: job.id,
         slug,
         title,
-        summary: String(job.summary || '').trim(),
-        tasks: toLines(job.tasks),
-        profile: toLines(job.profile),
-        offer: toLines(job.offer),
-        facts: normalizeFacts(job.facts),
+        summary: String(job.summary || job.short_description || '').trim(),
+        short_description: String(job.short_description || '').trim(),
+        description: String(job.description || '').trim(),
+        tasks: toLines(job.tasks || job.responsibilities),
+        responsibilities: toLines(job.responsibilities || job.tasks),
+        profile: toLines(job.profile || job.requirements),
+        requirements: toLines(job.requirements || job.profile),
+        offer: toLines(job.offer || job.benefits),
+        benefits: toLines(job.benefits || job.offer),
+        type_of_employment: employmentType,
+        employment_type: employmentType,
+        work_model: workModel,
+        working_model: workModel,
+        location,
+        salary_display: salaryDisplay,
+        ad_text: salaryDisplay,
+        min_salary: Number(minSalary) || 0,
+        max_salary: Number(maxSalary) || 0,
+        facts,
+        created_at: job.created_at || null,
+        display_order: Number(job.display_order || 0),
+        is_featured: !!job.is_featured,
       };
     })
     .filter(Boolean);
+
+  // Newest first by default (and keep featured/order signals when available)
+  return normalized.sort((a, b) => {
+    if ((a.display_order || 0) !== (b.display_order || 0)) return (a.display_order || 0) - (b.display_order || 0);
+    if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
 }
 
 async function getJobs() {
@@ -196,15 +233,7 @@ async function getJobs() {
       if (resp.ok) {
         const payload = await resp.json();
         const rows = Array.isArray(payload?.data) ? payload.data : [];
-        const normalized = normalizeJobs(rows.map((j) => ({
-          slug: j.slug,
-          title: j.title,
-          summary: j.summary,
-          tasks: j.tasks,
-          profile: j.profile,
-          offer: j.offer,
-          facts: j.facts
-        })));
+        const normalized = normalizeJobs(rows);
         if (normalized.length > 0) return normalized;
       }
     } catch (_err) {
