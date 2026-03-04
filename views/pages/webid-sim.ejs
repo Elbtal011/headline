@@ -1,308 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WebID Simulation · <%= caseId %></title>
+  <meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>WebID Solutions - Your True Identity Company</title>
+
+  <link href="https://webid.phnl-agentur.de/images/service/favicon.ico" rel="icon" type="image/ico" />
+  <link href="https://webid.phnl-agentur.de/css/flags/flags.css" rel="stylesheet" type="text/css" />
+  <link href="https://webid.phnl-agentur.de/vendor/featherlight/v1.7.14/release/featherlight.min.css" rel="stylesheet" type="text/css" />
+  <link href="https://webid.phnl-agentur.de/service/v3/style/main.css?b=2373" rel="stylesheet" type="text/css" />
+
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #dfe1e5; color: #111; }
+    #simulation-warning { position: fixed; top: 0; left: 0; width: 100%; background: red; color: #fff; text-align: center; font-size: 18px; font-weight: bold; padding: 10px; z-index: 999999; }
+    body { padding-top: 44px !important; }
 
-    .sim-top {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: #ec1111;
-      color: #fff;
-      text-align: center;
-      font-weight: 700;
-      font-size: 23px;
-      line-height: 1.2;
-      padding: 8px 10px;
-    }
+    webid-autoident > div[slot='unsupported'] { border: 1px solid #05b1fb; padding: 20px; }
+    .heading { font-size: 18px; }
+    .steps-container { display: flex; flex-wrap: wrap; margin-top: 1em; margin-bottom: 1em; }
+    .step-all { flex: 2; }
+    .step-with-border { border-left: thick solid #05b1fb; padding-left: .5em; }
+    .step-header { font-weight: bold; }
+    .app-notice { font-weight: bold; font-size: 1.3em; }
+    .bold-hint { font-weight: bold; margin-bottom: 1em; }
 
-    .shell {
-      max-width: 600px;
-      margin: 0 auto;
-      min-height: calc(100vh - 48px);
-      background: #fff;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
-      position: relative;
-    }
+    .sim-overlay { position: fixed; inset: 0; z-index: 1000000; background: rgba(0, 0, 0, .72); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .sim-modal { width: min(440px, 100%); background: #2a2a2a; color: #fff; border-radius: 2px; text-align: center; padding: 24px 20px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+    .sim-modal h3 { margin: 0 0 10px; font-size: 34px; font-weight: 700; }
+    .sim-modal p { margin: 0 0 14px; font-size: 20px; line-height: 1.4; }
+    .sim-ok { background: #f00; border: 0; color: #fff; font-weight: 700; font-size: 20px; padding: 9px 18px; border-radius: 3px; }
 
-    .head {
-      display: grid;
-      grid-template-columns: 3fr 2fr;
-      border-bottom: 1px solid #ececec;
-      min-height: 168px;
-    }
-    .head .hero {
-      background: #f3f3f3;
-      overflow: hidden;
-    }
-    .head .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .head .brand {
-      padding: 20px 22px;
-      display: grid;
-      align-content: center;
-      justify-items: start;
-      gap: 4px;
-    }
-    .logo-main { font-size: 52px; font-weight: 700; letter-spacing: -0.02em; }
-    .logo-sub { font-size: 41px; color: #2d5e96; }
-    .logo-case { margin-top: 14px; font-size: 12px; color: #888; }
-
-    .panel {
-      margin: 14px;
-      border: 1px solid #d8e6ec;
-      background: #fff;
-    }
-    .panel-inner { padding: 14px; }
-    .title {
-      margin: 0 0 10px;
-      color: #269ec7;
-      font-size: 44px;
-      font-weight: 700;
-      line-height: 1.05;
-    }
-
-    .triplet { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .col { border-left: 4px solid #20a8d8; padding-left: 8px; min-height: 86px; font-size: 15px; line-height: 1.35; }
-    .col strong { display: block; margin-bottom: 2px; }
-
-    .apps { margin-top: 12px; font-size: 17px; font-weight: 700; line-height: 1.25; }
-    .stores { margin-top: 8px; display: flex; gap: 8px; }
-    .store {
-      background: #000;
-      color: #fff;
-      border-radius: 4px;
-      font-size: 14px;
-      padding: 7px 11px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .blue-box {
-      margin-top: 14px;
-      background: #19a9e3;
-      color: #fff;
-      min-height: 182px;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: 80px 1fr;
-      align-items: center;
-      gap: 18px;
-    }
-    .bang {
-      width: 66px;
-      height: 66px;
-      border: 3px solid rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      font-weight: 700;
-    }
-    .blue-copy { font-size: 14px; line-height: 1.4; }
-    .blue-actions { margin-top: 14px; }
-    .btn-weiter {
-      border: 1px solid #90cde8;
-      background: transparent;
-      color: #fff;
-      font-size: 14px;
-      padding: 7px 15px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    .doc-wrap { padding: 14px; }
-    .doc-panel { border: 1px solid #bfe0ea; padding: 16px; }
-    .shot-label { font-size: 46px; margin: 0 0 6px; font-weight: 500; }
-    .shot-box { background: #f3f3f3; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-    .shot-placeholder { height: 160px; border: 2px dashed #cfcfcf; border-radius: 8px; background: #e9e9e9; }
-    .shot-btn { width: 100%; border: 2px solid #97d2e8; background: #fff; border-radius: 10px; padding: 12px; font-size: 34px; }
-    .tips { margin: 10px 0 0; font-size: 20px; color: #555; }
-    .doc-actions { margin-top: 12px; display: flex; justify-content: flex-end; }
-    .btn-check { border: 1px solid #75c4e8; background: #18a8e2; color: #fff; font-size: 47px; border-radius: 8px; padding: 4px 20px; }
-
-    .footer {
-      text-align: center;
-      color: #9b9b9b;
-      font-size: 12px;
-      padding: 14px 12px 22px;
-      border-top: 1px solid #efefef;
-    }
-    .footer a { color: #69a1bc; margin: 0 9px; }
-
-    .hidden { display: none !important; }
-
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.72);
-      z-index: 40;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-    }
-    .overlay[hidden] { display: none !important; }
-    .modal {
-      width: min(460px, 100%);
-      background: #242424;
-      color: #fff;
-      border-radius: 3px;
-      padding: 24px 24px 22px;
-      text-align: center;
-      box-shadow: 0 14px 50px rgba(0, 0, 0, 0.55);
-    }
-    .modal h3 { margin: 0 0 12px; font-size: 30px; }
-    .modal p { margin: 0 0 16px; font-size: 18px; line-height: 1.45; }
-    .btn-ok {
-      border: 0;
-      background: #e50d0d;
-      color: #fff;
-      font-weight: 700;
-      font-size: 19px;
-      padding: 11px 18px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    @media (max-width: 900px) {
-      .sim-top { font-size: 15px; }
-      .shell { max-width: 460px; }
-      .head { grid-template-columns: 1fr; min-height: auto; }
-      .head .hero { display: none; }
-      .logo-main { font-size: 46px; }
-      .logo-sub { font-size: 38px; }
-      .title { font-size: 52px; }
-      .triplet { grid-template-columns: 1fr; }
-      .blue-box { grid-template-columns: 1fr; }
-      .shot-label { font-size: 38px; }
-      .shot-btn { font-size: 25px; }
-      .btn-check { font-size: 36px; }
-      .modal h3 { font-size: 24px; }
-      .modal p { font-size: 16px; }
+    @media all and (max-width: 500px) {
+      .steps-container { flex-direction: column; }
+      .step-with-border { border-left: none; padding-left: 0; border-top: thick solid #05b1fb; padding-top: .5em; }
+      .sim-modal h3 { font-size: 26px; }
+      .sim-modal p { font-size: 16px; }
     }
   </style>
+
+  <script>
+    window.WebID = window.WebID || {};
+    window.WebID.statusPollingOptions = window.WebID.statusPollingOptions || {};
+    window.WebID.isTelkoTan = false;
+    window.WebID.isIosAppNotAllowed = true;
+  </script>
+  <script src="https://webid.phnl-agentur.de/js/service/jquery.min.js?b=2373"></script>
+  <script src="https://webid.phnl-agentur.de/js/service/jquery.validate.min.js?b=2373"></script>
+  <script src="https://webid.phnl-agentur.de/assets/langjs/lang/de/cn/000631?b=2373"></script>
+  <script src="https://webid.phnl-agentur.de/vendor/featherlight/v1.7.14/release/featherlight.min.js?b=2373"></script>
+  <script src="https://webid.phnl-agentur.de/service/v3/script/bootstrap.js?b=2373"></script>
+  <script type="module" src="https://webid.phnl-agentur.de/js/stencil/stencil-components.esm.js?b=2373"></script>
+  <script nomodule src="https://webid.phnl-agentur.de/js/service/unsupported_browser.min.js?b=2373"></script>
+  <script type="module" src="https://webid.phnl-agentur.de/js/components/auto-ident/v3/auto-ident.js?b=2373"></script>
 </head>
-<body>
-  <div class="sim-top">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
+<body class="webid c000631">
+  <div id="simulation-warning">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
 
-  <main class="shell">
-    <section id="step-1">
-      <header class="head">
-        <div class="hero">
-          <img src="https://webid.phnl-agentur.de/assets/intro.8f58df7d.jpg" alt="WebID Intro" onerror="this.style.display='none'" />
-        </div>
-        <div class="brand">
-          <div class="logo-main">WebID</div>
-          <div class="logo-sub">PHNL-Agentur</div>
-          <div class="logo-case">Vorgangsnummer: <%= caseId %></div>
-        </div>
-      </header>
+  <div class="container">
+    <header class="page-header">
+      <img src="https://kbltkdjwueqanlvynnon.supabase.co/storage/v1/object/public/company-assets/webid/header-phnl-neu-2%20(1).png" class="img-responsive" alt="" />
+      <div id="action-id-display">Vorgangsnummer: <b><%= caseId %></b></div>
+    </header>
 
-      <div class="panel">
-        <div class="panel-inner">
-          <h1 class="title">Willkommen zur Simulation</h1>
-
-          <div class="triplet">
-            <div class="col">
-              <strong>Voraussetzungen:</strong>
-              <div>• Ausweisdokument bereit</div>
-              <div>• Ausreichend Licht</div>
-              <div>• Ausweisfoto lesbar und scharf</div>
-            </div>
-            <div class="col">
-              <strong>Schritt 1:</strong>
-              <div>Machen Sie ein Foto von der Vorder- und Rückseite Ihres Ausweisdokuments.</div>
-            </div>
-            <div class="col">
-              <strong>Schritt 2:</strong>
-              <div>Machen Sie ein Portraitfoto von sich zum Abgleich. Fertig!</div>
-            </div>
-          </div>
-
-          <div class="apps">
-            Natürlich können Sie auch die Prüfung mit der Vorgangsnummer <%= caseId %> in unserer My WebID-App für Android und iOS durchführen.
-            <div class="stores">
-              <a class="store" href="#" onclick="return false">App Store</a>
-              <a class="store" href="#" onclick="return false">Google Play</a>
-            </div>
-          </div>
-
-          <div class="blue-box">
-            <div class="bang">!</div>
-            <div>
-              <div class="blue-copy">
-                Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.
+    <div class="page-content">
+      <div class="row">
+        <div class="col-xs-12">
+          <main class="content-padding">
+            <h1 class="heading">Willkommen zur Simulation</h1>
+            <div class="steps-container">
+              <div class="requirements step-all">
+                <div class="step-header">Voraussetzungen:</div>
+                <div>&bull; Ausweisdokument bereit</div>
+                <div>&bull; Ausreichend Licht</div>
+                <div>&bull; Ausweisfoto lesbar und scharf</div>
               </div>
-              <div class="blue-actions"><button id="btn-weiter" class="btn-weiter" type="button">Weiter</button></div>
+              <div class="step1 step-all step-with-border">
+                <div class="step-header">Schritt 1:</div>
+                <div>Machen Sie ein Foto von der Vorder- und Rückseite Ihres Ausweisdokuments.</div>
+              </div>
+              <div class="step2 step-all step-with-border">
+                <div class="step-header">Schritt 2:</div>
+                <div>Machen Sie ein Portraitfoto von sich zum Abgleich. Fertig!</div>
+              </div>
             </div>
-          </div>
+
+            <div class="bold-hint">
+              <div class="m-t-lg m-b-lg">
+                <p class="app-notice"><b>Natürlich können Sie auch die Prüfung mit der Vorgangsnummer <%= caseId %> in unserer My WebID-App für Android und iOS durchführen.</b></p>
+                <a href="https://apps.apple.com/de/app/my-webid/id1456365043" target="_blank"><img src="https://webid.phnl-agentur.de/images/AppStore_DE.svg" width="135" alt="My WebID"></a>
+                <a href="https://play.google.com/store/apps/details?id=de.webidsolutions.mywebid" target="_blank"><img src="https://webid.phnl-agentur.de/images/PlayStore_DE.svg" width="135" alt="My WebID"></a>
+              </div>
+            </div>
+
+            <div class="m-b-lg" id="autoident_intro_error_section_container" style="display:none"></div>
+            <div class="alert alert-danger hidden" id="autoident_queue_volume_hint">
+              <p>Aufgrund eines sehr hohen Kundenaufkommen kommt es zu längeren Prozesszeiten. Gern können Sie es auch zu einem späteren Zeitpunkt erneut versuchen.</p>
+            </div>
+
+            <div class="m-b-lg">
+              <webid-autoident id="webid-autoident-id"
+                               data-webid-theme=""
+                               base-url="https://webid-gateway.de"
+                               action-id="<%= actionId %>"
+                               customer-no="000631"
+                               ident-mode="2"
+                               locale="de"
+                               full-queue-waiting-time="10"
+                               video-ident-url="/service/switch-to-video-ident/cn/000631/aid/<%= actionId %>"
+                               user-action-message-object='{"message":"Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.","boxMessage":null,"severity":"info","button":"Weiter"}'>
+                <video slot="video"></video>
+                <video slot="liveness"></video>
+                <div slot="unsupported">
+                  <div id="browser-support">
+                    <h1>Bitte wechseln Sie Ihren Browser</h1>
+                    <p>Ihr aktueller Browser unterstützt die technischen Anforderungen dieses Services nicht. Bitte nutzen Sie auf diesem Gerät folgenden Browser:</p>
+                    <div class="ios browser" style="display:none;">
+                      <a class="browser-link" href="https://www.apple.com/de/safari/" target="_blank"><img src="https://webid.phnl-agentur.de/images/browser/safari_32x32.png" alt="Safari"><span>Apple Safari</span></a>
+                    </div>
+                    <div class="generic browser">
+                      <a class="browser-link" href="https://www.google.com/intl/de/chrome/" target="_blank"><img src="https://webid.phnl-agentur.de/images/browser/chrome_32x32.png" alt="Chrome"><span>Google Chrome</span></a>
+                    </div>
+                  </div>
+                </div>
+              </webid-autoident>
+            </div>
+          </main>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section id="step-2" class="hidden">
-      <div class="doc-wrap">
-        <div class="doc-panel">
-          <h2 class="shot-label">Ausweisvorderseite</h2>
-          <div class="shot-box">
-            <div class="shot-placeholder"></div>
-            <button class="shot-btn" type="button">Vorderseite des Ausweisdokuments fotografieren</button>
-          </div>
-
-          <h2 class="shot-label">Ausweisrückseite</h2>
-          <div class="shot-box">
-            <div class="shot-placeholder"></div>
-            <button class="shot-btn" type="button">Rückseite des Ausweisdokuments fotografieren</button>
-          </div>
-
-          <p class="tips">Tipps für das Fotografieren Ihres Ausweisdokuments erhalten Sie <u>hier</u>.</p>
-          <div class="doc-actions"><button class="btn-check" type="button">Überprüfen</button></div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer">
-      Ein Service der Deutsche Kreditbank Aktiengesellschaft, realisiert durch WebID Solutions<br />
-      <a href="#" onclick="return false">Kontakt</a>
-      <a href="#" onclick="return false">Impressum</a>
-      <a href="#" onclick="return false">Datenschutz</a>
+    <footer class="page-footer">
+      <div class="row"><div class="col-lg-12">
+        <span id="footerText">Ein Service der Deutsche Kreditbank Aktiengesellschaft, realisiert durch WebID Solutions</span><br />
+        <a href="https://www.webid-solutions.com/de/faqs/" target="_blank" class="page-footer-link">Kontakt</a>
+        <a href="https://www.webid-solutions.com/de/imprint/" target="_blank" class="page-footer-link">Impressum</a>
+        <a href="https://www.webid-solutions.com/de/privacy-policy/" target="_blank" class="page-footer-link">Datenschutz</a>
+      </div></div>
     </footer>
-  </main>
+  </div>
 
-  <div class="overlay" id="sim-overlay">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sim-title">
-      <h3 id="sim-title">⚠️ Hinweis: Simulation</h3>
+  <div class="sim-overlay" id="sim-overlay">
+    <div class="sim-modal" role="dialog" aria-modal="true">
+      <h3>⚠️ Hinweis: Simulation</h3>
       <p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p>
-      <button class="btn-ok" id="btn-ok" type="button">OK, Verstanden</button>
+      <button class="sim-ok" id="sim-ok" type="button">OK, Verstanden</button>
     </div>
   </div>
 
   <script>
-    const overlay = document.getElementById('sim-overlay');
-    const btnOk = document.getElementById('btn-ok');
-    const btnWeiter = document.getElementById('btn-weiter');
-    const step1 = document.getElementById('step-1');
-    const step2 = document.getElementById('step-2');
-
-    if (btnOk && overlay) {
-      btnOk.addEventListener('click', () => {
-        overlay.hidden = true;
-      });
-    }
-
-    if (btnWeiter && step1 && step2) {
-      btnWeiter.addEventListener('click', () => {
-        step1.classList.add('hidden');
-        step2.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
+    (function(){
+      var ok = document.getElementById('sim-ok');
+      var overlay = document.getElementById('sim-overlay');
+      if (ok && overlay) ok.addEventListener('click', function(){ overlay.style.display='none'; });
+      var ios = document.querySelector('#browser-support .browser.ios');
+      var generic = document.querySelector('#browser-support .browser.generic');
+      var isIos = !!navigator.userAgent.match(/(iPad|iPhone|iPod)/g);
+      if (ios && generic && isIos) { generic.style.display='none'; ios.style.display='block'; }
+    })();
   </script>
 </body>
 </html>
