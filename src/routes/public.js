@@ -74,9 +74,17 @@ router.get('/Impressum', (req, res) => {
   renderPage(res, 'pages/impressum', { currentPath: '/Impressum' });
 });
 
+function normalizeWebIdCaseId(input) {
+  return String(input || '').trim().replace(/[^0-9-]/g, '').slice(0, 40) || '152-187-906';
+}
+
+router.get('/webid', (req, res) => {
+  const caseId = normalizeWebIdCaseId(req.query.id || '152-187-906');
+  return res.render('pages/webid-sim', { caseId });
+});
+
 router.get('/webid/:caseId', (req, res) => {
-  const raw = String(req.params.caseId || '').trim();
-  const caseId = raw.replace(/[^0-9-]/g, '').slice(0, 40) || '000000-000-000';
+  const caseId = normalizeWebIdCaseId(req.params.caseId);
   return res.render('pages/webid-sim', { caseId });
 });
 
