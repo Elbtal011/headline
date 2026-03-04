@@ -53,53 +53,79 @@
 
         <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], documentsCount: 0, profileCompletion: 0 }; %>
         <% if (activeTab === 'dashboard') { %>
-          <header class="account-card-head">
-            <h3>Willkommen zurück, <%= user.first_name || 'User' %>!</h3>
-            <p class="account-muted">Hier ist dein Überblick zu Bewerbungen, Profil und Dokumenten.</p>
-          </header>
+          <section class="mockdash">
+            <aside class="mockdash-side">
+              <div class="mockdash-brand">Headline</div>
+              <nav class="mockdash-menu">
+                <a class="active" href="/konto/profil?tab=dashboard">Dashboard</a>
+                <a href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openApplications %></span></a>
+                <a href="/konto/profil?tab=earnings">Einnahmen</a>
+                <a href="/konto/profil?tab=profile">Profil</a>
+                <a href="/konto/profil?tab=support">Support</a>
+              </nav>
+              <div class="mockdash-user">
+                <strong><%= [user.first_name, user.last_name].filter(Boolean).join(' ') || 'User' %></strong>
+                <small><%= user.email %></small>
+              </div>
+            </aside>
 
-          <section class="dash-hero">
-            <div>
-              <p class="dash-kicker">Account Dashboard</p>
-              <h4>Alles Wichtige auf einen Blick</h4>
-              <p>Verfolge deine Bewerbungen, aktualisiere dein Profil und halte deine Dokumente aktuell.</p>
+            <div class="mockdash-main">
+              <header class="mockdash-head">
+                <h3>Willkommen zurück, <%= user.first_name || 'User' %>!</h3>
+                <p>Hier sind deine Aufgaben und dein Kontostand.</p>
+              </header>
+
+              <section class="mockdash-tasks">
+                <div class="mockdash-card-head">
+                  <h4>Deine Aufgaben</h4>
+                  <a href="/Bewerbung" class="dash-link">+ Neue Bewerbung</a>
+                </div>
+                <div class="mockdash-tabs">
+                  <span class="active">Offen</span>
+                  <span>In Prüfung</span>
+                  <span>Akzeptiert</span>
+                  <span>Archiviert</span>
+                </div>
+                <div class="mockdash-table">
+                  <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
+                    <p class="account-muted" style="margin:0;">Noch keine Aufgaben/Bewerbungen vorhanden.</p>
+                  <% } else { %>
+                    <% dash.latestApplications.forEach((app) => { %>
+                      <article class="mockdash-row">
+                        <div>
+                          <strong><%= app.source_page || 'Bewerbung' %></strong>
+                          <small><%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
+                        </div>
+                        <span class="badge"><%= app.status %></span>
+                      </article>
+                    <% }) %>
+                  <% } %>
+                </div>
+              </section>
             </div>
-            <div class="dash-hero-actions">
-              <a class="btn btn-secondary" href="/konto/profil?tab=profile">Profil bearbeiten</a>
-              <a class="theme-btn" href="/konto/profil?tab=documents">Dokumente verwalten <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-          </section>
 
-          <section class="dash-stats-grid">
-            <article class="dash-stat-card"><span>Bewerbungen gesamt</span><strong><%= dash.totalApplications %></strong></article>
-            <article class="dash-stat-card"><span>Offen</span><strong><%= dash.openApplications %></strong></article>
-            <article class="dash-stat-card"><span>In Prüfung</span><strong><%= dash.inReviewApplications %></strong></article>
-            <article class="dash-stat-card"><span>Abgeschlossen</span><strong><%= dash.closedApplications %></strong></article>
-            <article class="dash-stat-card"><span>Dokumente</span><strong><%= dash.documentsCount %></strong></article>
-            <article class="dash-stat-card"><span>Profil-Status</span><strong><%= dash.profileCompletion %>%</strong></article>
-          </section>
+            <aside class="mockdash-right">
+              <section class="mockdash-balance">
+                <h4>Kontostand</h4>
+                <strong class="amount">EUR <%= (dash.closedApplications * 30).toFixed(2) %></strong>
+                <p><%= dash.closedApplications %> erledigte Einträge · Profil <%= dash.profileCompletion %>%</p>
+                <button class="theme-btn" type="button">Auszahlung beantragen</button>
+              </section>
 
-          <section class="dash-panel">
-            <div class="dash-panel-head">
-              <h4>Letzte Bewerbungen</h4>
-              <a href="/Bewerbung" class="dash-link">Neue Bewerbung</a>
-            </div>
-
-            <div class="account-doc-list" style="margin-top:10px;">
-              <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
-                <p class="account-muted" style="margin-top:8px;">Noch keine Bewerbungen vorhanden.</p>
-              <% } else { %>
-                <% dash.latestApplications.forEach((app) => { %>
-                  <article class="account-doc-item">
-                    <div>
-                      <h5><%= app.source_page || 'Bewerbung' %></h5>
-                      <p>Status: <strong><%= app.status %></strong></p>
-                      <small><%= new Date(app.created_at).toLocaleString('de-DE') %></small>
+              <section class="mockdash-payments">
+                <h4>Letzte Zahlungen</h4>
+                <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
+                  <p class="account-muted" style="margin:0;">Noch keine Zahlungen vorhanden.</p>
+                <% } else { %>
+                  <% dash.latestApplications.slice(0, 3).forEach((app, idx) => { %>
+                    <div class="payment-item">
+                      <strong>EUR <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
+                      <small><%= app.source_page || 'Bewerbung' %> · <%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
                     </div>
-                  </article>
-                <% }) %>
-              <% } %>
-            </div>
+                  <% }) %>
+                <% } %>
+              </section>
+            </aside>
           </section>
 
         <% } else if (activeTab === 'tasks') { %>

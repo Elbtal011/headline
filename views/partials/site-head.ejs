@@ -260,89 +260,101 @@
       gap: 12px;
       margin-top: 18px;
     }
-    .dash-hero {
-      border: 1px solid #d7e5f2;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #f6fbff 0%, #edf5ff 100%);
-      padding: 18px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+    .mockdash {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+    .mockdash-side {
+      background: linear-gradient(180deg, #13233d 0%, #1c3457 100%);
+      color: #f4f8ff;
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 640px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
       gap: 14px;
     }
-    .dash-kicker {
-      margin: 0 0 6px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #2f5f91;
-    }
-    .dash-hero h4 {
-      margin: 0 0 6px;
-      color: #102947;
-      font-size: 22px;
-      line-height: 1.2;
-    }
-    .dash-hero p {
-      margin: 0;
-      color: #3f5d7d;
-      font-size: 14px;
-    }
-    .dash-hero-actions {
+    .mockdash-brand { font-size: 26px; font-weight: 700; }
+    .mockdash-menu { display: grid; gap: 7px; }
+    .mockdash-menu a {
+      text-decoration: none;
+      color: #dbe8fb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: transparent;
+      border: 1px solid transparent;
       display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .dash-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .dash-stat-card {
-      border: 1px solid #d5e4f1;
-      border-radius: 14px;
-      background: #ffffff;
-      box-shadow: 0 8px 20px rgba(15, 40, 71, 0.05);
-      padding: 14px;
-      display: grid;
-      gap: 6px;
-    }
-    .dash-stat-card span {
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #47698c;
-      font-weight: 700;
-    }
-    .dash-stat-card strong {
-      font-size: 28px;
-      line-height: 1;
-      color: #0f2744;
-    }
-    .dash-panel {
-      border: 1px solid #d7e4ef;
-      border-radius: 16px;
-      background: #ffffff;
-      padding: 16px;
-      box-shadow: 0 10px 24px rgba(15, 40, 71, 0.05);
-    }
-    .dash-panel-head {
-      display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 2px;
+      align-items: center;
+      font-weight: 600;
     }
-    .dash-panel-head h4 {
-      margin: 0;
-      color: #113254;
-      font-size: 18px;
+    .mockdash-menu a.active,
+    .mockdash-menu a:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18); }
+    .mockdash-menu .dot {
+      min-width: 22px;
+      text-align: center;
+      border-radius: 999px;
+      background: #f66;
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+    .mockdash-user {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 3px;
+    }
+    .mockdash-user small { color: #b7cce8; }
+    .mockdash-main, .mockdash-right { display: grid; gap: 14px; }
+    .mockdash-head h3 { margin: 0 0 4px; font-size: 34px; color: #0f2744; }
+    .mockdash-head p { margin: 0; color: #4f6882; }
+    .mockdash-tasks, .mockdash-balance, .mockdash-payments {
+      border: 1px solid #d6e2ee;
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(15, 40, 71, 0.06);
+    }
+    .mockdash-card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .mockdash-card-head h4 { margin: 0; font-size: 24px; color: #16395f; }
+    .mockdash-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .mockdash-tabs span { border: 1px solid #d5e2ee; border-radius: 999px; padding: 6px 10px; font-size: 13px; color: #2e4a67; }
+    .mockdash-tabs span.active { background: #e9f2ff; color: #0d4f9b; border-color: #b9d1ea; }
+    .mockdash-table { display: grid; gap: 8px; }
+    .mockdash-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #dfebf6;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fbfdff;
+    }
+    .mockdash-row div { display: grid; gap: 2px; }
+    .mockdash-row strong { color: #15395e; font-size: 15px; }
+    .mockdash-row small { color: #6b829a; font-size: 12px; }
+    .badge {
+      border-radius: 999px;
+      background: #fff5dc;
+      color: #875f08;
+      border: 1px solid #ebd08f;
+      padding: 4px 10px;
+      font-size: 12px;
       font-weight: 700;
+      text-transform: uppercase;
     }
+    .mockdash-balance h4, .mockdash-payments h4 { margin: 0 0 8px; font-size: 22px; color: #16395f; }
+    .mockdash-balance .amount { display: block; font-size: 40px; color: #0f2744; line-height: 1; }
+    .mockdash-balance p { margin: 8px 0 14px; color: #53708e; }
+    .payment-item { display: grid; gap: 2px; padding: 8px 0; border-top: 1px solid #edf3f8; }
+    .payment-item:first-of-type { border-top: 0; }
+    .payment-item strong { font-size: 22px; color: #0f2744; }
+    .payment-item small { color: #5d7692; }
     .dash-link {
       color: #0d4f9b;
       font-size: 14px;
@@ -648,13 +660,13 @@
       .account-form-grid {
         grid-template-columns: 1fr;
       }
-      .dash-hero {
-        flex-direction: column;
+      .mockdash {
+        grid-template-columns: 1fr;
       }
-      .dash-stats-grid {
-        grid-template-columns: 1fr 1fr;
+      .mockdash-side {
+        min-height: auto;
       }
-      .dash-panel-head {
+      .mockdash-card-head {
         flex-direction: column;
         align-items: flex-start;
       }
