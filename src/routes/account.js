@@ -377,7 +377,7 @@ router.post('/konto/registrieren', authLimiter, validateCsrf, async (req, res) =
 
 router.post('/konto/logout', validateCsrf, requireUser, (req, res) => {
   req.session.user = null;
-  return res.redirect('/konto/login');
+  return res.redirect('/index.php');
 });
 
 router.get('/konto/profil', requireUser, async (req, res) => {

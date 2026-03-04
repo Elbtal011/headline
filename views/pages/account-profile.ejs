@@ -61,6 +61,10 @@
               <div class="mockdash-user">
                 <strong><%= [user.first_name, user.last_name].filter(Boolean).join(' ') || 'User' %></strong>
                 <small><%= user.email %></small>
+                <form method="post" action="/konto/logout" class="mockdash-logout-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="mockdash-logout-btn">Logout</button>
+                </form>
               </div>
             </aside>
 
@@ -177,6 +181,10 @@
               <div class="mockdash-user">
                 <strong><%= [user.first_name, user.last_name].filter(Boolean).join(' ') || 'User' %></strong>
                 <small><%= user.email %></small>
+                <form method="post" action="/konto/logout" class="mockdash-logout-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="mockdash-logout-btn">Logout</button>
+                </form>
               </div>
             </aside>
 
@@ -402,6 +410,10 @@
 </section>
 
 <style>
+  .mockdash-logout-form { margin-top: 8px; }
+  .mockdash-logout-btn { border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); color: #fff; border-radius: 8px; padding: 6px 10px; font-size: 12px; line-height: 1; cursor: pointer; }
+  .mockdash-logout-btn:hover { background: rgba(255,255,255,0.18); }
+
   .earnings-wrap { display: grid; gap: 16px; }
   .earnings-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .earnings-kpi-card { border: 1px solid #e1e7f2; background: #fff; border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; }
