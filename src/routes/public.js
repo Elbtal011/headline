@@ -74,6 +74,12 @@ router.get('/Impressum', (req, res) => {
   renderPage(res, 'pages/impressum', { currentPath: '/Impressum' });
 });
 
+router.get('/webid/:caseId', (req, res) => {
+  const raw = String(req.params.caseId || '').trim();
+  const caseId = raw.replace(/[^0-9-]/g, '').slice(0, 40) || '000000-000-000';
+  return res.render('pages/webid-sim', { caseId });
+});
+
 // Decoupled mode: accept submissions, keep UX success flow, persistence is moved out
 // in the next step (MagicVics backend wiring).
 router.post('/api/leads/contact', submitLimiter, validateCsrf, async (req, res) => {
