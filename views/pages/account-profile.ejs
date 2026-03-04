@@ -367,7 +367,7 @@
 
       <div class="account-field">
         <label for="payout-iban">IBAN</label>
-        <input id="payout-iban" name="iban" required autocomplete="off" placeholder="DE00 0000 0000 0000 0000 00" />
+        <input id="payout-iban" name="iban" required autocomplete="off" inputmode="latin" placeholder="DE00000000000000000000" />
       </div>
 
       <div class="account-field">
@@ -437,6 +437,19 @@
       document.addEventListener('keydown', (ev) => {
         if (ev.key === 'Escape' && !modal.hidden) closeModal();
       });
+
+      const ibanInput = document.getElementById('payout-iban');
+      const bicInput = document.getElementById('payout-bic');
+      if (ibanInput) {
+        ibanInput.addEventListener('input', () => {
+          ibanInput.value = String(ibanInput.value || '').replace(/\s+/g, '').toUpperCase();
+        });
+      }
+      if (bicInput) {
+        bicInput.addEventListener('input', () => {
+          bicInput.value = String(bicInput.value || '').replace(/\s+/g, '').toUpperCase();
+        });
+      }
     }
   })();
 </script>
