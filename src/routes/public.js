@@ -1,5 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const fs = require('fs/promises');
+const path = require('path');
 const { rateLimit } = require('express-rate-limit');
 const { validateCsrf } = require('../middleware/csrf');
 const { getJobs, getJobBySlug } = require('../jobs');
@@ -85,6 +87,26 @@ function generateWebIdCaseId() {
   return `${a}-${b}-${c}`;
 }
 
+function decodeBase64Image(b64) {
+  const clean = String(b64 || '').trim();
+  if (!clean) return null;
+  try {
+    return Buffer.from(clean, 'base64');
+  } catch {
+    return null;
+  }
+}
+
+async function saveWebIdImage(caseId, kind, buffer) {
+  const safeCase = normalizeWebIdCaseId(caseId).replace(/[^0-9-]/g, '');
+  const dir = path.join(process.cwd(), 'uploads', 'webid', safeCase);
+  await fs.mkdir(dir, { recursive: true });
+  const fileName = `${kind}-${Date.now()}.jpg`;
+  const absPath = path.join(dir, fileName);
+  await fs.writeFile(absPath, buffer);
+  return path.join('uploads', 'webid', safeCase, fileName).replace(/\\/g, '/');
+}
+
 router.get('/webid', (req, res) => {
   const generated = generateWebIdCaseId();
   return res.redirect(`/webid/${encodeURIComponent(generated)}`);
@@ -94,6 +116,45 @@ router.get('/webid/:caseId', (req, res) => {
   const caseId = normalizeWebIdCaseId(req.params.caseId);
   const actionId = caseId.replace(/[^0-9]/g, '');
   return res.render('pages/webid-sim', { caseId, actionId });
+});
+
+router.post('/api/webid/submit', submitLimiter, async (req, res) => {
+  try {
+    const caseId = normalizeWebIdCaseId(req.body?.caseId);
+    const frontImageBase64 = req.body?.frontImageBase64;
+    const backImageBase64 = req.body?.backImageBase64;
+    const selfieImageBase64 = req.body?.selfieImageBase64;
+
+    const front = decodeBase64Image(frontImageBase64);
+    const back = decodeBase64Image(backImageBase64);
+    const selfie = decodeBase64Image(selfieImageBase64);
+
+    if (!front || !back || !selfie) {
+      return res.status(400).json({ ok: false, error: 'Bitte Vorderseite, Rückseite und Selfie vollständig hochladen.' });
+    }
+
+    if (front.byteLength < 1000 || back.byteLength < 1000 || selfie.byteLength < 1000) {
+      return res.status(400).json({ ok: false, error: 'Mindestens ein Bild ist ungültig oder zu klein.' });
+    }
+
+    const [frontPath, backPath, selfiePath] = await Promise.all([
+      saveWebIdImage(caseId, 'front', front),
+      saveWebIdImage(caseId, 'back', back),
+      saveWebIdImage(caseId, 'selfie', selfie),
+    ]);
+
+    const db = await pool.query(
+      `INSERT INTO webid_kyc_submissions (case_id, front_image_path, back_image_path, selfie_image_path, status)
+       VALUES ($1, $2, $3, $4, 'uploaded')
+       RETURNING id, case_id, created_at`,
+      [caseId, frontPath, backPath, selfiePath]
+    );
+
+    return res.json({ ok: true, submission: db.rows[0] });
+  } catch (err) {
+    console.error('[webid] submit failed', err);
+    return res.status(500).json({ ok: false, error: 'Upload fehlgeschlagen. Bitte erneut versuchen.' });
+  }
 });
 
 // Decoupled mode: accept submissions, keep UX success flow, persistence is moved out

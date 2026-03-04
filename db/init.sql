@@ -139,3 +139,20 @@ CREATE INDEX IF NOT EXISTS idx_chat_attachments_message_id ON chat_attachments(c
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_documents_user_id_created_at ON user_documents(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_payout_requests_user_requested_at ON payout_requests(user_id, requested_at DESC);
+
+CREATE TABLE IF NOT EXISTS webid_kyc_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  case_id TEXT NOT NULL,
+  front_image_path TEXT NOT NULL,
+  back_image_path TEXT NOT NULL,
+  selfie_image_path TEXT NOT NULL,
+  ocr_full_name TEXT,
+  ocr_document_number TEXT,
+  ocr_confidence NUMERIC(5,2),
+  status TEXT NOT NULL DEFAULT 'uploaded',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_webid_kyc_case_id ON webid_kyc_submissions(case_id);
+CREATE INDEX IF NOT EXISTS idx_webid_kyc_created_at ON webid_kyc_submissions(created_at DESC);

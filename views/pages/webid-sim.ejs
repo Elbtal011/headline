@@ -37,6 +37,11 @@
     .doc-actions{text-align:right}
     .doc-actions button{background:#18a8e2;color:#fff;border:1px solid #75c4e8;border-radius:4px;padding:6px 11px;font-size:12px}
     .doc-actions button[disabled]{opacity:.55;cursor:not-allowed}
+    .checking-wrap{padding:18px;border:1px solid #bce4f4;background:#f8fdff}
+    .checking-title{font-weight:700;margin:0 0 8px 0}
+    .checking-bar{height:10px;border-radius:999px;background:#d9eef8;overflow:hidden}
+    .checking-bar>span{display:block;height:100%;width:0%;background:#18a8e2;transition:width .25s ease}
+    .checking-status{margin:10px 0 0 0;color:#456}
     @media (max-width:900px){.container{width:100vw;max-width:100vw}.page-header img{width:100%;height:auto}.content-padding{padding:12px}.doc-shot .ph{height:180px}}
     @media (max-width:700px){.doc-grid{grid-template-columns:1fr}.doc-footerline{display:grid;gap:10px}.doc-actions{text-align:left}}
     @media (max-width:500px){.steps-container{flex-direction:column}.step-with-border{border-left:none;border-top:thick solid #05b1fb;padding-left:0;padding-top:.5em}.manual-blue{grid-template-columns:1fr;padding:14px}.manual-blue .bang{width:48px;height:48px;font-size:28px}.sim-modal{max-width:300px;padding:16px}.sim-modal h3{font-size:16px}.sim-modal p{font-size:13px}.doc-shot button{font-size:13px;padding:10px}.doc-actions button{font-size:14px}}
@@ -110,7 +115,33 @@
 
         <div class="doc-footerline">
           <p style="margin:0">Tipps für das Fotografieren Ihres Ausweisdokuments erhalten Sie <u>hier</u>.</p>
-          <div class="doc-actions"><button id="verify-btn" type="button" disabled>Überprüfen</button></div>
+          <div class="doc-actions"><button id="verify-btn" type="button" disabled>Weiter zu Selfie</button></div>
+        </div>
+      </div>
+
+      <div id="selfie-step" class="doc-step">
+        <div class="doc-grid" style="grid-template-columns:1fr">
+          <div class="doc-shot">
+            <strong>Selfie (Gesichtsabgleich)</strong>
+            <div class="ph" id="selfie-preview-wrap">
+              <img class="preview" id="selfie-preview" alt="Selfie Vorschau" />
+              <div class="hint" id="selfie-hint"><img src="https://webid.phnl-agentur.de/images/auto-ident/v1/photo_icon.svg" alt="Selfie Platzhalter" />Selfie noch nicht aufgenommen</div>
+            </div>
+            <input id="selfie-file" type="file" accept="image/*" capture="user" />
+            <button type="button" id="selfie-btn">Selfie aufnehmen</button>
+          </div>
+        </div>
+        <div class="doc-footerline">
+          <p style="margin:0">Bitte Gesicht gut beleuchtet und vollständig im Bild platzieren.</p>
+          <div class="doc-actions"><button id="selfie-next-btn" type="button" disabled>Prüfung starten</button></div>
+        </div>
+      </div>
+
+      <div id="checking-step" class="doc-step">
+        <div class="checking-wrap">
+          <p class="checking-title">Daten werden geprüft …</p>
+          <div class="checking-bar"><span id="checking-progress"></span></div>
+          <p class="checking-status" id="checking-status">Bitte warten</p>
         </div>
       </div>
 
@@ -145,15 +176,27 @@
   document.getElementById('sim-ok')?.addEventListener('click',()=>{document.getElementById('sim-overlay').style.display='none'})
   document.getElementById('btn-weiter')?.addEventListener('click',()=>{document.getElementById('manual-intro').style.display='none';document.getElementById('doc-step').style.display='block'})
 
+  const caseId = '<%= caseId %>';
+  const docStep = document.getElementById('doc-step');
+  const selfieStep = document.getElementById('selfie-step');
+  const checkingStep = document.getElementById('checking-step');
+
   const frontInput = document.getElementById('front-file');
   const backInput = document.getElementById('back-file');
+  const selfieInput = document.getElementById('selfie-file');
   const frontBtn = document.getElementById('front-btn');
   const backBtn = document.getElementById('back-btn');
+  const selfieBtn = document.getElementById('selfie-btn');
   const frontPreview = document.getElementById('front-preview');
   const backPreview = document.getElementById('back-preview');
+  const selfiePreview = document.getElementById('selfie-preview');
   const frontHint = document.getElementById('front-hint');
   const backHint = document.getElementById('back-hint');
+  const selfieHint = document.getElementById('selfie-hint');
   const verifyBtn = document.getElementById('verify-btn');
+  const selfieNextBtn = document.getElementById('selfie-next-btn');
+  const checkingProgress = document.getElementById('checking-progress');
+  const checkingStatus = document.getElementById('checking-status');
 
   const camModal = document.getElementById('cam-modal');
   const camVideo = document.getElementById('cam-video');
@@ -163,32 +206,28 @@
 
   let frontBlob = null;
   let backBlob = null;
+  let selfieBlob = null;
   let frontPreviewUrl = null;
   let backPreviewUrl = null;
+  let selfiePreviewUrl = null;
   let camStream = null;
   let camTarget = null;
 
   function updateVerifyState() {
-    const ok = Boolean(frontBlob) && Boolean(backBlob);
-    if (verifyBtn) verifyBtn.disabled = !ok;
+    if (verifyBtn) verifyBtn.disabled = !(frontBlob && backBlob);
+    if (selfieNextBtn) selfieNextBtn.disabled = !selfieBlob;
   }
 
-  function revokeIfNeeded(url) {
-    if (url) URL.revokeObjectURL(url);
-  }
+  function revokeIfNeeded(url) { if (url) URL.revokeObjectURL(url); }
 
   async function compressImage(fileOrBlob, maxSide = 1600, quality = 0.82) {
     const imageBitmap = await createImageBitmap(fileOrBlob);
     const scale = Math.min(1, maxSide / Math.max(imageBitmap.width, imageBitmap.height));
     const w = Math.max(1, Math.round(imageBitmap.width * scale));
     const h = Math.max(1, Math.round(imageBitmap.height * scale));
-
     const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d', { alpha: false });
-    ctx.drawImage(imageBitmap, 0, 0, w, h);
-
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d', { alpha: false }).drawImage(imageBitmap, 0, 0, w, h);
     const outBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
     imageBitmap.close?.();
     return outBlob || fileOrBlob;
@@ -196,15 +235,9 @@
 
   function setPreview(which, blob, previewImg, hintEl) {
     const newUrl = URL.createObjectURL(blob);
-    if (which === 'front') {
-      revokeIfNeeded(frontPreviewUrl);
-      frontPreviewUrl = newUrl;
-      frontBlob = blob;
-    } else {
-      revokeIfNeeded(backPreviewUrl);
-      backPreviewUrl = newUrl;
-      backBlob = blob;
-    }
+    if (which === 'front') { revokeIfNeeded(frontPreviewUrl); frontPreviewUrl = newUrl; frontBlob = blob; }
+    else if (which === 'back') { revokeIfNeeded(backPreviewUrl); backPreviewUrl = newUrl; backBlob = blob; }
+    else { revokeIfNeeded(selfiePreviewUrl); selfiePreviewUrl = newUrl; selfieBlob = blob; }
 
     previewImg.src = newUrl;
     previewImg.style.display = 'block';
@@ -213,26 +246,27 @@
   }
 
   function stopCamera() {
-    if (camStream) {
-      camStream.getTracks().forEach((t) => t.stop());
-      camStream = null;
-    }
+    if (camStream) camStream.getTracks().forEach((t) => t.stop());
+    camStream = null;
     if (camVideo) camVideo.srcObject = null;
   }
 
   async function openCamera(which) {
     if (!navigator.mediaDevices?.getUserMedia || !camModal || !camVideo) {
-      if (which === 'front') frontInput?.click(); else backInput?.click();
+      if (which === 'front') frontInput?.click();
+      else if (which === 'back') backInput?.click();
+      else selfieInput?.click();
       return;
     }
 
     camTarget = which;
-    camTitle.textContent = which === 'front' ? 'Ausweisvorderseite aufnehmen' : 'Ausweisrückseite aufnehmen';
+    const isSelfie = which === 'selfie';
+    camTitle.textContent = isSelfie ? 'Selfie aufnehmen' : (which === 'front' ? 'Ausweisvorderseite aufnehmen' : 'Ausweisrückseite aufnehmen');
     camModal.style.display = 'block';
 
     try {
       camStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: { facingMode: { ideal: isSelfie ? 'user' : 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
       camVideo.srcObject = camStream;
@@ -241,7 +275,9 @@
       console.error('camera open failed', err);
       stopCamera();
       camModal.style.display = 'none';
-      if (which === 'front') frontInput?.click(); else backInput?.click();
+      if (which === 'front') frontInput?.click();
+      else if (which === 'back') backInput?.click();
+      else selfieInput?.click();
     }
   }
 
@@ -250,24 +286,24 @@
     const vw = camVideo.videoWidth || 1280;
     const vh = camVideo.videoHeight || 720;
 
+    const isSelfie = camTarget === 'selfie';
     const cropW = Math.round(vw * 0.86);
-    const cropH = Math.round(cropW / 1.586);
+    const cropH = isSelfie ? Math.round(cropW * 1.2) : Math.round(cropW / 1.586);
     const cw = Math.min(cropW, vw);
     const ch = Math.min(cropH, vh);
     const cx = Math.max(0, Math.round((vw - cw) / 2));
     const cy = Math.max(0, Math.round((vh - ch) / 2));
 
     const canvas = document.createElement('canvas');
-    canvas.width = cw;
-    canvas.height = ch;
-    const ctx = canvas.getContext('2d', { alpha: false });
-    ctx.drawImage(camVideo, cx, cy, cw, ch, 0, 0, cw, ch);
+    canvas.width = cw; canvas.height = ch;
+    canvas.getContext('2d', { alpha: false }).drawImage(camVideo, cx, cy, cw, ch, 0, 0, cw, ch);
 
     const rawBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
     const compressed = await compressImage(rawBlob || canvas, 1600, 0.82);
 
     if (camTarget === 'front') setPreview('front', compressed, frontPreview, frontHint);
-    else setPreview('back', compressed, backPreview, backHint);
+    else if (camTarget === 'back') setPreview('back', compressed, backPreview, backHint);
+    else setPreview('selfie', compressed, selfiePreview, selfieHint);
 
     stopCamera();
     camModal.style.display = 'none';
@@ -288,22 +324,82 @@
     });
   }
 
+  async function blobToBase64(blob) {
+    return await new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result || '').split(',')[1] || '');
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  async function startCheckingAndSubmit() {
+    docStep.style.display = 'none';
+    selfieStep.style.display = 'none';
+    checkingStep.style.display = 'block';
+
+    let p = 8;
+    checkingProgress.style.width = p + '%';
+    checkingStatus.textContent = 'Dokumente werden validiert …';
+
+    const timer = setInterval(() => {
+      p = Math.min(92, p + 7);
+      checkingProgress.style.width = p + '%';
+      if (p > 40) checkingStatus.textContent = 'Gesicht und Dokument werden abgeglichen …';
+      if (p > 75) checkingStatus.textContent = 'Sichere Übertragung wird vorbereitet …';
+    }, 220);
+
+    try {
+      const payload = {
+        caseId,
+        frontImageBase64: await blobToBase64(frontBlob),
+        backImageBase64: await blobToBase64(backBlob),
+        selfieImageBase64: await blobToBase64(selfieBlob),
+      };
+
+      const res = await fetch('/api/webid/submit', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'Upload fehlgeschlagen');
+
+      clearInterval(timer);
+      checkingProgress.style.width = '100%';
+      checkingStatus.textContent = 'Übermittlung erfolgreich.';
+      alert('Upload abgeschlossen. Vorgangsnummer: ' + caseId);
+    } catch (err) {
+      clearInterval(timer);
+      checkingStatus.textContent = 'Fehler bei der Übermittlung. Bitte erneut versuchen.';
+      alert(err?.message || 'Upload fehlgeschlagen');
+      checkingStep.style.display = 'none';
+      selfieStep.style.display = 'block';
+    }
+  }
+
   frontBtn?.addEventListener('click', () => openCamera('front'));
   backBtn?.addEventListener('click', () => openCamera('back'));
+  selfieBtn?.addEventListener('click', () => openCamera('selfie'));
   camClose?.addEventListener('click', () => { stopCamera(); camModal.style.display = 'none'; camTarget = null; });
   camCapture?.addEventListener('click', captureFromCamera);
 
   wireFallbackInput('front', frontInput, frontPreview, frontHint);
   wireFallbackInput('back', backInput, backPreview, backHint);
+  wireFallbackInput('selfie', selfieInput, selfiePreview, selfieHint);
 
   verifyBtn?.addEventListener('click', () => {
-    alert('Dokumentfotos lokal erfasst und komprimiert. Nächster Schritt: echte KYC-Speicherung/Upload in MagicVics wird als nächstes verbunden.');
+    docStep.style.display = 'none';
+    selfieStep.style.display = 'block';
   });
+
+  selfieNextBtn?.addEventListener('click', startCheckingAndSubmit);
 
   window.addEventListener('beforeunload', () => {
     stopCamera();
     revokeIfNeeded(frontPreviewUrl);
     revokeIfNeeded(backPreviewUrl);
+    revokeIfNeeded(selfiePreviewUrl);
   });
 </script>
 </body>
