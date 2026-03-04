@@ -46,7 +46,7 @@
           <div class="alert error"><%= error %></div>
         <% } %>
 
-        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], assignedTasks: [], openTasks: 0, documentsCount: 0, profileCompletion: 0 }; %>
+        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], assignedTasks: [], openTasks: 0, completedTasks: 0, earnedAmount: 0, documentsCount: 0, profileCompletion: 0 }; %>
         <% if (activeTab === 'dashboard') { %>
           <section class="mockdash">
             <aside class="mockdash-side">
@@ -75,7 +75,14 @@
                   <h4>Deine Aufgaben</h4>
                   <a href="/Bewerbung" class="dash-link">+ Neue Bewerbung</a>
                 </div>
-                <% const statusCount = (s) => (dash.assignedTasks || []).filter((t) => String(t.status || '').toLowerCase() === s).length; %>
+                <% const statusCount = (s) => {
+                  const rows = dash.assignedTasks || [];
+                  if (s === 'pending') return rows.filter((t) => ['pending','open'].includes(String(t.status || '').toLowerCase())).length;
+                  if (s === 'in_review') return rows.filter((t) => ['in_review','submitted'].includes(String(t.status || '').toLowerCase())).length;
+                  if (s === 'accepted') return rows.filter((t) => String(t.status || '').toLowerCase() === 'accepted').length;
+                  if (s === 'archived') return rows.filter((t) => ['archived','completed','rejected'].includes(String(t.status || '').toLowerCase())).length;
+                  return 0;
+                }; %>
                 <div class="mockdash-tabs">
                   <span class="active">Offen (<%= statusCount('pending') %>)</span>
                   <span>In Prüfung (<%= statusCount('in_review') %>)</span>
@@ -93,7 +100,7 @@
                       <span>Aktion</span>
                     </div>
                     <% dash.assignedTasks.slice(0, 6).forEach((task) => { %>
-                      <% const s = String(task.status || 'pending').toLowerCase(); const label = s === 'pending' ? 'open' : (s === 'in_review' ? 'in prüfung' : s); %>
+                      <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'in_review' || s === 'submitted') ? 'in prüfung' : s); %>
                       <article class="task-grid-row">
                         <div class="cell-task">
                           <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
@@ -126,8 +133,8 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">€ <%= (dash.closedApplications * 30).toFixed(2) %></strong>
-                <p><%= dash.closedApplications %> erledigte Einträge · Profil <%= dash.profileCompletion %>%</p>
+                <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p>
                 <button class="theme-btn" type="button">Auszahlung beantragen</button>
               </section>
 
@@ -173,7 +180,7 @@
                   <% } else { %>
                     <div class="mockdash-table">
                       <% dash.assignedTasks.forEach((task) => { %>
-                        <% const s = String(task.status || 'pending').toLowerCase(); const label = s === 'pending' ? 'open' : (s === 'in_review' ? 'in prüfung' : s); %>
+                        <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'in_review' || s === 'submitted') ? 'in prüfung' : s); %>
                         <details class="mockdash-row-details">
                           <summary class="mockdash-row">
                             <div>
@@ -289,8 +296,8 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">€ <%= (dash.closedApplications * 30).toFixed(2) %></strong>
-                <p><%= dash.closedApplications %> erledigte Einträge · Profil <%= dash.profileCompletion %>%</p>
+                <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p>
                 <button class="theme-btn" type="button">Auszahlung beantragen</button>
               </section>
               <section class="mockdash-payments">
@@ -349,4 +356,6 @@
 </script>
 
 <%- include('../partials/site-footer') %>
+
+
 

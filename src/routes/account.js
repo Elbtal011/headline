@@ -138,6 +138,8 @@ async function getUserDashboardData(user, apiBase = '') {
       latestApplications: [],
       assignedTasks: [],
       openTasks: 0,
+      completedTasks: 0,
+      earnedAmount: 0,
       documentsCount: 0,
       profileCompletion: 0,
     };
@@ -177,7 +179,12 @@ async function getUserDashboardData(user, apiBase = '') {
   const profileCompletion = Math.round((completedFields / 9) * 100);
 
   const taskRows = Array.isArray(assignedTasks) ? assignedTasks : [];
-  const openTasks = taskRows.filter((x) => !['completed', 'rejected', 'canceled', 'cancelled', 'archived'].includes(String(x?.status || '').toLowerCase())).length;
+  const statusOf = (x) => String(x?.status || '').toLowerCase();
+  const openTasks = taskRows.filter((x) => ['pending', 'open'].includes(statusOf(x))).length;
+  const completedTasks = taskRows.filter((x) => statusOf(x) === 'completed').length;
+  const earnedAmount = taskRows
+    .filter((x) => statusOf(x) === 'completed')
+    .reduce((sum, x) => sum + (Number(x?.payment_amount || 0) || 0), 0);
 
   return {
     totalApplications,
@@ -187,6 +194,8 @@ async function getUserDashboardData(user, apiBase = '') {
     latestApplications: rows.slice(0, 6),
     assignedTasks: taskRows,
     openTasks,
+    completedTasks,
+    earnedAmount,
     documentsCount,
     profileCompletion,
   };
