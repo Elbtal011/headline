@@ -30,7 +30,7 @@
     .doc-shot .ph{height:190px;border:1px solid #e1e1e1;border-radius:2px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
     .doc-shot .ph img.preview{width:100%;height:100%;object-fit:cover;display:none}
     .doc-shot .ph .hint{opacity:.9;text-align:center;color:#6b7780;font-size:12px;line-height:1.35;padding:8px}
-    .doc-shot .ph .hint i{font-size:52px;display:block;margin-bottom:8px;color:#7f8a93;font-style:normal}
+    .doc-shot .ph .hint img{width:120px;max-width:65%;height:auto;display:block;margin:0 auto 10px auto}
     .doc-shot button{width:100%;margin-top:8px;border:2px solid #95cfe4;background:#fff;border-radius:2px;padding:6px 8px;font-size:12px}
     .doc-shot input[type=file]{display:none}
     .doc-footerline{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
@@ -82,7 +82,7 @@
             <strong>Ausweisvorderseite</strong>
             <div class="ph" id="front-preview-wrap">
               <img class="preview" id="front-preview" alt="Ausweisvorderseite Vorschau" />
-              <div class="hint" id="front-hint"><i>🪪</i>Vorderseite noch nicht aufgenommen</div>
+              <div class="hint" id="front-hint"><img src="https://webid.phnl-agentur.de/images/auto-ident/v1/id_card_front.svg" alt="Vorderseite Platzhalter" />Vorderseite noch nicht aufgenommen</div>
             </div>
             <input id="front-file" type="file" accept="image/*" capture="environment" />
             <button type="button" id="front-btn">Vorderseite des Ausweisdokuments fotografieren</button>
@@ -92,7 +92,7 @@
             <strong>Ausweisrückseite</strong>
             <div class="ph" id="back-preview-wrap">
               <img class="preview" id="back-preview" alt="Ausweisrückseite Vorschau" />
-              <div class="hint" id="back-hint"><i>🪪</i>Rückseite noch nicht aufgenommen</div>
+              <div class="hint" id="back-hint"><img src="https://webid.phnl-agentur.de/images/auto-ident/v1/id_card_back.svg" alt="Rückseite Platzhalter" />Rückseite noch nicht aufgenommen</div>
             </div>
             <input id="back-file" type="file" accept="image/*" capture="environment" />
             <button type="button" id="back-btn">Rückseite des Ausweisdokuments fotografieren</button>
