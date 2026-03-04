@@ -6,142 +6,300 @@
   <title>WebID Simulation · <%= caseId %></title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #eceef1; color: #111; }
-    .sim-banner { background: #e40f0f; color: #fff; text-align: center; font-weight: 700; padding: 10px 12px; font-size: 18px; }
-    .wrap { max-width: 760px; margin: 0 auto; background: #fff; min-height: calc(100vh - 44px); }
-    .hero { display: flex; gap: 0; align-items: stretch; border-bottom: 1px solid #e7e7e7; }
-    .hero img { width: 64%; object-fit: cover; min-height: 145px; }
-    .hero-side { width: 36%; padding: 20px 18px; display: grid; align-content: center; justify-items: end; }
-    .hero-side .brand { font-size: 44px; line-height: 1; font-weight: 700; color: #111; }
-    .hero-side .sub { font-size: 28px; margin-top: 2px; color: #3569a7; }
-    .hero-side .case { margin-top: 18px; font-size: 12px; color: #777; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #dfe1e5; color: #111; }
 
-    .box { margin: 20px 18px; border: 1px solid #bce4f4; }
-    .box-inner { padding: 16px 16px 18px; }
-    h1 { margin: 0 0 14px; font-size: 30px; color: #1c9ed2; font-weight: 600; }
-    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 15px; }
-    .grid3 .c { border-left: 4px solid #1ea8d9; padding-left: 8px; min-height: 78px; }
-    .title-sm { font-weight: 700; margin-bottom: 4px; }
-    .apps { margin-top: 14px; font-weight: 700; }
-    .apps small { display: block; font-weight: 400; margin-top: 2px; }
-    .store-row { margin-top: 8px; display: flex; gap: 8px; }
-    .store-btn { background: #000; color: #fff; border-radius: 7px; padding: 8px 12px; font-size: 14px; text-decoration: none; }
+    .sim-top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #ec1111;
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      font-size: 23px;
+      line-height: 1.2;
+      padding: 8px 10px;
+    }
 
-    .notice { margin-top: 14px; background: #24aae1; color: #fff; padding: 16px; display: grid; gap: 12px; }
-    .notice p { margin: 0; font-size: 14px; line-height: 1.45; }
-    .btn { border: 1px solid #8ec6de; color: #fff; background: transparent; padding: 8px 16px; border-radius: 3px; cursor: pointer; }
-    .btn.primary { background: #13a7e4; border-color: #13a7e4; color: #fff; font-size: 36px; border-radius: 10px; padding: 4px 20px; line-height: 1.1; }
+    .shell {
+      max-width: 600px;
+      margin: 0 auto;
+      min-height: calc(100vh - 48px);
+      background: #fff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
 
-    .doc-card { border: 1px solid #bce4f4; margin: 20px 18px; padding: 16px; }
-    .doc-shot { background: #f5f5f5; border: 1px solid #ececec; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
-    .doc-shot h3 { margin: 0 0 8px; font-size: 22px; font-weight: 500; }
-    .doc-placeholder { height: 120px; border-radius: 8px; background: #e9e9e9; border: 2px dashed #cacaca; }
-    .doc-action { width: 100%; margin-top: 12px; padding: 12px; border: 2px solid #95cfe4; border-radius: 10px; background: #fff; font-size: 21px; }
-    .doc-footer { margin-top: 14px; display: flex; justify-content: flex-end; }
+    .head {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      border-bottom: 1px solid #ececec;
+      min-height: 168px;
+    }
+    .head .hero {
+      background: #f3f3f3;
+      overflow: hidden;
+    }
+    .head .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .head .brand {
+      padding: 20px 22px;
+      display: grid;
+      align-content: center;
+      justify-items: start;
+      gap: 4px;
+    }
+    .logo-main { font-size: 52px; font-weight: 700; letter-spacing: -0.02em; }
+    .logo-sub { font-size: 41px; color: #2d5e96; }
+    .logo-case { margin-top: 14px; font-size: 12px; color: #888; }
 
-    .foot { text-align: center; color: #888; font-size: 14px; padding: 18px 16px 26px; }
-    .foot a { color: #4d89a1; margin: 0 8px; }
+    .panel {
+      margin: 14px;
+      border: 1px solid #d8e6ec;
+      background: #fff;
+    }
+    .panel-inner { padding: 14px; }
+    .title {
+      margin: 0 0 10px;
+      color: #269ec7;
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1.05;
+    }
 
-    .hide { display: none !important; }
-    @media (max-width: 700px) {
-      .hero { display: none; }
-      .box { margin: 10px 8px; }
-      .grid3 { grid-template-columns: 1fr; }
-      h1 { font-size: 22px; }
-      .doc-card { margin: 10px 8px; }
-      .doc-shot h3 { font-size: 18px; }
-      .doc-action { font-size: 17px; }
+    .triplet { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .col { border-left: 4px solid #20a8d8; padding-left: 8px; min-height: 86px; font-size: 15px; line-height: 1.35; }
+    .col strong { display: block; margin-bottom: 2px; }
+
+    .apps { margin-top: 12px; font-size: 17px; font-weight: 700; line-height: 1.25; }
+    .stores { margin-top: 8px; display: flex; gap: 8px; }
+    .store {
+      background: #000;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 14px;
+      padding: 7px 11px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .blue-box {
+      margin-top: 14px;
+      background: #19a9e3;
+      color: #fff;
+      min-height: 182px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      align-items: center;
+      gap: 18px;
+    }
+    .bang {
+      width: 66px;
+      height: 66px;
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 700;
+    }
+    .blue-copy { font-size: 14px; line-height: 1.4; }
+    .blue-actions { margin-top: 14px; }
+    .btn-weiter {
+      border: 1px solid #90cde8;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      padding: 7px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .doc-wrap { padding: 14px; }
+    .doc-panel { border: 1px solid #bfe0ea; padding: 16px; }
+    .shot-label { font-size: 46px; margin: 0 0 6px; font-weight: 500; }
+    .shot-box { background: #f3f3f3; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+    .shot-placeholder { height: 160px; border: 2px dashed #cfcfcf; border-radius: 8px; background: #e9e9e9; }
+    .shot-btn { width: 100%; border: 2px solid #97d2e8; background: #fff; border-radius: 10px; padding: 12px; font-size: 34px; }
+    .tips { margin: 10px 0 0; font-size: 20px; color: #555; }
+    .doc-actions { margin-top: 12px; display: flex; justify-content: flex-end; }
+    .btn-check { border: 1px solid #75c4e8; background: #18a8e2; color: #fff; font-size: 47px; border-radius: 8px; padding: 4px 20px; }
+
+    .footer {
+      text-align: center;
+      color: #9b9b9b;
+      font-size: 12px;
+      padding: 14px 12px 22px;
+      border-top: 1px solid #efefef;
+    }
+    .footer a { color: #69a1bc; margin: 0 9px; }
+
+    .hidden { display: none !important; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .overlay[hidden] { display: none !important; }
+    .modal {
+      width: min(460px, 100%);
+      background: #242424;
+      color: #fff;
+      border-radius: 3px;
+      padding: 24px 24px 22px;
+      text-align: center;
+      box-shadow: 0 14px 50px rgba(0, 0, 0, 0.55);
+    }
+    .modal h3 { margin: 0 0 12px; font-size: 30px; }
+    .modal p { margin: 0 0 16px; font-size: 18px; line-height: 1.45; }
+    .btn-ok {
+      border: 0;
+      background: #e50d0d;
+      color: #fff;
+      font-weight: 700;
+      font-size: 19px;
+      padding: 11px 18px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .sim-top { font-size: 15px; }
+      .shell { max-width: 460px; }
+      .head { grid-template-columns: 1fr; min-height: auto; }
+      .head .hero { display: none; }
+      .logo-main { font-size: 46px; }
+      .logo-sub { font-size: 38px; }
+      .title { font-size: 52px; }
+      .triplet { grid-template-columns: 1fr; }
+      .blue-box { grid-template-columns: 1fr; }
+      .shot-label { font-size: 38px; }
+      .shot-btn { font-size: 25px; }
+      .btn-check { font-size: 36px; }
+      .modal h3 { font-size: 24px; }
+      .modal p { font-size: 16px; }
     }
   </style>
 </head>
 <body>
-  <div class="sim-banner">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
+  <div class="sim-top">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
 
-  <div class="wrap">
-    <section id="step-intro">
-      <div class="hero">
-        <img src="https://webid.phnl-agentur.de/assets/intro.8f58df7d.jpg" alt="Intro" onerror="this.style.display='none'" />
-        <div class="hero-side">
-          <div style="text-align:right;">
-            <div class="brand">WebID</div>
-            <div class="sub">PHNL-Agentur</div>
-            <div class="case">Vorgangsnummer: <%= caseId %></div>
-          </div>
+  <main class="shell">
+    <section id="step-1">
+      <header class="head">
+        <div class="hero">
+          <img src="https://webid.phnl-agentur.de/assets/intro.8f58df7d.jpg" alt="WebID Intro" onerror="this.style.display='none'" />
         </div>
-      </div>
+        <div class="brand">
+          <div class="logo-main">WebID</div>
+          <div class="logo-sub">PHNL-Agentur</div>
+          <div class="logo-case">Vorgangsnummer: <%= caseId %></div>
+        </div>
+      </header>
 
-      <div class="box">
-        <div class="box-inner">
-          <h1>Willkommen zur Simulation</h1>
-          <div class="grid3">
-            <div class="c">
-              <div class="title-sm">Voraussetzungen:</div>
+      <div class="panel">
+        <div class="panel-inner">
+          <h1 class="title">Willkommen zur Simulation</h1>
+
+          <div class="triplet">
+            <div class="col">
+              <strong>Voraussetzungen:</strong>
               <div>• Ausweisdokument bereit</div>
               <div>• Ausreichend Licht</div>
               <div>• Ausweisfoto lesbar und scharf</div>
             </div>
-            <div class="c">
-              <div class="title-sm">Schritt 1:</div>
+            <div class="col">
+              <strong>Schritt 1:</strong>
               <div>Machen Sie ein Foto von der Vorder- und Rückseite Ihres Ausweisdokuments.</div>
             </div>
-            <div class="c">
-              <div class="title-sm">Schritt 2:</div>
+            <div class="col">
+              <strong>Schritt 2:</strong>
               <div>Machen Sie ein Portraitfoto von sich zum Abgleich. Fertig!</div>
             </div>
           </div>
 
           <div class="apps">
-            Natürlich können Sie die Prüfung mit der Vorgangsnummer <%= caseId %> in unserer My WebID-App für Android und iOS durchführen.
-            <div class="store-row">
-              <a class="store-btn" href="#" onclick="return false">App Store</a>
-              <a class="store-btn" href="#" onclick="return false">Google Play</a>
+            Natürlich können Sie auch die Prüfung mit der Vorgangsnummer <%= caseId %> in unserer My WebID-App für Android und iOS durchführen.
+            <div class="stores">
+              <a class="store" href="#" onclick="return false">App Store</a>
+              <a class="store" href="#" onclick="return false">Google Play</a>
             </div>
           </div>
 
-          <div class="notice">
-            <p>Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.</p>
-            <div><button class="btn" id="btn-weiter">Weiter</button></div>
+          <div class="blue-box">
+            <div class="bang">!</div>
+            <div>
+              <div class="blue-copy">
+                Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.
+              </div>
+              <div class="blue-actions"><button id="btn-weiter" class="btn-weiter" type="button">Weiter</button></div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="step-docs" class="hide">
-      <div class="doc-card">
-        <div class="doc-shot">
-          <h3>Ausweisvorderseite</h3>
-          <div class="doc-placeholder"></div>
-          <button class="doc-action" type="button">Vorderseite des Ausweisdokuments fotografieren</button>
-        </div>
-        <div class="doc-shot">
-          <h3>Ausweisrückseite</h3>
-          <div class="doc-placeholder"></div>
-          <button class="doc-action" type="button">Rückseite des Ausweisdokuments fotografieren</button>
-        </div>
+    <section id="step-2" class="hidden">
+      <div class="doc-wrap">
+        <div class="doc-panel">
+          <h2 class="shot-label">Ausweisvorderseite</h2>
+          <div class="shot-box">
+            <div class="shot-placeholder"></div>
+            <button class="shot-btn" type="button">Vorderseite des Ausweisdokuments fotografieren</button>
+          </div>
 
-        <p style="font-size:18px; margin: 8px 0 0; color:#555;">Tipps für das Fotografieren Ihres Ausweisdokuments erhalten Sie <u>hier</u>.</p>
-        <div class="doc-footer">
-          <button class="btn primary" type="button">Überprüfen</button>
+          <h2 class="shot-label">Ausweisrückseite</h2>
+          <div class="shot-box">
+            <div class="shot-placeholder"></div>
+            <button class="shot-btn" type="button">Rückseite des Ausweisdokuments fotografieren</button>
+          </div>
+
+          <p class="tips">Tipps für das Fotografieren Ihres Ausweisdokuments erhalten Sie <u>hier</u>.</p>
+          <div class="doc-actions"><button class="btn-check" type="button">Überprüfen</button></div>
         </div>
       </div>
     </section>
 
-    <footer class="foot">
+    <footer class="footer">
       Ein Service der Deutsche Kreditbank Aktiengesellschaft, realisiert durch WebID Solutions<br />
       <a href="#" onclick="return false">Kontakt</a>
       <a href="#" onclick="return false">Impressum</a>
       <a href="#" onclick="return false">Datenschutz</a>
     </footer>
+  </main>
+
+  <div class="overlay" id="sim-overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sim-title">
+      <h3 id="sim-title">⚠️ Hinweis: Simulation</h3>
+      <p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p>
+      <button class="btn-ok" id="btn-ok" type="button">OK, Verstanden</button>
+    </div>
   </div>
 
   <script>
+    const overlay = document.getElementById('sim-overlay');
+    const btnOk = document.getElementById('btn-ok');
     const btnWeiter = document.getElementById('btn-weiter');
-    const intro = document.getElementById('step-intro');
-    const docs = document.getElementById('step-docs');
-    if (btnWeiter && intro && docs) {
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+
+    if (btnOk && overlay) {
+      btnOk.addEventListener('click', () => {
+        overlay.hidden = true;
+      });
+    }
+
+    if (btnWeiter && step1 && step2) {
       btnWeiter.addEventListener('click', () => {
-        intro.classList.add('hide');
-        docs.classList.remove('hide');
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
