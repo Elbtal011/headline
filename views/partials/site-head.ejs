@@ -301,13 +301,18 @@
     .mockdash-menu a.active,
     .mockdash-menu a:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18); }
     .mockdash-menu .dot {
-      min-width: 22px;
-      text-align: center;
-      border-radius: 999px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
       background: #f66;
       color: #fff;
-      font-size: 12px;
-      padding: 2px 6px;
+      font-size: 11px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 18px;
+      padding: 0;
     }
     .mockdash-user {
       background: rgba(255,255,255,0.08);
@@ -331,7 +336,7 @@
     .mockdash-card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .mockdash-card-head h4 { margin: 0; font-size: 24px; color: #16395f; }
     .mockdash-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-    .mockdash-tabs span { border: 1px solid #d5e2ee; border-radius: 999px; padding: 6px 10px; font-size: 13px; color: #2e4a67; }
+    .mockdash-tabs span { border: 1px solid #d5e2ee; border-radius: 999px; padding: 7px 14px; font-size: 13px; color: #2e4a67; min-height: 32px; display: inline-flex; align-items: center; }
     .mockdash-tabs span.active { background: #e9f2ff; color: #0d4f9b; border-color: #b9d1ea; }
     .mockdash-table { display: grid; gap: 8px; }
     .mockdash-row {
