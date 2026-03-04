@@ -75,7 +75,7 @@
                   <h4>Deine Aufgaben</h4>
                   <a href="/Bewerbung" class="dash-link">+ Neue Bewerbung</a>
                 </div>
-                <% const selectedStatus = activeTaskStatus || 'all'; const statusCount = (s) => {
+                <% const selectedStatus = activeTaskStatus || 'open'; const statusCount = (s) => {
                   const rows = dash.assignedTasks || [];
                   if (s === 'pending') return rows.filter((t) => ['pending','open'].includes(String(t.status || '').toLowerCase())).length;
                   if (s === 'in_review') return rows.filter((t) => ['accepted','in_review','submitted'].includes(String(t.status || '').toLowerCase())).length;
@@ -89,7 +89,7 @@
                   return true;
                 }; const shownTasks = (dash.assignedTasks || []).filter(statusMatches); %>
                 <div class="mockdash-tabs">
-                  <a class="<%= selectedStatus === 'open' || selectedStatus === 'all' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=open">Offen (<%= statusCount('pending') %>)</a>
+                  <a class="<%= selectedStatus === 'open' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=open">Offen (<%= statusCount('pending') %>)</a>
                   <a class="<%= selectedStatus === 'in_review' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=in_review">In Prüfung (<%= statusCount('in_review') %>)</a>
                   <a class="<%= selectedStatus === 'accepted' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=accepted">Akzeptiert (<%= statusCount('accepted') %>)</a>
                 </div>

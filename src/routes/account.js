@@ -113,8 +113,8 @@ function parseProfileTab(input) {
 }
 
 function parseTaskStatusFilter(input) {
-  const allowed = new Set(['all', 'open', 'in_review', 'accepted']);
-  return allowed.has(String(input || '')) ? String(input) : 'all';
+  const allowed = new Set(['open', 'in_review', 'accepted']);
+  return allowed.has(String(input || '')) ? String(input) : 'open';
 }
 
 async function fetchAssignedTasksForUser(apiBase, user) {
