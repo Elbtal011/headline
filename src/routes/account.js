@@ -318,7 +318,8 @@ router.post('/konto/login', authLimiter, validateCsrf, async (req, res) => {
 
 router.get('/konto/registrieren', (req, res) => {
   const captchaQuestion = createCaptchaChallenge(req);
-  return renderPage(res, 'pages/account-register', { currentPath: '/konto/registrieren' }, { error: '', values: {}, captchaQuestion });
+  const values = normalizeProfileInput(req.query || {});
+  return renderPage(res, 'pages/account-register', { currentPath: '/konto/registrieren' }, { error: '', values, captchaQuestion });
 });
 
 router.post('/konto/registrieren', authLimiter, validateCsrf, async (req, res) => {
