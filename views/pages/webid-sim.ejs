@@ -2,162 +2,94 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="format-detection" content="telephone=no" />
   <title>WebID Solutions - Your True Identity Company</title>
-
-  <link href="https://webid.phnl-agentur.de/images/service/favicon.ico" rel="icon" type="image/ico" />
-  <link href="https://webid.phnl-agentur.de/css/flags/flags.css" rel="stylesheet" type="text/css" />
-  <link href="https://webid.phnl-agentur.de/vendor/featherlight/v1.7.14/release/featherlight.min.css" rel="stylesheet" type="text/css" />
-  <link href="https://webid.phnl-agentur.de/service/v3/style/main.css?b=2373" rel="stylesheet" type="text/css" />
-
+  <link href="https://webid.phnl-agentur.de/service/v3/style/main.css?b=2373" rel="stylesheet" />
   <style>
-    #simulation-warning { position: fixed; top: 0; left: 0; width: 100%; background: red; color: #fff; text-align: center; font-size: 18px; font-weight: bold; padding: 10px; z-index: 999999; }
-    body { padding-top: 44px !important; }
-
-    webid-autoident > div[slot='unsupported'] { border: 1px solid #05b1fb; padding: 20px; }
-    .heading { font-size: 18px; }
-    .steps-container { display: flex; flex-wrap: wrap; margin-top: 1em; margin-bottom: 1em; }
-    .step-all { flex: 2; }
-    .step-with-border { border-left: thick solid #05b1fb; padding-left: .5em; }
-    .step-header { font-weight: bold; }
-    .app-notice { font-weight: bold; font-size: 1.3em; }
-    .bold-hint { font-weight: bold; margin-bottom: 1em; }
-
-    .sim-overlay { position: fixed; inset: 0; z-index: 1000000; background: rgba(0, 0, 0, .72); display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .sim-modal { width: min(440px, 100%); background: #2a2a2a; color: #fff; border-radius: 2px; text-align: center; padding: 24px 20px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
-    .sim-modal h3 { margin: 0 0 10px; font-size: 34px; font-weight: 700; }
-    .sim-modal p { margin: 0 0 14px; font-size: 20px; line-height: 1.4; }
-    .sim-ok { background: #f00; border: 0; color: #fff; font-weight: 700; font-size: 20px; padding: 9px 18px; border-radius: 3px; }
-
-    @media all and (max-width: 500px) {
-      .steps-container { flex-direction: column; }
-      .step-with-border { border-left: none; padding-left: 0; border-top: thick solid #05b1fb; padding-top: .5em; }
-      .sim-modal h3 { font-size: 26px; }
-      .sim-modal p { font-size: 16px; }
-    }
+    #simulation-warning{position:fixed;top:0;left:0;width:100%;background:red;color:#fff;text-align:center;font-size:18px;font-weight:700;padding:10px;z-index:9999}
+    body.webid{padding-top:44px;background:#dfe1e5}
+    .container{max-width:640px;margin:0 auto;background:#fff}
+    .heading{font-size:18px}
+    .steps-container{display:flex;flex-wrap:wrap;margin:1em 0}
+    .step-all{flex:2}
+    .step-with-border{border-left:thick solid #05b1fb;padding-left:.5em}
+    .step-header{font-weight:700}
+    .app-notice{font-weight:700;font-size:1.3em}
+    .sim-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:10000;display:flex;align-items:center;justify-content:center}
+    .sim-modal{background:#2a2a2a;color:#fff;padding:18px 20px;border-radius:2px;text-align:center;max-width:270px}
+    .sim-modal h3{margin:0 0 8px;font-size:14px;font-weight:700}
+    .sim-modal p{margin:0 0 10px;font-size:12px;line-height:1.45}
+    .sim-ok{background:#f00;border:0;color:#fff;padding:7px 12px;font-size:12px;font-weight:700;border-radius:2px}
+    .manual-blue{background:#19a9e3;color:#fff;display:grid;grid-template-columns:90px 1fr;gap:14px;padding:18px;align-items:center}
+    .manual-blue .bang{width:60px;height:60px;border:3px solid rgba(255,255,255,.65);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700}
+    .manual-blue p{margin:0;font-size:12px;line-height:1.4}
+    .manual-blue .btn{margin-top:10px;border:1px solid #8ecde8;background:transparent;color:#fff;padding:7px 14px;border-radius:2px;font-size:12px}
+    .doc-step{display:none;border:1px solid #bce4f4;padding:14px;margin-top:10px}
+    .doc-shot{background:#f3f3f3;border-radius:6px;padding:10px;margin-bottom:10px}
+    .doc-shot .ph{height:120px;border:2px dashed #cfcfcf;border-radius:8px;background:#e8e8e8}
+    .doc-shot button{width:100%;margin-top:8px;border:2px solid #95cfe4;background:#fff;border-radius:8px;padding:8px;font-size:14px}
+    .doc-actions{text-align:right}
+    .doc-actions button{background:#18a8e2;color:#fff;border:1px solid #75c4e8;border-radius:6px;padding:7px 12px}
+    @media (max-width:500px){.steps-container{flex-direction:column}.step-with-border{border-left:none;border-top:thick solid #05b1fb;padding-left:0;padding-top:.5em}.manual-blue{grid-template-columns:1fr}}
   </style>
-
-  <script>
-    window.WebID = window.WebID || {};
-    window.WebID.statusPollingOptions = window.WebID.statusPollingOptions || {};
-    window.WebID.isTelkoTan = false;
-    window.WebID.isIosAppNotAllowed = true;
-  </script>
-  <script src="https://webid.phnl-agentur.de/js/service/jquery.min.js?b=2373"></script>
-  <script src="https://webid.phnl-agentur.de/js/service/jquery.validate.min.js?b=2373"></script>
-  <script src="https://webid.phnl-agentur.de/assets/langjs/lang/de/cn/000631?b=2373"></script>
-  <script src="https://webid.phnl-agentur.de/vendor/featherlight/v1.7.14/release/featherlight.min.js?b=2373"></script>
-  <script src="https://webid.phnl-agentur.de/service/v3/script/bootstrap.js?b=2373"></script>
-  <script type="module" src="https://webid.phnl-agentur.de/js/stencil/stencil-components.esm.js?b=2373"></script>
-  <script nomodule src="https://webid.phnl-agentur.de/js/service/unsupported_browser.min.js?b=2373"></script>
-  <script type="module" src="https://webid.phnl-agentur.de/js/components/auto-ident/v3/auto-ident.js?b=2373"></script>
 </head>
 <body class="webid c000631">
-  <div id="simulation-warning">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
+<div id="simulation-warning">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
+<div class="container">
+  <header class="page-header">
+    <img src="https://kbltkdjwueqanlvynnon.supabase.co/storage/v1/object/public/company-assets/webid/header-phnl-neu-2%20(1).png" class="img-responsive" alt="" />
+    <div id="action-id-display">Vorgangsnummer: <b><%= caseId %></b></div>
+  </header>
 
-  <div class="container">
-    <header class="page-header">
-      <img src="https://kbltkdjwueqanlvynnon.supabase.co/storage/v1/object/public/company-assets/webid/header-phnl-neu-2%20(1).png" class="img-responsive" alt="" />
-      <div id="action-id-display">Vorgangsnummer: <b><%= caseId %></b></div>
-    </header>
+  <div class="page-content">
+    <div class="row"><div class="col-xs-12"><main class="content-padding">
+      <h1 class="heading">Willkommen zur Simulation</h1>
+      <div class="steps-container">
+        <div class="requirements step-all">
+          <div class="step-header">Voraussetzungen:</div>
+          <div>• Ausweisdokument bereit</div><div>• Ausreichend Licht</div><div>• Ausweisfoto lesbar und scharf</div>
+        </div>
+        <div class="step1 step-all step-with-border"><div class="step-header">Schritt 1:</div><div>Machen Sie ein Foto von der Vorder- und Rückseite Ihres Ausweisdokuments.</div></div>
+        <div class="step2 step-all step-with-border"><div class="step-header">Schritt 2:</div><div>Machen Sie ein Portraitfoto von sich zum Abgleich. Fertig!</div></div>
+      </div>
 
-    <div class="page-content">
-      <div class="row">
-        <div class="col-xs-12">
-          <main class="content-padding">
-            <h1 class="heading">Willkommen zur Simulation</h1>
-            <div class="steps-container">
-              <div class="requirements step-all">
-                <div class="step-header">Voraussetzungen:</div>
-                <div>&bull; Ausweisdokument bereit</div>
-                <div>&bull; Ausreichend Licht</div>
-                <div>&bull; Ausweisfoto lesbar und scharf</div>
-              </div>
-              <div class="step1 step-all step-with-border">
-                <div class="step-header">Schritt 1:</div>
-                <div>Machen Sie ein Foto von der Vorder- und Rückseite Ihres Ausweisdokuments.</div>
-              </div>
-              <div class="step2 step-all step-with-border">
-                <div class="step-header">Schritt 2:</div>
-                <div>Machen Sie ein Portraitfoto von sich zum Abgleich. Fertig!</div>
-              </div>
-            </div>
+      <div class="m-t-lg m-b-lg">
+        <p class="app-notice"><b>Natürlich können Sie auch die Prüfung mit der Vorgangsnummer <%= caseId %> in unserer My WebID-App für Android und iOS durchführen.</b></p>
+        <a href="https://apps.apple.com/de/app/my-webid/id1456365043" target="_blank"><img src="https://webid.phnl-agentur.de/images/AppStore_DE.svg" width="135" alt="My WebID"></a>
+        <a href="https://play.google.com/store/apps/details?id=de.webidsolutions.mywebid" target="_blank"><img src="https://webid.phnl-agentur.de/images/PlayStore_DE.svg" width="135" alt="My WebID"></a>
+      </div>
 
-            <div class="bold-hint">
-              <div class="m-t-lg m-b-lg">
-                <p class="app-notice"><b>Natürlich können Sie auch die Prüfung mit der Vorgangsnummer <%= caseId %> in unserer My WebID-App für Android und iOS durchführen.</b></p>
-                <a href="https://apps.apple.com/de/app/my-webid/id1456365043" target="_blank"><img src="https://webid.phnl-agentur.de/images/AppStore_DE.svg" width="135" alt="My WebID"></a>
-                <a href="https://play.google.com/store/apps/details?id=de.webidsolutions.mywebid" target="_blank"><img src="https://webid.phnl-agentur.de/images/PlayStore_DE.svg" width="135" alt="My WebID"></a>
-              </div>
-            </div>
-
-            <div class="m-b-lg" id="autoident_intro_error_section_container" style="display:none"></div>
-            <div class="alert alert-danger hidden" id="autoident_queue_volume_hint">
-              <p>Aufgrund eines sehr hohen Kundenaufkommen kommt es zu längeren Prozesszeiten. Gern können Sie es auch zu einem späteren Zeitpunkt erneut versuchen.</p>
-            </div>
-
-            <div class="m-b-lg">
-              <webid-autoident id="webid-autoident-id"
-                               data-webid-theme=""
-                               base-url="https://webid-gateway.de"
-                               action-id="<%= actionId %>"
-                               customer-no="000631"
-                               ident-mode="2"
-                               locale="de"
-                               full-queue-waiting-time="10"
-                               video-ident-url="/service/switch-to-video-ident/cn/000631/aid/<%= actionId %>"
-                               user-action-message-object='{"message":"Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.","boxMessage":null,"severity":"info","button":"Weiter"}'>
-                <video slot="video"></video>
-                <video slot="liveness"></video>
-                <div slot="unsupported">
-                  <div id="browser-support">
-                    <h1>Bitte wechseln Sie Ihren Browser</h1>
-                    <p>Ihr aktueller Browser unterstützt die technischen Anforderungen dieses Services nicht. Bitte nutzen Sie auf diesem Gerät folgenden Browser:</p>
-                    <div class="ios browser" style="display:none;">
-                      <a class="browser-link" href="https://www.apple.com/de/safari/" target="_blank"><img src="https://webid.phnl-agentur.de/images/browser/safari_32x32.png" alt="Safari"><span>Apple Safari</span></a>
-                    </div>
-                    <div class="generic browser">
-                      <a class="browser-link" href="https://www.google.com/intl/de/chrome/" target="_blank"><img src="https://webid.phnl-agentur.de/images/browser/chrome_32x32.png" alt="Chrome"><span>Google Chrome</span></a>
-                    </div>
-                  </div>
-                </div>
-              </webid-autoident>
-            </div>
-          </main>
+      <div id="manual-intro" class="manual-blue">
+        <div class="bang">!</div>
+        <div>
+          <p>Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.</p>
+          <button class="btn" id="btn-weiter" type="button">Weiter</button>
         </div>
       </div>
-    </div>
 
-    <footer class="page-footer">
-      <div class="row"><div class="col-lg-12">
-        <span id="footerText">Ein Service der Deutsche Kreditbank Aktiengesellschaft, realisiert durch WebID Solutions</span><br />
-        <a href="https://www.webid-solutions.com/de/faqs/" target="_blank" class="page-footer-link">Kontakt</a>
-        <a href="https://www.webid-solutions.com/de/imprint/" target="_blank" class="page-footer-link">Impressum</a>
-        <a href="https://www.webid-solutions.com/de/privacy-policy/" target="_blank" class="page-footer-link">Datenschutz</a>
-      </div></div>
-    </footer>
+      <div id="doc-step" class="doc-step">
+        <div class="doc-shot"><strong>Ausweisvorderseite</strong><div class="ph"></div><button>Vorderseite des Ausweisdokuments fotografieren</button></div>
+        <div class="doc-shot"><strong>Ausweisrückseite</strong><div class="ph"></div><button>Rückseite des Ausweisdokuments fotografieren</button></div>
+        <p>Tipps für das Fotografieren Ihres Ausweisdokuments erhalten Sie <u>hier</u>.</p>
+        <div class="doc-actions"><button>Überprüfen</button></div>
+      </div>
+
+    </main></div></div>
   </div>
 
-  <div class="sim-overlay" id="sim-overlay">
-    <div class="sim-modal" role="dialog" aria-modal="true">
-      <h3>⚠️ Hinweis: Simulation</h3>
-      <p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p>
-      <button class="sim-ok" id="sim-ok" type="button">OK, Verstanden</button>
-    </div>
-  </div>
+  <footer class="page-footer"><div class="row"><div class="col-lg-12">
+    <span id="footerText">Ein Service der Deutsche Kreditbank Aktiengesellschaft, realisiert durch WebID Solutions</span><br />
+    <a href="https://www.webid-solutions.com/de/faqs/" target="_blank" class="page-footer-link">Kontakt</a>
+    <a href="https://www.webid-solutions.com/de/imprint/" target="_blank" class="page-footer-link">Impressum</a>
+    <a href="https://www.webid-solutions.com/de/privacy-policy/" target="_blank" class="page-footer-link">Datenschutz</a>
+  </div></div></footer>
+</div>
 
-  <script>
-    (function(){
-      var ok = document.getElementById('sim-ok');
-      var overlay = document.getElementById('sim-overlay');
-      if (ok && overlay) ok.addEventListener('click', function(){ overlay.style.display='none'; });
-      var ios = document.querySelector('#browser-support .browser.ios');
-      var generic = document.querySelector('#browser-support .browser.generic');
-      var isIos = !!navigator.userAgent.match(/(iPad|iPhone|iPod)/g);
-      if (ios && generic && isIos) { generic.style.display='none'; ios.style.display='block'; }
-    })();
-  </script>
+<div class="sim-overlay" id="sim-overlay"><div class="sim-modal"><h3>⚠️ Hinweis: Simulation</h3><p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p><button class="sim-ok" id="sim-ok" type="button">OK, Verstanden</button></div></div>
+
+<script>
+  document.getElementById('sim-ok')?.addEventListener('click',()=>{document.getElementById('sim-overlay').style.display='none'})
+  document.getElementById('btn-weiter')?.addEventListener('click',()=>{document.getElementById('manual-intro').style.display='none';document.getElementById('doc-step').style.display='block'})
+</script>
 </body>
 </html>
