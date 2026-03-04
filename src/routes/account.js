@@ -112,6 +112,11 @@ function parseProfileTab(input) {
   return allowed.has(String(input || '')) ? String(input) : 'dashboard';
 }
 
+function parseTaskStatusFilter(input) {
+  const allowed = new Set(['all', 'open', 'in_review', 'accepted', 'archived']);
+  return allowed.has(String(input || '')) ? String(input) : 'all';
+}
+
 async function fetchAssignedTasksForUser(apiBase, user) {
   const base = String(apiBase || '').trim().replace(/\/$/, '');
   const email = String(user?.email || '').trim().toLowerCase();
@@ -181,9 +186,9 @@ async function getUserDashboardData(user, apiBase = '') {
   const taskRows = Array.isArray(assignedTasks) ? assignedTasks : [];
   const statusOf = (x) => String(x?.status || '').toLowerCase();
   const openTasks = taskRows.filter((x) => ['pending', 'open'].includes(statusOf(x))).length;
-  const completedTasks = taskRows.filter((x) => statusOf(x) === 'completed').length;
+  const completedTasks = taskRows.filter((x) => ['completed', 'approved', 'genehmigt'].includes(statusOf(x))).length;
   const earnedAmount = taskRows
-    .filter((x) => statusOf(x) === 'completed')
+    .filter((x) => ['completed', 'approved', 'genehmigt'].includes(statusOf(x)))
     .reduce((sum, x) => sum + (Number(x?.payment_amount || 0) || 0), 0);
 
   return {
@@ -341,6 +346,7 @@ router.get('/konto/profil', requireUser, async (req, res) => {
     dashboard,
     docTypeOptions,
     activeTab: parseProfileTab(req.query.tab),
+    activeTaskStatus: parseTaskStatusFilter(req.query.taskStatus),
     success: String(req.query.success || ''),
     error: String(req.query.error || ''),
   });
@@ -349,9 +355,12 @@ router.get('/konto/profil', requireUser, async (req, res) => {
 router.post('/konto/tasks/:id/accept', requireUser, validateCsrf, async (req, res) => {
   const assignmentId = String(req.params.id || '').trim();
   const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
+  const returnTab = parseProfileTab(req.body?.return_tab || 'tasks');
+  const returnStatus = parseTaskStatusFilter(req.body?.return_status || 'all');
+  const returnQuery = `tab=${encodeURIComponent(returnTab)}&taskStatus=${encodeURIComponent(returnStatus)}`;
 
   if (!assignmentId || !apiBase) {
-    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Aufgabe konnte nicht angenommen werden.'));
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Aufgabe konnte nicht angenommen werden.'));
   }
 
   try {
@@ -362,21 +371,24 @@ router.post('/konto/tasks/:id/accept', requireUser, validateCsrf, async (req, re
     });
 
     if (!resp.ok) {
-      return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Annehmen fehlgeschlagen. Bitte erneut versuchen.'));
+      return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Annehmen fehlgeschlagen. Bitte erneut versuchen.'));
     }
 
-    return res.redirect('/konto/profil?tab=tasks&success=' + encodeURIComponent('Aufgabe angenommen.'));
+    return res.redirect('/konto/profil?' + returnQuery + '&success=' + encodeURIComponent('Aufgabe angenommen.'));
   } catch (_error) {
-    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Annehmen fehlgeschlagen. Bitte erneut versuchen.'));
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Annehmen fehlgeschlagen. Bitte erneut versuchen.'));
   }
 });
 
 router.post('/konto/tasks/:id/submit', requireUser, validateCsrf, async (req, res) => {
   const assignmentId = String(req.params.id || '').trim();
   const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
+  const returnTab = parseProfileTab(req.body?.return_tab || 'tasks');
+  const returnStatus = parseTaskStatusFilter(req.body?.return_status || 'all');
+  const returnQuery = `tab=${encodeURIComponent(returnTab)}&taskStatus=${encodeURIComponent(returnStatus)}`;
 
   if (!assignmentId || !apiBase) {
-    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Aufgabe konnte nicht eingereicht werden.'));
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Aufgabe konnte nicht eingereicht werden.'));
   }
 
   try {
@@ -387,12 +399,12 @@ router.post('/konto/tasks/:id/submit', requireUser, validateCsrf, async (req, re
     });
 
     if (!resp.ok) {
-      return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Einreichen erst nach Annahme möglich.'));
+      return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Einreichen erst nach Annahme möglich.'));
     }
 
-    return res.redirect('/konto/profil?tab=tasks&success=' + encodeURIComponent('Aufgabe wurde eingereicht und ist jetzt in Prüfung.'));
+    return res.redirect('/konto/profil?' + returnQuery + '&success=' + encodeURIComponent('Aufgabe wurde eingereicht und ist jetzt in Prüfung.'));
   } catch (_error) {
-    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Einreichen fehlgeschlagen. Bitte erneut versuchen.'));
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Einreichen fehlgeschlagen. Bitte erneut versuchen.'));
   }
 });
 
