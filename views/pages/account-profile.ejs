@@ -11,7 +11,7 @@
 </section>
 
 <section class="section-padding">
-  <div class="container account-shell <%= activeTab === 'dashboard' ? 'account-shell--wide' : '' %>">
+  <div class="container account-shell account-shell--wide">
     <% const birthDateInput = (() => {
       if (!user || !user.birth_date) return '';
       const raw = user.birth_date;
