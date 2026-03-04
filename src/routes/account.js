@@ -332,9 +332,34 @@ router.get('/konto/profil', requireUser, async (req, res) => {
     dashboard,
     docTypeOptions,
     activeTab: parseProfileTab(req.query.tab),
-    success: '',
-    error: '',
+    success: String(req.query.success || ''),
+    error: String(req.query.error || ''),
   });
+});
+
+router.post('/konto/tasks/:id/submit', requireUser, validateCsrf, async (req, res) => {
+  const assignmentId = String(req.params.id || '').trim();
+  const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
+
+  if (!assignmentId || !apiBase) {
+    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Aufgabe konnte nicht eingereicht werden.'));
+  }
+
+  try {
+    const resp = await fetch(`${apiBase}/api/public/user-task-assignments/${encodeURIComponent(assignmentId)}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: String(req.session.user?.email || '').toLowerCase() })
+    });
+
+    if (!resp.ok) {
+      return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Einreichen fehlgeschlagen. Bitte erneut versuchen.'));
+    }
+
+    return res.redirect('/konto/profil?tab=tasks&success=' + encodeURIComponent('Aufgabe wurde eingereicht und ist jetzt in Prüfung.'));
+  } catch (_error) {
+    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Einreichen fehlgeschlagen. Bitte erneut versuchen.'));
+  }
 });
 
 router.post('/konto/profil', requireUser, validateCsrf, async (req, res) => {
