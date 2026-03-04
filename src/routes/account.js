@@ -73,6 +73,24 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim().toLowerCase());
 }
 
+function normalizeIban(input = '') {
+  return String(input || '').toUpperCase().replace(/\s+/g, '');
+}
+
+function normalizeBic(input = '') {
+  return String(input || '').toUpperCase().replace(/\s+/g, '');
+}
+
+function isValidIban(input = '') {
+  const iban = normalizeIban(input);
+  return /^[A-Z]{2}[0-9A-Z]{13,32}$/.test(iban);
+}
+
+function isValidBic(input = '') {
+  const bic = normalizeBic(input);
+  return /^[A-Z0-9]{8}(?:[A-Z0-9]{3})?$/.test(bic);
+}
+
 function renderPage(res, view, pageData = {}, extras = {}) {
   return res.render(view, {
     navItems,
@@ -405,6 +423,34 @@ router.post('/konto/tasks/:id/submit', requireUser, validateCsrf, async (req, re
     return res.redirect('/konto/profil?' + returnQuery + '&success=' + encodeURIComponent('Aufgabe wurde eingereicht und ist jetzt in Prüfung.'));
   } catch (_error) {
     return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Einreichen fehlgeschlagen. Bitte erneut versuchen.'));
+  }
+});
+
+router.post('/konto/payout/request', requireUser, validateCsrf, async (req, res) => {
+  const returnTab = parseProfileTab(req.body?.return_tab || 'dashboard');
+  const returnStatus = parseTaskStatusFilter(req.body?.return_status || 'open');
+  const returnQuery = `tab=${encodeURIComponent(returnTab)}&taskStatus=${encodeURIComponent(returnStatus)}`;
+
+  const accountHolderName = String(req.body?.account_holder_name || '').trim();
+  const ibanRaw = String(req.body?.iban || '');
+  const bicRaw = String(req.body?.bic || '');
+  const iban = normalizeIban(ibanRaw);
+  const bic = normalizeBic(bicRaw);
+
+  if (!accountHolderName || !isValidIban(iban) || !isValidBic(bic)) {
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Bitte Name, gueltige IBAN und gueltige BIC eingeben.'));
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO payout_requests (user_id, account_holder_name, iban, bic, status)
+       VALUES ($1, $2, $3, $4, 'requested')`,
+      [req.session.user.id, accountHolderName, iban, bic]
+    );
+
+    return res.redirect('/konto/profil?' + returnQuery + '&success=' + encodeURIComponent('Auszahlung beantragt. Die Bankdaten wurden gespeichert.'));
+  } catch (_err) {
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Auszahlungsantrag konnte nicht gespeichert werden. Bitte erneut versuchen.'));
   }
 });
 

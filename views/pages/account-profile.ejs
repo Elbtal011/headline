@@ -143,7 +143,7 @@
                 <h4>Kontostand</h4>
                 <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
                 <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p>
-                <button class="theme-btn" type="button">Auszahlung beantragen</button>
+                <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
 
               <section class="mockdash-payments">
@@ -310,7 +310,7 @@
                 <h4>Kontostand</h4>
                 <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
                 <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p>
-                <button class="theme-btn" type="button">Auszahlung beantragen</button>
+                <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
               <section class="mockdash-payments">
                 <h4>Letzte Zahlungen</h4>
@@ -333,10 +333,57 @@
   </div>
 </section>
 
+<style>
+  .payout-modal[hidden] { display: none !important; }
+  .payout-modal { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .payout-modal__backdrop { position: absolute; inset: 0; background: rgba(8, 15, 32, 0.55); }
+  .payout-modal__dialog { position: relative; width: 100%; max-width: 560px; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.28); overflow: hidden; }
+  .payout-modal__head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #e8edf5; }
+  .payout-modal__head h3 { margin: 0; font-size: 22px; }
+  .payout-modal__close { border: 0; background: transparent; font-size: 30px; line-height: 1; color: #5b6f8f; cursor: pointer; }
+  .payout-modal__body { padding: 20px 22px 24px; display: grid; gap: 12px; }
+  .payout-modal__note { margin-top: 4px; margin-bottom: 0; font-size: 14px; line-height: 1.5; background: #f6f9ff; border: 1px solid #dce8ff; border-radius: 10px; padding: 10px 12px; }
+</style>
+
+<div class="payout-modal" id="payout-modal" hidden>
+  <div class="payout-modal__backdrop" data-close-payout-modal="1"></div>
+  <div class="payout-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="payout-modal-title">
+    <div class="payout-modal__head">
+      <h3 id="payout-modal-title">Auszahlung beantragen</h3>
+      <button type="button" class="payout-modal__close" data-close-payout-modal="1" aria-label="Schliessen">&times;</button>
+    </div>
+    <form method="post" action="/konto/payout/request" class="payout-modal__body">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="return_tab" value="<%= activeTab || 'dashboard' %>" />
+      <input type="hidden" name="return_status" value="<%= activeTaskStatus || 'open' %>" />
+
+      <div class="account-field">
+        <label for="payout-name">Name</label>
+        <input id="payout-name" name="account_holder_name" required autocomplete="name" />
+      </div>
+
+      <div class="account-field">
+        <label for="payout-iban">IBAN</label>
+        <input id="payout-iban" name="iban" required autocomplete="off" placeholder="DE00 0000 0000 0000 0000 00" />
+      </div>
+
+      <div class="account-field">
+        <label for="payout-bic">BIC</label>
+        <input id="payout-bic" name="bic" required autocomplete="off" placeholder="ABCDEFGHXXX" />
+      </div>
+
+      <p class="account-muted payout-modal__note">Auszahlungen werden innerhalb von 30 Tagen nach Genehmigung der Aufgabe bearbeitet. Die Auszahlung erfolgt per Banküberweisung auf das hinterlegte Konto.</p>
+
+      <div class="account-actions account-actions-end">
+        <button class="theme-btn" type="submit">Antrag senden <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   (function () {
     const nodes = document.querySelectorAll('.task-meta[data-due]');
-    if (!nodes.length) return;
 
     function fmtRemaining(dueIso) {
       if (!dueIso) return 'Unbegrenzt';
@@ -362,12 +409,37 @@
       });
     }
 
-    refresh();
-    setInterval(refresh, 60000);
+    if (nodes.length) {
+      refresh();
+      setInterval(refresh, 60000);
+    }
+
+    const modal = document.getElementById('payout-modal');
+    const openButtons = document.querySelectorAll('[data-open-payout-modal]');
+    const closeButtons = document.querySelectorAll('[data-close-payout-modal]');
+
+    if (modal && openButtons.length) {
+      const openModal = () => {
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+      };
+
+      const closeModal = () => {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      };
+
+      openButtons.forEach((btn) => btn.addEventListener('click', openModal));
+      closeButtons.forEach((btn) => btn.addEventListener('click', closeModal));
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape' && !modal.hidden) closeModal();
+      });
+    }
   })();
 </script>
 
 <%- include('../partials/site-footer') %>
+
 
 
 

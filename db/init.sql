@@ -78,6 +78,17 @@ CREATE TABLE IF NOT EXISTS user_documents (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS payout_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  account_holder_name TEXT NOT NULL,
+  iban TEXT NOT NULL,
+  bic TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'requested' CHECK (status IN ('requested', 'processing', 'paid', 'rejected')),
+  requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS chats (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   visitor_name TEXT,
@@ -123,3 +134,4 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_id_created_at ON chat_messages
 CREATE INDEX IF NOT EXISTS idx_chat_attachments_message_id ON chat_attachments(chat_message_id);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_documents_user_id_created_at ON user_documents(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_payout_requests_user_requested_at ON payout_requests(user_id, requested_at DESC);
