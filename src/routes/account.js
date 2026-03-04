@@ -74,11 +74,11 @@ function isValidEmail(email) {
 }
 
 function normalizeIban(input = '') {
-  return String(input || '').toUpperCase().replace(/\s+/g, '');
+  return String(input || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 function normalizeBic(input = '') {
-  return String(input || '').toUpperCase().replace(/\s+/g, '');
+  return String(input || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 function isValidIban(input = '') {
