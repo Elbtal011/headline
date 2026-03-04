@@ -104,7 +104,12 @@
                         <div class="cell-earn">€ <%= Number(task.payment_amount || 0).toFixed(2) %></div>
                         <div class="cell-status"><span class="badge"><%= label %></span></div>
                         <div class="cell-action">
-                          <% if (['open','accepted'].includes(label)) { %>
+                          <% if (label === 'open') { %>
+                            <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/accept">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button class="theme-btn task-action-btn" type="submit">Accept</button>
+                            </form>
+                          <% } else if (label === 'accepted') { %>
                             <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button class="theme-btn task-action-btn" type="submit">Einreichen</button>
@@ -188,7 +193,12 @@
                                 <% }) %>
                               </ol>
                             <% } %>
-                            <% if (s === 'pending' || s === 'open' || s === 'accepted') { %>
+                            <% if (s === 'pending' || s === 'open') { %>
+                              <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/accept" class="task-submit-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button class="theme-btn" type="submit">Accept</button>
+                              </form>
+                            <% } else if (s === 'accepted') { %>
                               <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit" class="task-submit-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button class="theme-btn" type="submit">Einreichen</button>
