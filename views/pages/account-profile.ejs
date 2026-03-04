@@ -295,8 +295,13 @@
                   </div>
                 </section>
               <% } else if (activeTab === 'support') { %>
-                <header class="account-card-head"><h3>Support</h3><p class="account-muted">Supportbereich</p></header>
-                <section class="mockdash-tasks"><p class="account-muted" style="margin:0;">Kontakt: <a href="/Kontakt">/Kontakt</a></p></section>
+                <header class="account-card-head"><h3>Support</h3><p class="account-muted">Brauchst du Hilfe bei Aufgaben, Auszahlung oder deinem Profil?</p></header>
+                <section class="mockdash-tasks" style="display:grid; gap:12px;">
+                  <p class="account-muted" style="margin:0;">Unser Team hilft dir schnell weiter. Nutze den Kontakt-Button, um direkt zur Kontaktseite zu gehen.</p>
+                  <div class="account-actions" style="margin:0;">
+                    <a class="theme-btn" href="/Kontakt">Kontaktseite öffnen <i class="fa-solid fa-arrow-right"></i></a>
+                  </div>
+                </section>
               <% } else if (activeTab === 'profile') { %>
                 <header class="account-card-head">
                   <h3>Persönliche Daten</h3>
