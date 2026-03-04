@@ -104,7 +104,7 @@
                       <span>Aktion</span>
                     </div>
                     <% shownTasks.slice(0, 6).forEach((task) => { %>
-                      <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'in_review' || s === 'submitted') ? 'in prüfung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
+                      <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'accepted' || s === 'in_review' || s === 'submitted') ? 'in prüfung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
                       <article class="task-grid-row">
                         <div class="cell-task">
                           <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
@@ -188,7 +188,7 @@
                   <% } else { %>
                     <div class="mockdash-table">
                       <% dash.assignedTasks.forEach((task) => { %>
-                        <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'in_review' || s === 'submitted') ? 'in prüfung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
+                        <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'accepted' || s === 'in_review' || s === 'submitted') ? 'in prüfung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
                         <details class="mockdash-row-details">
                           <summary class="mockdash-row">
                             <div>
@@ -368,6 +368,7 @@
 </script>
 
 <%- include('../partials/site-footer') %>
+
 
 
 
