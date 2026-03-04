@@ -203,6 +203,7 @@
   const camClose = document.getElementById('cam-close');
   const camCapture = document.getElementById('cam-capture');
   const camTitle = document.getElementById('cam-title');
+  const camOverlay = document.querySelector('.cam-overlay');
 
   let frontBlob = null;
   let backBlob = null;
@@ -262,6 +263,7 @@
     camTarget = which;
     const isSelfie = which === 'selfie';
     camTitle.textContent = isSelfie ? 'Selfie aufnehmen' : (which === 'front' ? 'Ausweisvorderseite aufnehmen' : 'Ausweisrückseite aufnehmen');
+    if (camOverlay) camOverlay.style.display = isSelfie ? 'none' : 'block';
     camModal.style.display = 'block';
 
     try {

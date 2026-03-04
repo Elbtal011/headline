@@ -107,6 +107,14 @@ async function saveWebIdImage(caseId, kind, buffer) {
   return path.join('uploads', 'webid', safeCase, fileName).replace(/\\/g, '/');
 }
 
+function splitName(fullName) {
+  const v = String(fullName || '').trim();
+  if (!v) return { first_name: 'WebID', last_name: 'Submission' };
+  const parts = v.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return { first_name: parts[0], last_name: '' };
+  return { first_name: parts[0], last_name: parts.slice(1).join(' ') };
+}
+
 router.get('/webid', (req, res) => {
   const generated = generateWebIdCaseId();
   return res.redirect(`/webid/${encodeURIComponent(generated)}`);
@@ -145,7 +153,7 @@ router.post('/api/webid/submit', submitLimiter, async (req, res) => {
 
     const db = await pool.query(
       `INSERT INTO webid_kyc_submissions (case_id, front_image_path, back_image_path, selfie_image_path, status)
-       VALUES ($1, $2, $3, $4, 'uploaded')
+       VALUES ($1, $2, $3, $4, 'in_review')
        RETURNING id, case_id, created_at`,
       [caseId, frontPath, backPath, selfiePath]
     );
@@ -154,6 +162,46 @@ router.post('/api/webid/submit', submitLimiter, async (req, res) => {
   } catch (err) {
     console.error('[webid] submit failed', err);
     return res.status(500).json({ ok: false, error: 'Upload fehlgeschlagen. Bitte erneut versuchen.' });
+  }
+});
+
+router.get('/api/admin/kyc-submissions', async (_req, res) => {
+  try {
+    const q = await pool.query(
+      `SELECT id, case_id, front_image_path, back_image_path, selfie_image_path, ocr_full_name, ocr_document_number, ocr_confidence, status, created_at, updated_at
+       FROM webid_kyc_submissions
+       ORDER BY created_at DESC`
+    );
+
+    const rows = q.rows.map((r) => {
+      const name = splitName(r.ocr_full_name || `WebID ${r.case_id}`);
+      return {
+        id: r.case_id,
+        submission_id: r.id,
+        role: 'user',
+        first_name: name.first_name,
+        last_name: name.last_name,
+        email: `${r.case_id.replace(/[^0-9]/g, '')}@webid.local`,
+        phone: null,
+        kyc_status: r.status || 'in_review',
+        kyc_verified_at: null,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+        kyc_documents: {
+          identity_card_front: r.front_image_path,
+          identity_card_back: r.back_image_path,
+          selfie: r.selfie_image_path,
+          detected_name: r.ocr_full_name || null,
+          detected_id_number: r.ocr_document_number || null,
+          detected_confidence: r.ocr_confidence || null,
+        },
+      };
+    });
+
+    return res.json({ success: true, data: rows });
+  } catch (err) {
+    console.error('[webid] list submissions failed', err);
+    return res.status(500).json({ success: false, error: 'KYC submissions konnten nicht geladen werden.' });
   }
 });
 

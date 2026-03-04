@@ -58,6 +58,7 @@ app.use(
     maxAge: '7d',
   })
 );
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use((req, res, next) => {
   res.locals.query = req.query;
