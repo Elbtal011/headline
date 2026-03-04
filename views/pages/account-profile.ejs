@@ -79,22 +79,19 @@
                   const rows = dash.assignedTasks || [];
                   if (s === 'pending') return rows.filter((t) => ['pending','open'].includes(String(t.status || '').toLowerCase())).length;
                   if (s === 'in_review') return rows.filter((t) => ['in_review','submitted'].includes(String(t.status || '').toLowerCase())).length;
-                  if (s === 'accepted') return rows.filter((t) => String(t.status || '').toLowerCase() === 'accepted').length;
-                  if (s === 'archived') return rows.filter((t) => ['archived','completed','rejected','approved','genehmigt'].includes(String(t.status || '').toLowerCase())).length;
+                  if (s === 'accepted') return rows.filter((t) => ['accepted','completed','approved','genehmigt'].includes(String(t.status || '').toLowerCase())).length;
                   return 0;
                 }; const statusMatches = (task) => {
                   const s = String(task.status || '').toLowerCase();
                   if (selectedStatus === 'open') return ['pending','open'].includes(s);
                   if (selectedStatus === 'in_review') return ['in_review','submitted'].includes(s);
-                  if (selectedStatus === 'accepted') return s === 'accepted';
-                  if (selectedStatus === 'archived') return ['archived','completed','rejected','approved','genehmigt'].includes(s);
+                  if (selectedStatus === 'accepted') return ['accepted','completed','approved','genehmigt'].includes(s);
                   return true;
                 }; const shownTasks = (dash.assignedTasks || []).filter(statusMatches); %>
                 <div class="mockdash-tabs">
                   <a class="<%= selectedStatus === 'open' || selectedStatus === 'all' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=open">Offen (<%= statusCount('pending') %>)</a>
                   <a class="<%= selectedStatus === 'in_review' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=in_review">In Prüfung (<%= statusCount('in_review') %>)</a>
                   <a class="<%= selectedStatus === 'accepted' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=accepted">Akzeptiert (<%= statusCount('accepted') %>)</a>
-                  <a class="<%= selectedStatus === 'archived' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=archived">Archiviert (<%= statusCount('archived') %>)</a>
                 </div>
                 <div class="mockdash-table">
                   <% if (!shownTasks || shownTasks.length === 0) { %>

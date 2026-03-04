@@ -113,7 +113,7 @@ function parseProfileTab(input) {
 }
 
 function parseTaskStatusFilter(input) {
-  const allowed = new Set(['all', 'open', 'in_review', 'accepted', 'archived']);
+  const allowed = new Set(['all', 'open', 'in_review', 'accepted']);
   return allowed.has(String(input || '')) ? String(input) : 'all';
 }
 
