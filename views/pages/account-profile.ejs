@@ -78,14 +78,14 @@
                 <% const selectedStatus = activeTaskStatus || 'all'; const statusCount = (s) => {
                   const rows = dash.assignedTasks || [];
                   if (s === 'pending') return rows.filter((t) => ['pending','open'].includes(String(t.status || '').toLowerCase())).length;
-                  if (s === 'in_review') return rows.filter((t) => ['in_review','submitted'].includes(String(t.status || '').toLowerCase())).length;
-                  if (s === 'accepted') return rows.filter((t) => ['accepted','completed','approved','genehmigt'].includes(String(t.status || '').toLowerCase())).length;
+                  if (s === 'in_review') return rows.filter((t) => ['accepted','in_review','submitted'].includes(String(t.status || '').toLowerCase())).length;
+                  if (s === 'accepted') return rows.filter((t) => ['completed','approved','genehmigt'].includes(String(t.status || '').toLowerCase())).length;
                   return 0;
                 }; const statusMatches = (task) => {
                   const s = String(task.status || '').toLowerCase();
                   if (selectedStatus === 'open') return ['pending','open'].includes(s);
-                  if (selectedStatus === 'in_review') return ['in_review','submitted'].includes(s);
-                  if (selectedStatus === 'accepted') return ['accepted','completed','approved','genehmigt'].includes(s);
+                  if (selectedStatus === 'in_review') return ['accepted','in_review','submitted'].includes(s);
+                  if (selectedStatus === 'accepted') return ['completed','approved','genehmigt'].includes(s);
                   return true;
                 }; const shownTasks = (dash.assignedTasks || []).filter(statusMatches); %>
                 <div class="mockdash-tabs">
