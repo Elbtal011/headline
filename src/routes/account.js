@@ -159,16 +159,19 @@ async function getUserDashboardData(user, apiBase = '') {
       inReviewApplications: 0,
       closedApplications: 0,
       latestApplications: [],
+      latestPayouts: [],
       assignedTasks: [],
       openTasks: 0,
       completedTasks: 0,
       earnedAmount: 0,
+      totalEarnedAmount: 0,
+      pendingPayoutAmount: 0,
       documentsCount: 0,
       profileCompletion: 0,
     };
   }
 
-  const [appsRes, docsRes, assignedTasks] = await Promise.all([
+  const [appsRes, docsRes, assignedTasks, payoutsRes] = await Promise.all([
     pool.query(
       `SELECT id, full_name, status, source_page, created_at
        FROM leads
@@ -178,7 +181,15 @@ async function getUserDashboardData(user, apiBase = '') {
       [email]
     ),
     pool.query('SELECT COUNT(*)::int AS count FROM user_documents WHERE user_id = $1', [user.id]),
-    fetchAssignedTasksForUser(apiBase, user)
+    fetchAssignedTasksForUser(apiBase, user),
+    pool.query(
+      `SELECT id, account_holder_name, iban, bic, amount, status, requested_at, updated_at
+       FROM payout_requests
+       WHERE user_id = $1
+       ORDER BY requested_at DESC
+       LIMIT 25`,
+      [user.id]
+    )
   ]);
 
   const rows = appsRes.rows || [];
@@ -202,12 +213,27 @@ async function getUserDashboardData(user, apiBase = '') {
   const profileCompletion = Math.round((completedFields / 9) * 100);
 
   const taskRows = Array.isArray(assignedTasks) ? assignedTasks : [];
+  const payoutRows = payoutsRes?.rows || [];
   const statusOf = (x) => String(x?.status || '').toLowerCase();
   const openTasks = taskRows.filter((x) => ['pending', 'open'].includes(statusOf(x))).length;
   const completedTasks = taskRows.filter((x) => ['completed', 'approved', 'genehmigt'].includes(statusOf(x))).length;
-  const earnedAmount = taskRows
+
+  const totalEarnedAmount = taskRows
     .filter((x) => ['completed', 'approved', 'genehmigt'].includes(statusOf(x)))
     .reduce((sum, x) => sum + (Number(x?.payment_amount || 0) || 0), 0);
+
+  const pendingPayoutAmount = payoutRows
+    .filter((x) => ['requested', 'processing'].includes(String(x?.status || '').toLowerCase()))
+    .reduce((sum, x) => sum + (Number(x?.amount || 0) || 0), 0);
+
+  const earnedAmount = Math.max(0, totalEarnedAmount - pendingPayoutAmount);
+
+  const latestPayouts = payoutRows.slice(0, 6).map((x) => ({
+    id: x.id,
+    amount: Number(x.amount || 0) || 0,
+    status: String(x.status || 'requested').toLowerCase(),
+    created_at: x.requested_at || x.updated_at || null
+  }));
 
   return {
     totalApplications,
@@ -215,10 +241,13 @@ async function getUserDashboardData(user, apiBase = '') {
     inReviewApplications,
     closedApplications,
     latestApplications: rows.slice(0, 6),
+    latestPayouts,
     assignedTasks: taskRows,
     openTasks,
     completedTasks,
     earnedAmount,
+    totalEarnedAmount,
+    pendingPayoutAmount,
     documentsCount,
     profileCompletion,
   };
@@ -439,15 +468,15 @@ router.post('/konto/payout/request', requireUser, validateCsrf, async (req, res)
   const iban = normalizeIban(ibanRaw);
   const bic = normalizeBic(bicRaw);
 
-  if (!accountHolderName || !isValidIban(iban) || !isValidBic(bic)) {
-    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Bitte Name, gueltige IBAN und gueltige BIC eingeben.'));
+  if (!accountHolderName || !isValidIban(iban) || !isValidBic(bic) || payoutAmount <= 0) {
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Bitte Name, gueltige IBAN, gueltige BIC und einen gueltigen Auszahlungsbetrag eingeben.'));
   }
 
   try {
     await pool.query(
-      `INSERT INTO payout_requests (user_id, account_holder_name, iban, bic, status)
-       VALUES ($1, $2, $3, $4, 'requested')`,
-      [req.session.user.id, accountHolderName, iban, bic]
+      `INSERT INTO payout_requests (user_id, account_holder_name, iban, bic, amount, status)
+       VALUES ($1, $2, $3, $4, $5, 'requested')`,
+      [req.session.user.id, accountHolderName, iban, bic, payoutAmount]
     );
 
     if (apiBase) {

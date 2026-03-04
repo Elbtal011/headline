@@ -46,7 +46,7 @@
           <div class="alert error"><%= error %></div>
         <% } %>
 
-        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], assignedTasks: [], openTasks: 0, completedTasks: 0, earnedAmount: 0, documentsCount: 0, profileCompletion: 0 }; %>
+        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], latestPayouts: [], assignedTasks: [], openTasks: 0, completedTasks: 0, earnedAmount: 0, totalEarnedAmount: 0, pendingPayoutAmount: 0, documentsCount: 0, profileCompletion: 0 }; %>
         <% if (activeTab === 'dashboard') { %>
           <section class="mockdash">
             <aside class="mockdash-side">
@@ -142,19 +142,20 @@
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
                 <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
-                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: € <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
                 <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
 
               <section class="mockdash-payments">
                 <h4>Letzte Zahlungen</h4>
-                <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
+                <% if (!dash.latestPayouts || dash.latestPayouts.length === 0) { %>
                   <p class="account-muted" style="margin:0;">Noch keine Zahlungen vorhanden.</p>
                 <% } else { %>
-                  <% dash.latestApplications.slice(0, 3).forEach((app, idx) => { %>
+                  <% dash.latestPayouts.slice(0, 3).forEach((payout) => { %>
+                    <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt')); %>
                     <div class="payment-item">
-                      <strong>€ <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
-                      <small><%= app.source_page || 'Bewerbung' %> · <%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
+                      <strong>€ <%= Number(payout.amount || 0).toFixed(2) %></strong>
+                      <small><%= pLabel %> · <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                     </div>
                   <% }) %>
                 <% } %>
@@ -309,18 +310,19 @@
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
                 <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
-                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: € <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
                 <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
               <section class="mockdash-payments">
                 <h4>Letzte Zahlungen</h4>
-                <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
+                <% if (!dash.latestPayouts || dash.latestPayouts.length === 0) { %>
                   <p class="account-muted" style="margin:0;">Noch keine Zahlungen vorhanden.</p>
                 <% } else { %>
-                  <% dash.latestApplications.slice(0, 3).forEach((app, idx) => { %>
+                  <% dash.latestPayouts.slice(0, 3).forEach((payout) => { %>
+                    <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt')); %>
                     <div class="payment-item">
-                      <strong>€ <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
-                      <small><%= app.source_page || 'Bewerbung' %> · <%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
+                      <strong>€ <%= Number(payout.amount || 0).toFixed(2) %></strong>
+                      <small><%= pLabel %> · <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                     </div>
                   <% }) %>
                 <% } %>
@@ -440,6 +442,8 @@
 </script>
 
 <%- include('../partials/site-footer') %>
+
+
 
 
 
