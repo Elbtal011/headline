@@ -464,14 +464,18 @@ router.post('/konto/payout/request', requireUser, validateCsrf, async (req, res)
   const returnQuery = `tab=${encodeURIComponent(returnTab)}&taskStatus=${encodeURIComponent(returnStatus)}`;
   const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
 
-  const accountHolderName = String(req.body?.account_holder_name || '').trim();
+  const fallbackName = `${String(req.session.user?.first_name || '').trim()} ${String(req.session.user?.last_name || '').trim()}`.trim();
+  const accountHolderName = String(req.body?.account_holder_name || '').trim() || fallbackName;
   const ibanRaw = String(req.body?.iban || '');
   const bicRaw = String(req.body?.bic || '');
   const requestedPayoutAmount = Number(req.body?.payout_amount || 0) || 0;
   const iban = normalizeIban(ibanRaw);
   const bic = normalizeBic(bicRaw);
 
-  if (!accountHolderName || !isValidIban(iban) || !isValidBic(bic)) {
+  const ibanLooksValid = /^[A-Z0-9]{10,34}$/.test(iban);
+  const bicLooksValid = /^[A-Z0-9]{6,11}$/.test(bic);
+
+  if (!accountHolderName || !ibanLooksValid || !bicLooksValid) {
     return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Bitte Name, gueltige IBAN und gueltige BIC eingeben.'));
   }
 
