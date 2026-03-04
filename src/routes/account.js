@@ -112,7 +112,22 @@ function parseProfileTab(input) {
   return allowed.has(String(input || '')) ? String(input) : 'dashboard';
 }
 
-async function getUserDashboardData(user) {
+async function fetchAssignedTasksForUser(apiBase, user) {
+  const base = String(apiBase || '').trim().replace(/\/$/, '');
+  const email = String(user?.email || '').trim().toLowerCase();
+  if (!base || !email) return [];
+
+  try {
+    const resp = await fetch(`${base}/api/public/user-task-assignments?email=${encodeURIComponent(email)}`);
+    if (!resp.ok) return [];
+    const json = await resp.json().catch(() => ({}));
+    return Array.isArray(json?.data) ? json.data : [];
+  } catch (_err) {
+    return [];
+  }
+}
+
+async function getUserDashboardData(user, apiBase = '') {
   const email = String(user?.email || '').trim().toLowerCase();
   if (!email) {
     return {
@@ -121,12 +136,14 @@ async function getUserDashboardData(user) {
       inReviewApplications: 0,
       closedApplications: 0,
       latestApplications: [],
+      assignedTasks: [],
+      openTasks: 0,
       documentsCount: 0,
       profileCompletion: 0,
     };
   }
 
-  const [appsRes, docsRes] = await Promise.all([
+  const [appsRes, docsRes, assignedTasks] = await Promise.all([
     pool.query(
       `SELECT id, full_name, status, source_page, created_at
        FROM leads
@@ -135,7 +152,8 @@ async function getUserDashboardData(user) {
        LIMIT 25`,
       [email]
     ),
-    pool.query('SELECT COUNT(*)::int AS count FROM user_documents WHERE user_id = $1', [user.id])
+    pool.query('SELECT COUNT(*)::int AS count FROM user_documents WHERE user_id = $1', [user.id]),
+    fetchAssignedTasksForUser(apiBase, user)
   ]);
 
   const rows = appsRes.rows || [];
@@ -158,12 +176,17 @@ async function getUserDashboardData(user) {
   ].filter(Boolean).length;
   const profileCompletion = Math.round((completedFields / 9) * 100);
 
+  const taskRows = Array.isArray(assignedTasks) ? assignedTasks : [];
+  const openTasks = taskRows.filter((x) => !['completed', 'rejected', 'canceled', 'cancelled', 'archived'].includes(String(x?.status || '').toLowerCase())).length;
+
   return {
     totalApplications,
     openApplications,
     inReviewApplications,
     closedApplications,
     latestApplications: rows.slice(0, 6),
+    assignedTasks: taskRows,
+    openTasks,
     documentsCount,
     profileCompletion,
   };
@@ -301,7 +324,8 @@ router.get('/konto/profil', requireUser, async (req, res) => {
   }
 
   const documents = await getUserDocuments(req.session.user.id);
-  const dashboard = await getUserDashboardData(user);
+  const apiBase = req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '';
+  const dashboard = await getUserDashboardData(user, apiBase);
   return renderPage(res, 'pages/account-profile', { currentPath: '/konto/profil' }, {
     user,
     documents,

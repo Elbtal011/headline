@@ -32,13 +32,13 @@
           <div class="alert error"><%= error %></div>
         <% } %>
 
-        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], documentsCount: 0, profileCompletion: 0 }; %>
+        <% const dash = dashboard || { totalApplications: 0, openApplications: 0, inReviewApplications: 0, closedApplications: 0, latestApplications: [], assignedTasks: [], openTasks: 0, documentsCount: 0, profileCompletion: 0 }; %>
         <% if (activeTab === 'dashboard') { %>
           <section class="mockdash">
             <aside class="mockdash-side">
               <nav class="mockdash-menu">
                 <a class="active" href="/konto/profil?tab=dashboard">Dashboard</a>
-                <a href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openApplications %></span></a>
+                <a href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openTasks %></span></a>
                 <a href="/konto/profil?tab=earnings">Einnahmen</a>
                 <a href="/konto/profil?tab=profile">Profil</a>
                 <a href="/konto/profil?tab=support">Support</a>
@@ -68,16 +68,16 @@
                   <span>Archiviert</span>
                 </div>
                 <div class="mockdash-table">
-                  <% if (!dash.latestApplications || dash.latestApplications.length === 0) { %>
-                    <p class="account-muted" style="margin:0;">Noch keine Aufgaben/Bewerbungen vorhanden.</p>
+                  <% if (!dash.assignedTasks || dash.assignedTasks.length === 0) { %>
+                    <p class="account-muted" style="margin:0;">Noch keine zugewiesenen Aufgaben vorhanden.</p>
                   <% } else { %>
-                    <% dash.latestApplications.forEach((app) => { %>
+                    <% dash.assignedTasks.slice(0, 6).forEach((task) => { %>
                       <article class="mockdash-row">
                         <div>
-                          <strong><%= app.source_page || 'Bewerbung' %></strong>
-                          <small><%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
+                          <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
+                          <small><%= task.created_at ? new Date(task.created_at).toLocaleDateString('de-DE') : '' %></small>
                         </div>
-                        <span class="badge"><%= app.status %></span>
+                        <span class="badge"><%= task.status || 'pending' %></span>
                       </article>
                     <% }) %>
                   <% } %>
@@ -114,7 +114,7 @@
             <aside class="mockdash-side">
               <nav class="mockdash-menu">
                 <a href="/konto/profil?tab=dashboard">Dashboard</a>
-                <a class="<%= activeTab === 'tasks' ? 'active' : '' %>" href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openApplications %></span></a>
+                <a class="<%= activeTab === 'tasks' ? 'active' : '' %>" href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openTasks %></span></a>
                 <a class="<%= activeTab === 'earnings' ? 'active' : '' %>" href="/konto/profil?tab=earnings">Einnahmen</a>
                 <a class="<%= activeTab === 'profile' ? 'active' : '' %>" href="/konto/profil?tab=profile">Profil</a>
                 <a class="<%= activeTab === 'support' ? 'active' : '' %>" href="/konto/profil?tab=support">Support</a>
@@ -128,8 +128,30 @@
 
             <div class="mockdash-main">
               <% if (activeTab === 'tasks') { %>
-                <header class="account-card-head"><h3>Aufgaben</h3><p class="account-muted">Aufgabenbereich ist vorbereitet.</p></header>
-                <section class="mockdash-tasks"><p class="account-muted" style="margin:0;">Hier folgen deine Live-Aufgaben im nächsten Schritt.</p></section>
+                <header class="account-card-head"><h3>Aufgaben</h3><p class="account-muted">Deine zugewiesenen Aufgaben aus MagicVics.</p></header>
+                <section class="mockdash-tasks">
+                  <% if (!dash.assignedTasks || dash.assignedTasks.length === 0) { %>
+                    <p class="account-muted" style="margin:0;">Aktuell sind keine Aufgaben zugewiesen.</p>
+                  <% } else { %>
+                    <div class="mockdash-table">
+                      <% dash.assignedTasks.forEach((task) => { %>
+                        <article class="mockdash-row">
+                          <div>
+                            <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
+                            <small>
+                              <% if (task.due_date) { %>
+                                Fällig: <%= new Date(task.due_date).toLocaleDateString('de-DE') %>
+                              <% } else { %>
+                                Ohne Fälligkeitsdatum
+                              <% } %>
+                            </small>
+                          </div>
+                          <span class="badge"><%= task.status || 'pending' %></span>
+                        </article>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </section>
               <% } else if (activeTab === 'earnings') { %>
                 <header class="account-card-head"><h3>Einnahmen</h3><p class="account-muted">Einnahmenbereich ist vorbereitet.</p></header>
                 <section class="mockdash-tasks"><p class="account-muted" style="margin:0;">Hier folgen Kontostand/Verlauf mit Live-Daten.</p></section>
