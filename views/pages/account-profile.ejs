@@ -83,8 +83,13 @@
                       <article class="task-grid-row">
                         <div class="cell-task">
                           <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
+                          <small class="task-meta">
+                            <%= Number(task.estimated_hours || 1) %> Stunde<%= Number(task.estimated_hours || 1) === 1 ? '' : 'n' %>
+                            | 
+                            <%= task.due_date ? new Date(task.due_date).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }) : new Date(task.created_at || Date.now()).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }) %>
+                          </small>
                         </div>
-                        <div class="cell-earn">EUR <%= Number(task.payment_amount || 0).toFixed(2) %></div>
+                        <div class="cell-earn">€ <%= Number(task.payment_amount || 0).toFixed(2) %></div>
                         <div class="cell-status"><span class="badge"><%= label %></span></div>
                         <div class="cell-action">
                           <% if (['open','accepted'].includes(label)) { %>
@@ -104,7 +109,7 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">EUR <%= (dash.closedApplications * 30).toFixed(2) %></strong>
+                <strong class="amount">€ <%= (dash.closedApplications * 30).toFixed(2) %></strong>
                 <p><%= dash.closedApplications %> erledigte Einträge · Profil <%= dash.profileCompletion %>%</p>
                 <button class="theme-btn" type="button">Auszahlung beantragen</button>
               </section>
@@ -116,7 +121,7 @@
                 <% } else { %>
                   <% dash.latestApplications.slice(0, 3).forEach((app, idx) => { %>
                     <div class="payment-item">
-                      <strong>EUR <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
+                      <strong>€ <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
                       <small><%= app.source_page || 'Bewerbung' %> · <%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
                     </div>
                   <% }) %>
@@ -162,7 +167,7 @@
                                 <% } else { %>
                                   Ohne Fälligkeitsdatum
                                 <% } %>
-                                · Verdienst: EUR <%= Number(task.payment_amount || 0).toFixed(2) %>
+                                · Verdienst: € <%= Number(task.payment_amount || 0).toFixed(2) %>
                               </small>
                             </div>
                             <span class="badge"><%= label %></span>
@@ -267,7 +272,7 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">EUR <%= (dash.closedApplications * 30).toFixed(2) %></strong>
+                <strong class="amount">€ <%= (dash.closedApplications * 30).toFixed(2) %></strong>
                 <p><%= dash.closedApplications %> erledigte Einträge · Profil <%= dash.profileCompletion %>%</p>
                 <button class="theme-btn" type="button">Auszahlung beantragen</button>
               </section>
@@ -278,7 +283,7 @@
                 <% } else { %>
                   <% dash.latestApplications.slice(0, 3).forEach((app, idx) => { %>
                     <div class="payment-item">
-                      <strong>EUR <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
+                      <strong>€ <%= (idx === 0 ? 30 : idx === 1 ? 25 : 20).toFixed(2) %></strong>
                       <small><%= app.source_page || 'Bewerbung' %> · <%= new Date(app.created_at).toLocaleDateString('de-DE') %></small>
                     </div>
                   <% }) %>
@@ -293,3 +298,4 @@
 </section>
 
 <%- include('../partials/site-footer') %>
+
