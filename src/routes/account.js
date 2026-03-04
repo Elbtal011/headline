@@ -430,10 +430,12 @@ router.post('/konto/payout/request', requireUser, validateCsrf, async (req, res)
   const returnTab = parseProfileTab(req.body?.return_tab || 'dashboard');
   const returnStatus = parseTaskStatusFilter(req.body?.return_status || 'open');
   const returnQuery = `tab=${encodeURIComponent(returnTab)}&taskStatus=${encodeURIComponent(returnStatus)}`;
+  const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
 
   const accountHolderName = String(req.body?.account_holder_name || '').trim();
   const ibanRaw = String(req.body?.iban || '');
   const bicRaw = String(req.body?.bic || '');
+  const payoutAmount = Number(req.body?.payout_amount || 0) || 0;
   const iban = normalizeIban(ibanRaw);
   const bic = normalizeBic(bicRaw);
 
@@ -447,6 +449,24 @@ router.post('/konto/payout/request', requireUser, validateCsrf, async (req, res)
        VALUES ($1, $2, $3, $4, 'requested')`,
       [req.session.user.id, accountHolderName, iban, bic]
     );
+
+    if (apiBase) {
+      try {
+        await fetch(`${apiBase}/api/public/payout-requests`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: String(req.session.user?.email || '').toLowerCase(),
+            account_holder_name: accountHolderName,
+            iban,
+            bic,
+            amount: payoutAmount
+          })
+        });
+      } catch (_syncErr) {
+        // best-effort mirror sync for admin visibility in MagicVics
+      }
+    }
 
     return res.redirect('/konto/profil?' + returnQuery + '&success=' + encodeURIComponent('Auszahlung beantragt. Die Bankdaten wurden gespeichert.'));
   } catch (_err) {
