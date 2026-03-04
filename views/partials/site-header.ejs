@@ -1,3 +1,7 @@
+<%
+  const accountHref = user ? '/konto/profil?tab=dashboard' : '/konto/login';
+  const accountLabel = user ? 'Profil' : 'Profil Login';
+%>
 <div class="fix-area">
   <div class="offcanvas__info">
     <div class="offcanvas__wrapper">
@@ -9,17 +13,17 @@
           <div class="offcanvas__close"><button><i class="fas fa-times"></i></button></div>
         </div>
         <h3 class="offcanvas-title">Willkommen!</h3>
-        <p>Wir sind Ihr verlässlicher Ansprechpartner in allen Bereichen rund um Digitalisierung.</p>
+        <p>Wir sind Ihr verlï¿½sslicher Ansprechpartner in allen Bereichen rund um Digitalisierung.</p>
         <div class="mobile-menu fix mt-3"></div>
         <div class="offcanvas__contact">
           <h3>Kontaktdaten</h3>
           <ul class="contact-list">
-            <li><span>Anschrift:</span> Schönebecker Str. 33, 42283 Wuppertal</li>
+            <li><span>Anschrift:</span> Schï¿½nebecker Str. 33, 42283 Wuppertal</li>
             <li><span>Kundendienst:</span> <a href="mailto:info@vantagepointgermany.de">info@vantagepointgermany.de</a></li>
-            <li><span>Öffnungszeiten:</span> <a href="#">Mo - fr: 8:00 bis 17:00 Uhr</a></li>
+            <li><span>ï¿½ffnungszeiten:</span> <a href="#">Mo - fr: 8:00 bis 17:00 Uhr</a></li>
           </ul>
         </div>
-        <a href="/konto/login" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
+        <a href="<%= accountHref %>" class="theme-btn"><%= accountLabel %> <i class="fa-solid fa-arrow-right"></i></a>
       </div>
     </div>
   </div>
@@ -44,14 +48,14 @@
                   <li class="<%= pageData.currentPath === '/Bewerbung' ? 'active' : '' %>"><a href="/Bewerbung">Karriere & Stellen</a></li>
                   <li class="<%= pageData.currentPath === '/Kontakt' ? 'active' : '' %>"><a href="/Kontakt">Kontakt</a></li>
                   <li class="mobile-only-profile">
-                    <a href="/konto/login">Profil Login</a>
+                    <a href="<%= accountHref %>"><%= accountLabel %></a>
                   </li>
                 </ul>
               </nav>
             </div>
           </div>
           <div class="header-right d-flex justify-content-end align-items-center">
-            <a href="/konto/login" class="theme-btn">Profil Login <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="<%= accountHref %>" class="theme-btn"><%= accountLabel %> <i class="fa-solid fa-arrow-right"></i></a>
             <div class="header__hamburger d-xl-none my-auto"><div class="sidebar__toggle"><i class="fas fa-bars"></i></div></div>
           </div>
         </div>
