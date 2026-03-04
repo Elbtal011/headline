@@ -115,18 +115,18 @@
                         <div class="cell-earn">€ <%= Number(task.payment_amount || 0).toFixed(2) %></div>
                         <div class="cell-status"><span class="badge"><%= label %></span></div>
                         <div class="cell-action">
-                          <% if (label === 'open') { %>
+                          <% if (s === 'pending' || s === 'open') { %>
                             <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/accept">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <input type="hidden" name="return_tab" value="dashboard" />
-                              <input type="hidden" name="return_status" value="<%= selectedStatus %>" />
+                              <input type="hidden" name="return_status" value="open" />
                               <button class="theme-btn task-action-btn" type="submit">Accept</button>
                             </form>
-                          <% } else if (label === 'accepted') { %>
+                          <% } else if (s === 'accepted') { %>
                             <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <input type="hidden" name="return_tab" value="dashboard" />
-                              <input type="hidden" name="return_status" value="<%= selectedStatus %>" />
+                              <input type="hidden" name="return_status" value="in_review" />
                               <button class="theme-btn task-action-btn" type="submit">Einreichen</button>
                             </form>
                           <% } %>
