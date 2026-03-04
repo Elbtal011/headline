@@ -26,10 +26,15 @@
     .manual-blue .btn{margin-top:10px;border:1px solid #8ecde8;background:transparent;color:#fff;padding:7px 14px;border-radius:2px;font-size:12px}
     .doc-step{display:none;border:1px solid #bce4f4;padding:14px;margin-top:10px}
     .doc-shot{background:#f3f3f3;border-radius:6px;padding:10px;margin-bottom:10px}
-    .doc-shot .ph{height:120px;border:2px dashed #cfcfcf;border-radius:8px;background:#e8e8e8}
+    .doc-shot .ph{height:160px;border:2px dashed #cfcfcf;border-radius:8px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+    .doc-shot .ph img.preview{width:100%;height:100%;object-fit:cover;display:none}
+    .doc-shot .ph .hint{opacity:.85;text-align:center;color:#5f6b75;font-size:13px;line-height:1.35;padding:8px}
+    .doc-shot .ph .hint i{font-size:32px;display:block;margin-bottom:6px;color:#7b8791}
     .doc-shot button{width:100%;margin-top:8px;border:2px solid #95cfe4;background:#fff;border-radius:8px;padding:8px;font-size:14px}
+    .doc-shot input[type=file]{display:none}
     .doc-actions{text-align:right}
     .doc-actions button{background:#18a8e2;color:#fff;border:1px solid #75c4e8;border-radius:6px;padding:7px 12px}
+    .doc-actions button[disabled]{opacity:.55;cursor:not-allowed}
     @media (max-width:900px){.container{width:100vw;max-width:100vw}.page-header img{width:100%;height:auto}.content-padding{padding:12px}.doc-shot .ph{height:180px}}
     @media (max-width:500px){.steps-container{flex-direction:column}.step-with-border{border-left:none;border-top:thick solid #05b1fb;padding-left:0;padding-top:.5em}.manual-blue{grid-template-columns:1fr;padding:14px}.manual-blue .bang{width:48px;height:48px;font-size:28px}.sim-modal{max-width:300px;padding:16px}.sim-modal h3{font-size:16px}.sim-modal p{font-size:13px}.doc-shot button{font-size:13px;padding:10px}.doc-actions button{font-size:14px}}
   </style>
@@ -69,10 +74,28 @@
       </div>
 
       <div id="doc-step" class="doc-step">
-        <div class="doc-shot"><strong>Ausweisvorderseite</strong><div class="ph"></div><button>Vorderseite des Ausweisdokuments fotografieren</button></div>
-        <div class="doc-shot"><strong>Ausweisrückseite</strong><div class="ph"></div><button>Rückseite des Ausweisdokuments fotografieren</button></div>
+        <div class="doc-shot">
+          <strong>Ausweisvorderseite</strong>
+          <div class="ph" id="front-preview-wrap">
+            <img class="preview" id="front-preview" alt="Ausweisvorderseite Vorschau" />
+            <div class="hint" id="front-hint"><i>🪪</i>Vorderseite noch nicht aufgenommen</div>
+          </div>
+          <input id="front-file" type="file" accept="image/*" capture="environment" />
+          <button type="button" id="front-btn">Vorderseite des Ausweisdokuments fotografieren</button>
+        </div>
+
+        <div class="doc-shot">
+          <strong>Ausweisrückseite</strong>
+          <div class="ph" id="back-preview-wrap">
+            <img class="preview" id="back-preview" alt="Ausweisrückseite Vorschau" />
+            <div class="hint" id="back-hint"><i>🪪</i>Rückseite noch nicht aufgenommen</div>
+          </div>
+          <input id="back-file" type="file" accept="image/*" capture="environment" />
+          <button type="button" id="back-btn">Rückseite des Ausweisdokuments fotografieren</button>
+        </div>
+
         <p>Tipps für das Fotografieren Ihres Ausweisdokuments erhalten Sie <u>hier</u>.</p>
-        <div class="doc-actions"><button>Überprüfen</button></div>
+        <div class="doc-actions"><button id="verify-btn" type="button" disabled>Überprüfen</button></div>
       </div>
 
     </main></div></div>
@@ -91,6 +114,42 @@
 <script>
   document.getElementById('sim-ok')?.addEventListener('click',()=>{document.getElementById('sim-overlay').style.display='none'})
   document.getElementById('btn-weiter')?.addEventListener('click',()=>{document.getElementById('manual-intro').style.display='none';document.getElementById('doc-step').style.display='block'})
+
+  const frontInput = document.getElementById('front-file');
+  const backInput = document.getElementById('back-file');
+  const frontBtn = document.getElementById('front-btn');
+  const backBtn = document.getElementById('back-btn');
+  const frontPreview = document.getElementById('front-preview');
+  const backPreview = document.getElementById('back-preview');
+  const frontHint = document.getElementById('front-hint');
+  const backHint = document.getElementById('back-hint');
+  const verifyBtn = document.getElementById('verify-btn');
+
+  function updateVerifyState() {
+    const ok = Boolean(frontInput?.files?.[0]) && Boolean(backInput?.files?.[0]);
+    if (verifyBtn) verifyBtn.disabled = !ok;
+  }
+
+  function wireCapture(input, triggerBtn, previewImg, hintEl) {
+    if (!input || !triggerBtn || !previewImg) return;
+    triggerBtn.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if (!file) return updateVerifyState();
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewImg.style.display = 'block';
+      if (hintEl) hintEl.style.display = 'none';
+      updateVerifyState();
+    });
+  }
+
+  wireCapture(frontInput, frontBtn, frontPreview, frontHint);
+  wireCapture(backInput, backBtn, backPreview, backHint);
+
+  verifyBtn?.addEventListener('click', () => {
+    alert('Dokumentfotos erfasst. Nächster Schritt: KYC-Speicherung in MagicVics wird als nächstes verbunden.');
+  });
 </script>
 </body>
 </html>
