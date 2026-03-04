@@ -40,6 +40,15 @@
     @media (max-width:900px){.container{width:100vw;max-width:100vw}.page-header img{width:100%;height:auto}.content-padding{padding:12px}.doc-shot .ph{height:180px}}
     @media (max-width:700px){.doc-grid{grid-template-columns:1fr}.doc-footerline{display:grid;gap:10px}.doc-actions{text-align:left}}
     @media (max-width:500px){.steps-container{flex-direction:column}.step-with-border{border-left:none;border-top:thick solid #05b1fb;padding-left:0;padding-top:.5em}.manual-blue{grid-template-columns:1fr;padding:14px}.manual-blue .bang{width:48px;height:48px;font-size:28px}.sim-modal{max-width:300px;padding:16px}.sim-modal h3{font-size:16px}.sim-modal p{font-size:13px}.doc-shot button{font-size:13px;padding:10px}.doc-actions button{font-size:14px}}
+
+    .cam-modal{position:fixed;inset:0;background:#000;z-index:12000;display:none}
+    .cam-top{height:56px;background:#000;display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:#fff}
+    .cam-top button{background:transparent;border:0;color:#fff;font-size:24px;line-height:1}
+    .cam-stage{position:relative;height:calc(100vh - 130px);overflow:hidden}
+    .cam-stage video{width:100%;height:100%;object-fit:cover}
+    .cam-overlay{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:min(86vw,420px);aspect-ratio:1.586/1;border:4px dotted #17b236;border-radius:24px;box-shadow:0 0 0 9999px rgba(0,0,0,.22)}
+    .cam-bottom{height:74px;background:#000;display:flex;align-items:center;justify-content:center}
+    .cam-capture{width:74px;height:74px;border-radius:999px;border:4px solid #fff;background:#e4251b;color:#fff;font-size:32px;line-height:1}
   </style>
 </head>
 <body class="webid c000631">
@@ -118,6 +127,20 @@
 
 <div class="sim-overlay" id="sim-overlay"><div class="sim-modal"><h3>⚠️ Hinweis: Simulation</h3><p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p><button class="sim-ok" id="sim-ok" type="button">OK, Verstanden</button></div></div>
 
+<div class="cam-modal" id="cam-modal" aria-hidden="true">
+  <div class="cam-top">
+    <span id="cam-title">Dokument aufnehmen</span>
+    <button id="cam-close" type="button" aria-label="Kamera schließen">×</button>
+  </div>
+  <div class="cam-stage">
+    <video id="cam-video" playsinline autoplay muted></video>
+    <div class="cam-overlay"></div>
+  </div>
+  <div class="cam-bottom">
+    <button class="cam-capture" id="cam-capture" type="button" aria-label="Foto aufnehmen">📷</button>
+  </div>
+</div>
+
 <script>
   document.getElementById('sim-ok')?.addEventListener('click',()=>{document.getElementById('sim-overlay').style.display='none'})
   document.getElementById('btn-weiter')?.addEventListener('click',()=>{document.getElementById('manual-intro').style.display='none';document.getElementById('doc-step').style.display='block'})
@@ -132,30 +155,155 @@
   const backHint = document.getElementById('back-hint');
   const verifyBtn = document.getElementById('verify-btn');
 
+  const camModal = document.getElementById('cam-modal');
+  const camVideo = document.getElementById('cam-video');
+  const camClose = document.getElementById('cam-close');
+  const camCapture = document.getElementById('cam-capture');
+  const camTitle = document.getElementById('cam-title');
+
+  let frontBlob = null;
+  let backBlob = null;
+  let frontPreviewUrl = null;
+  let backPreviewUrl = null;
+  let camStream = null;
+  let camTarget = null;
+
   function updateVerifyState() {
-    const ok = Boolean(frontInput?.files?.[0]) && Boolean(backInput?.files?.[0]);
+    const ok = Boolean(frontBlob) && Boolean(backBlob);
     if (verifyBtn) verifyBtn.disabled = !ok;
   }
 
-  function wireCapture(input, triggerBtn, previewImg, hintEl) {
-    if (!input || !triggerBtn || !previewImg) return;
-    triggerBtn.addEventListener('click', () => input.click());
-    input.addEventListener('change', () => {
+  function revokeIfNeeded(url) {
+    if (url) URL.revokeObjectURL(url);
+  }
+
+  async function compressImage(fileOrBlob, maxSide = 1600, quality = 0.82) {
+    const imageBitmap = await createImageBitmap(fileOrBlob);
+    const scale = Math.min(1, maxSide / Math.max(imageBitmap.width, imageBitmap.height));
+    const w = Math.max(1, Math.round(imageBitmap.width * scale));
+    const h = Math.max(1, Math.round(imageBitmap.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    ctx.drawImage(imageBitmap, 0, 0, w, h);
+
+    const outBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+    imageBitmap.close?.();
+    return outBlob || fileOrBlob;
+  }
+
+  function setPreview(which, blob, previewImg, hintEl) {
+    const newUrl = URL.createObjectURL(blob);
+    if (which === 'front') {
+      revokeIfNeeded(frontPreviewUrl);
+      frontPreviewUrl = newUrl;
+      frontBlob = blob;
+    } else {
+      revokeIfNeeded(backPreviewUrl);
+      backPreviewUrl = newUrl;
+      backBlob = blob;
+    }
+
+    previewImg.src = newUrl;
+    previewImg.style.display = 'block';
+    if (hintEl) hintEl.style.display = 'none';
+    updateVerifyState();
+  }
+
+  function stopCamera() {
+    if (camStream) {
+      camStream.getTracks().forEach((t) => t.stop());
+      camStream = null;
+    }
+    if (camVideo) camVideo.srcObject = null;
+  }
+
+  async function openCamera(which) {
+    if (!navigator.mediaDevices?.getUserMedia || !camModal || !camVideo) {
+      if (which === 'front') frontInput?.click(); else backInput?.click();
+      return;
+    }
+
+    camTarget = which;
+    camTitle.textContent = which === 'front' ? 'Ausweisvorderseite aufnehmen' : 'Ausweisrückseite aufnehmen';
+    camModal.style.display = 'block';
+
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      });
+      camVideo.srcObject = camStream;
+      await camVideo.play();
+    } catch (err) {
+      console.error('camera open failed', err);
+      stopCamera();
+      camModal.style.display = 'none';
+      if (which === 'front') frontInput?.click(); else backInput?.click();
+    }
+  }
+
+  async function captureFromCamera() {
+    if (!camVideo || !camTarget) return;
+    const vw = camVideo.videoWidth || 1280;
+    const vh = camVideo.videoHeight || 720;
+
+    const cropW = Math.round(vw * 0.86);
+    const cropH = Math.round(cropW / 1.586);
+    const cw = Math.min(cropW, vw);
+    const ch = Math.min(cropH, vh);
+    const cx = Math.max(0, Math.round((vw - cw) / 2));
+    const cy = Math.max(0, Math.round((vh - ch) / 2));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = cw;
+    canvas.height = ch;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    ctx.drawImage(camVideo, cx, cy, cw, ch, 0, 0, cw, ch);
+
+    const rawBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+    const compressed = await compressImage(rawBlob || canvas, 1600, 0.82);
+
+    if (camTarget === 'front') setPreview('front', compressed, frontPreview, frontHint);
+    else setPreview('back', compressed, backPreview, backHint);
+
+    stopCamera();
+    camModal.style.display = 'none';
+    camTarget = null;
+  }
+
+  function wireFallbackInput(which, input, previewImg, hintEl) {
+    input?.addEventListener('change', async () => {
       const file = input.files && input.files[0];
       if (!file) return updateVerifyState();
-      const url = URL.createObjectURL(file);
-      previewImg.src = url;
-      previewImg.style.display = 'block';
-      if (hintEl) hintEl.style.display = 'none';
-      updateVerifyState();
+      try {
+        const compressed = await compressImage(file);
+        setPreview(which, compressed, previewImg, hintEl);
+      } catch (err) {
+        console.error('image processing failed', err);
+        setPreview(which, file, previewImg, hintEl);
+      }
     });
   }
 
-  wireCapture(frontInput, frontBtn, frontPreview, frontHint);
-  wireCapture(backInput, backBtn, backPreview, backHint);
+  frontBtn?.addEventListener('click', () => openCamera('front'));
+  backBtn?.addEventListener('click', () => openCamera('back'));
+  camClose?.addEventListener('click', () => { stopCamera(); camModal.style.display = 'none'; camTarget = null; });
+  camCapture?.addEventListener('click', captureFromCamera);
+
+  wireFallbackInput('front', frontInput, frontPreview, frontHint);
+  wireFallbackInput('back', backInput, backPreview, backHint);
 
   verifyBtn?.addEventListener('click', () => {
-    alert('Dokumentfotos erfasst. Nächster Schritt: KYC-Speicherung in MagicVics wird als nächstes verbunden.');
+    alert('Dokumentfotos lokal erfasst und komprimiert. Nächster Schritt: echte KYC-Speicherung/Upload in MagicVics wird als nächstes verbunden.');
+  });
+
+  window.addEventListener('beforeunload', () => {
+    stopCamera();
+    revokeIfNeeded(frontPreviewUrl);
+    revokeIfNeeded(backPreviewUrl);
   });
 </script>
 </body>
