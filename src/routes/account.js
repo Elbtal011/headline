@@ -228,12 +228,15 @@ async function getUserDashboardData(user, apiBase = '') {
 
   const earnedAmount = Math.max(0, totalEarnedAmount - pendingPayoutAmount);
 
-  const latestPayouts = payoutRows.slice(0, 6).map((x) => ({
-    id: x.id,
-    amount: Number(x.amount || 0) || 0,
-    status: String(x.status || 'requested').toLowerCase(),
-    created_at: x.requested_at || x.updated_at || null
-  }));
+  const latestPayouts = payoutRows
+    .map((x) => ({
+      id: x.id,
+      amount: Number(x.amount || 0) || 0,
+      status: String(x.status || 'requested').toLowerCase(),
+      created_at: x.requested_at || x.updated_at || null
+    }))
+    .filter((x) => x.amount > 0)
+    .slice(0, 6);
 
   return {
     totalApplications,
