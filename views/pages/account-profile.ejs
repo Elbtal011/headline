@@ -72,15 +72,21 @@
                   <% if (!dash.assignedTasks || dash.assignedTasks.length === 0) { %>
                     <p class="account-muted" style="margin:0;">Noch keine zugewiesenen Aufgaben vorhanden.</p>
                   <% } else { %>
+                    <div class="task-grid-head">
+                      <span>Aufgabe</span>
+                      <span>Verdienst</span>
+                      <span>Status</span>
+                      <span>Aktion</span>
+                    </div>
                     <% dash.assignedTasks.slice(0, 6).forEach((task) => { %>
                       <% const s = String(task.status || 'pending').toLowerCase(); const label = s === 'pending' ? 'open' : (s === 'in_review' ? 'in prüfung' : s); %>
-                      <article class="mockdash-row">
-                        <div>
+                      <article class="task-grid-row">
+                        <div class="cell-task">
                           <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
-                          <small>Verdienst: EUR <%= Number(task.payment_amount || 0).toFixed(2) %></small>
                         </div>
-                        <div class="task-row-actions">
-                          <span class="badge"><%= label %></span>
+                        <div class="cell-earn">EUR <%= Number(task.payment_amount || 0).toFixed(2) %></div>
+                        <div class="cell-status"><span class="badge"><%= label %></span></div>
+                        <div class="cell-action">
                           <% if (['open','accepted'].includes(label)) { %>
                             <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

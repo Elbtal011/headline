@@ -368,6 +368,28 @@
     .task-detail-body ol { margin: 8px 0 10px 18px; color: #2e4a67; }
     .task-submit-form { margin-top: 8px; }
     .task-row-actions { display: flex; align-items: center; gap: 8px; }
+    .task-grid-head,
+    .task-grid-row {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) 120px 120px 120px;
+      align-items: center;
+      column-gap: 10px;
+    }
+    .task-grid-head {
+      padding: 0 10px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5f7892;
+    }
+    .task-grid-row {
+      border: 1px solid #dfebf6;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+    .task-grid-row .cell-task strong { color: #15395e; font-size: 15px; }
+    .task-grid-row .cell-earn { color: #1d3958; font-weight: 700; }
+    .cell-status, .cell-action { display: flex; justify-content: flex-end; }
     .task-action-btn { min-height: 30px; padding: 6px 12px; font-size: 12px; border-radius: 8px; }
     .badge {
       border-radius: 999px;
