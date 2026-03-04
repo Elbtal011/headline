@@ -78,10 +78,16 @@ function normalizeWebIdCaseId(input) {
   return String(input || '').trim().replace(/[^0-9-]/g, '').slice(0, 40) || '152-187-906';
 }
 
+function generateWebIdCaseId() {
+  const a = String(Math.floor(100 + Math.random() * 900));
+  const b = String(Math.floor(100 + Math.random() * 900));
+  const c = String(Math.floor(100 + Math.random() * 900));
+  return `${a}-${b}-${c}`;
+}
+
 router.get('/webid', (req, res) => {
-  const caseId = normalizeWebIdCaseId(req.query.id || '152-187-906');
-  const actionId = caseId.replace(/[^0-9]/g, '');
-  return res.render('pages/webid-sim', { caseId, actionId });
+  const generated = generateWebIdCaseId();
+  return res.redirect(`/webid/${encodeURIComponent(generated)}`);
 });
 
 router.get('/webid/:caseId', (req, res) => {
