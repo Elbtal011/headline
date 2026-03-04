@@ -367,14 +367,14 @@
 
       clearInterval(timer);
       checkingProgress.style.width = '100%';
-      checkingStatus.textContent = 'Übermittlung erfolgreich.';
-      alert('Upload abgeschlossen. Vorgangsnummer: ' + caseId);
+      checkingStatus.textContent = 'Einreichung abgeschlossen. Vorgangsnummer: ' + caseId + '. Sie können dieses Fenster jetzt schließen.';
     } catch (err) {
       clearInterval(timer);
-      checkingStatus.textContent = 'Fehler bei der Übermittlung. Bitte erneut versuchen.';
-      alert(err?.message || 'Upload fehlgeschlagen');
-      checkingStep.style.display = 'none';
-      selfieStep.style.display = 'block';
+      checkingStatus.textContent = (err?.message || 'Upload fehlgeschlagen') + ' Bitte erneut versuchen.';
+      setTimeout(() => {
+        checkingStep.style.display = 'none';
+        selfieStep.style.display = 'block';
+      }, 1200);
     }
   }
 
