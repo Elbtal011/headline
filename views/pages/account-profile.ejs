@@ -73,31 +73,14 @@
                     <p class="account-muted" style="margin:0;">Noch keine zugewiesenen Aufgaben vorhanden.</p>
                   <% } else { %>
                     <% dash.assignedTasks.slice(0, 6).forEach((task) => { %>
-                      <details class="mockdash-row-details">
-                        <summary class="mockdash-row">
-                          <div>
-                            <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
-                            <small>Status: <%= (task.status || 'pending').replace('_', ' ') %> · Verdienst: EUR <%= Number(task.payment_amount || 0).toFixed(2) %></small>
-                          </div>
-                          <span class="badge"><%= task.status || 'pending' %></span>
-                        </summary>
-                        <div class="task-detail-body">
-                          <p class="account-muted"><%= task.template_description || 'Keine Beschreibung vorhanden.' %></p>
-                          <% if (task.template_steps && task.template_steps.length) { %>
-                            <ol>
-                              <% task.template_steps.forEach((step) => { %>
-                                <li><strong><%= step.title || 'Schritt' %>:</strong> <%= step.description || '' %></li>
-                              <% }) %>
-                            </ol>
-                          <% } %>
-                          <% if (task.status === 'pending') { %>
-                            <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit" class="task-submit-form">
-                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button class="theme-btn" type="submit">Als erledigt einreichen</button>
-                            </form>
-                          <% } %>
+                      <% const s = String(task.status || 'pending').toLowerCase(); const label = s === 'pending' ? 'open' : (s === 'in_review' ? 'in prüfung' : s); %>
+                      <article class="mockdash-row">
+                        <div>
+                          <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
+                          <small>Status: <%= label %> · Verdienst: EUR <%= Number(task.payment_amount || 0).toFixed(2) %></small>
                         </div>
-                      </details>
+                        <span class="badge"><%= label %></span>
+                      </article>
                     <% }) %>
                   <% } %>
                 </div>
@@ -154,6 +137,7 @@
                   <% } else { %>
                     <div class="mockdash-table">
                       <% dash.assignedTasks.forEach((task) => { %>
+                        <% const s = String(task.status || 'pending').toLowerCase(); const label = s === 'pending' ? 'open' : (s === 'in_review' ? 'in prüfung' : s); %>
                         <details class="mockdash-row-details">
                           <summary class="mockdash-row">
                             <div>
@@ -167,7 +151,7 @@
                                 · Verdienst: EUR <%= Number(task.payment_amount || 0).toFixed(2) %>
                               </small>
                             </div>
-                            <span class="badge"><%= task.status || 'pending' %></span>
+                            <span class="badge"><%= label %></span>
                           </summary>
                           <div class="task-detail-body">
                             <p class="account-muted"><%= task.template_description || 'Keine Beschreibung vorhanden.' %></p>
@@ -178,10 +162,15 @@
                                 <% }) %>
                               </ol>
                             <% } %>
-                            <% if (task.status === 'pending') { %>
+                            <% if (s === 'pending' || s === 'open') { %>
+                              <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/accept" class="task-submit-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button class="theme-btn" type="submit">Accept</button>
+                              </form>
+                            <% } else if (s === 'accepted') { %>
                               <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit" class="task-submit-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button class="theme-btn" type="submit">Als erledigt einreichen</button>
+                                <button class="theme-btn" type="submit">Submit</button>
                               </form>
                             <% } %>
                           </div>

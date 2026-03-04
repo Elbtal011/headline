@@ -337,6 +337,31 @@ router.get('/konto/profil', requireUser, async (req, res) => {
   });
 });
 
+router.post('/konto/tasks/:id/accept', requireUser, validateCsrf, async (req, res) => {
+  const assignmentId = String(req.params.id || '').trim();
+  const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
+
+  if (!assignmentId || !apiBase) {
+    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Aufgabe konnte nicht angenommen werden.'));
+  }
+
+  try {
+    const resp = await fetch(`${apiBase}/api/public/user-task-assignments/${encodeURIComponent(assignmentId)}/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: String(req.session.user?.email || '').toLowerCase() })
+    });
+
+    if (!resp.ok) {
+      return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Annehmen fehlgeschlagen. Bitte erneut versuchen.'));
+    }
+
+    return res.redirect('/konto/profil?tab=tasks&success=' + encodeURIComponent('Aufgabe angenommen.'));
+  } catch (_error) {
+    return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Annehmen fehlgeschlagen. Bitte erneut versuchen.'));
+  }
+});
+
 router.post('/konto/tasks/:id/submit', requireUser, validateCsrf, async (req, res) => {
   const assignmentId = String(req.params.id || '').trim();
   const apiBase = String(req.app?.locals?.magicvicsApiBase || process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
@@ -353,7 +378,7 @@ router.post('/konto/tasks/:id/submit', requireUser, validateCsrf, async (req, re
     });
 
     if (!resp.ok) {
-      return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Einreichen fehlgeschlagen. Bitte erneut versuchen.'));
+      return res.redirect('/konto/profil?tab=tasks&error=' + encodeURIComponent('Einreichen erst nach Annahme möglich.'));
     }
 
     return res.redirect('/konto/profil?tab=tasks&success=' + encodeURIComponent('Aufgabe wurde eingereicht und ist jetzt in Prüfung.'));
