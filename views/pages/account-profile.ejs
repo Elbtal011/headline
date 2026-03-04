@@ -231,8 +231,69 @@
                   <% } %>
                 </section>
               <% } else if (activeTab === 'earnings') { %>
-                <header class="account-card-head"><h3>Einnahmen</h3><p class="account-muted">Einnahmenbereich ist vorbereitet.</p></header>
-                <section class="mockdash-tasks"><p class="account-muted" style="margin:0;">Hier folgen Kontostand/Verlauf mit Live-Daten.</p></section>
+                <header class="account-card-head"><h3>Einnahmen</h3><p class="account-muted">Uebersicht ueber Verdienst, Auszahlungen und Aufgabenleistung.</p></header>
+                <section class="earnings-wrap">
+                  <div class="earnings-kpis">
+                    <article class="earnings-kpi-card">
+                      <span>Gesamt verdient</span>
+                      <strong>€ <%= Number(dash.totalEarnedAmount || 0).toFixed(2) %></strong>
+                    </article>
+                    <article class="earnings-kpi-card">
+                      <span>Ausstehende Auszahlungen</span>
+                      <strong>€ <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></strong>
+                    </article>
+                    <article class="earnings-kpi-card">
+                      <span>Verfuegbarer Kontostand</span>
+                      <strong>€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                    </article>
+                    <article class="earnings-kpi-card">
+                      <span>Abgeschlossene Aufgaben</span>
+                      <strong><%= Number(dash.completedTasks || 0) %></strong>
+                    </article>
+                  </div>
+
+                  <div class="earnings-grid">
+                    <section class="earnings-card">
+                      <h4>Letzte Aufgaben-Verdienste</h4>
+                      <% const completedTasksForEarnings = (dash.assignedTasks || []).filter((task) => ['completed', 'approved', 'genehmigt'].includes(String(task?.status || '').toLowerCase())); %>
+                      <% if (!completedTasksForEarnings.length) { %>
+                        <p class="account-muted" style="margin:0;">Noch keine abgeschlossenen Aufgaben.</p>
+                      <% } else { %>
+                        <div class="earnings-list">
+                          <% completedTasksForEarnings.slice(0, 6).forEach((task) => { %>
+                            <article class="earnings-item">
+                              <div>
+                                <strong><%= task.template_title || task.task_title || 'Aufgabe' %></strong>
+                                <small><%= task.completed_at ? new Date(task.completed_at).toLocaleDateString('de-DE') : 'Genehmigt' %></small>
+                              </div>
+                              <span>€ <%= Number(task.payment_amount || 0).toFixed(2) %></span>
+                            </article>
+                          <% }) %>
+                        </div>
+                      <% } %>
+                    </section>
+
+                    <section class="earnings-card">
+                      <h4>Auszahlungsverlauf</h4>
+                      <% if (!dash.latestPayouts || !dash.latestPayouts.length) { %>
+                        <p class="account-muted" style="margin:0;">Noch keine Auszahlungsanfragen vorhanden.</p>
+                      <% } else { %>
+                        <div class="earnings-list">
+                          <% dash.latestPayouts.slice(0, 6).forEach((payout) => { %>
+                            <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'requested' ? 'Beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt')); %>
+                            <article class="earnings-item">
+                              <div>
+                                <strong><%= pLabel %></strong>
+                                <small><%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
+                              </div>
+                              <span>€ <%= Number(payout.amount || 0).toFixed(2) %></span>
+                            </article>
+                          <% }) %>
+                        </div>
+                      <% } %>
+                    </section>
+                  </div>
+                </section>
               <% } else if (activeTab === 'support') { %>
                 <header class="account-card-head"><h3>Support</h3><p class="account-muted">Supportbereich</p></header>
                 <section class="mockdash-tasks"><p class="account-muted" style="margin:0;">Kontakt: <a href="/Kontakt">/Kontakt</a></p></section>
@@ -336,6 +397,27 @@
 </section>
 
 <style>
+  .earnings-wrap { display: grid; gap: 16px; }
+  .earnings-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .earnings-kpi-card { border: 1px solid #e1e7f2; background: #fff; border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; }
+  .earnings-kpi-card span { font-size: 12px; color: #6a7890; }
+  .earnings-kpi-card strong { font-size: 24px; line-height: 1.15; color: #0f1f3b; }
+  .earnings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .earnings-card { border: 1px solid #e1e7f2; background: #fff; border-radius: 12px; padding: 14px; }
+  .earnings-card h4 { margin: 0 0 10px; font-size: 16px; color: #0f1f3b; }
+  .earnings-list { display: grid; gap: 8px; }
+  .earnings-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #edf2fb; border-radius: 10px; padding: 10px 12px; background: #fbfdff; }
+  .earnings-item strong { display: block; font-size: 14px; color: #112647; }
+  .earnings-item small { color: #6a7890; font-size: 12px; }
+  .earnings-item span { font-weight: 700; color: #123160; }
+  @media (max-width: 980px) {
+    .earnings-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .earnings-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .earnings-kpis { grid-template-columns: 1fr; }
+  }
+
   .payout-modal[hidden] { display: none !important; }
   .payout-modal { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .payout-modal__backdrop { position: absolute; inset: 0; background: rgba(8, 15, 32, 0.55); }
