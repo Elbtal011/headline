@@ -196,12 +196,12 @@
                             <% if (s === 'pending' || s === 'open') { %>
                               <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/accept" class="task-submit-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button class="theme-btn" type="submit">Accept</button>
+                                <button class="theme-btn task-action-btn" type="submit">Accept</button>
                               </form>
                             <% } else if (s === 'accepted') { %>
                               <form method="post" action="/konto/tasks/<%= encodeURIComponent(task.id) %>/submit" class="task-submit-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button class="theme-btn" type="submit">Einreichen</button>
+                                <button class="theme-btn task-action-btn" type="submit">Einreichen</button>
                               </form>
                             <% } %>
                           </div>
