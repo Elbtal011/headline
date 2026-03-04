@@ -467,12 +467,21 @@ router.post('/konto/payout/request', requireUser, validateCsrf, async (req, res)
   const accountHolderName = String(req.body?.account_holder_name || '').trim();
   const ibanRaw = String(req.body?.iban || '');
   const bicRaw = String(req.body?.bic || '');
-  const payoutAmount = Number(req.body?.payout_amount || 0) || 0;
+  const requestedPayoutAmount = Number(req.body?.payout_amount || 0) || 0;
   const iban = normalizeIban(ibanRaw);
   const bic = normalizeBic(bicRaw);
 
-  if (!accountHolderName || !isValidIban(iban) || !isValidBic(bic) || payoutAmount <= 0) {
-    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Bitte Name, gueltige IBAN, gueltige BIC und einen gueltigen Auszahlungsbetrag eingeben.'));
+  if (!accountHolderName || !isValidIban(iban) || !isValidBic(bic)) {
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Bitte Name, gueltige IBAN und gueltige BIC eingeben.'));
+  }
+
+  const currentUser = await getUserById(req.session.user.id);
+  const dashboardNow = await getUserDashboardData(currentUser || req.session.user, apiBase);
+  const availableAmount = Number(dashboardNow?.earnedAmount || 0) || 0;
+  const payoutAmount = requestedPayoutAmount > 0 ? Math.min(requestedPayoutAmount, availableAmount) : availableAmount;
+
+  if (payoutAmount <= 0) {
+    return res.redirect('/konto/profil?' + returnQuery + '&error=' + encodeURIComponent('Derzeit ist kein auszahlbarer Betrag verfuegbar.'));
   }
 
   try {
