@@ -36,7 +36,6 @@
         <% if (activeTab === 'dashboard') { %>
           <section class="mockdash">
             <aside class="mockdash-side">
-              <div class="mockdash-brand">Headline</div>
               <nav class="mockdash-menu">
                 <a class="active" href="/konto/profil?tab=dashboard">Dashboard</a>
                 <a href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openApplications %></span></a>
@@ -112,7 +111,6 @@
         <% } else { %>
           <section class="mockdash">
             <aside class="mockdash-side">
-              <div class="mockdash-brand">Headline</div>
               <nav class="mockdash-menu">
                 <a href="/konto/profil?tab=dashboard">Dashboard</a>
                 <a class="<%= activeTab === 'tasks' ? 'active' : '' %>" href="/konto/profil?tab=tasks">Aufgaben <span class="dot"><%= dash.openApplications %></span></a>
