@@ -4,11 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>WebID Solutions - Your True Identity Company</title>
+  <link rel="icon" type="image/png" href="/favicon-headline.png" />
+  <link rel="shortcut icon" href="/favicon-headline.png" />
   <link href="https://webid.phnl-agentur.de/service/v3/style/main.css?b=2373" rel="stylesheet" />
   <style>
     #simulation-warning{position:fixed;top:0;left:0;width:100%;background:red;color:#fff;text-align:center;font-size:18px;font-weight:700;padding:10px;z-index:9999}
     body.webid{margin:0;padding-top:44px;background:#dfe1e5}
     .container{max-width:960px;width:min(96vw,960px);margin:0 auto;background:#fff}
+    .page-header{position:relative}
+    .page-header .img-responsive{display:block;width:100%;height:auto}
+    .webid-brand-replace{position:absolute;top:8px;right:10px;width:240px;height:180px;background:#fff;display:flex;align-items:center;justify-content:center;z-index:2}
+    .webid-brand-replace img{max-width:90%;height:auto}
     .heading{font-size:18px}
     .steps-container{display:flex;flex-wrap:wrap;margin:1em 0}
     .step-all{flex:2}
@@ -42,7 +48,7 @@
     .checking-bar{height:10px;border-radius:999px;background:#d9eef8;overflow:hidden}
     .checking-bar>span{display:block;height:100%;width:0%;background:#18a8e2;transition:width .25s ease}
     .checking-status{margin:10px 0 0 0;color:#456}
-    @media (max-width:900px){.container{width:100vw;max-width:100vw}.page-header img{width:100%;height:auto}.content-padding{padding:12px}.doc-shot .ph{height:180px}}
+    @media (max-width:900px){.container{width:100vw;max-width:100vw}.page-header img{width:100%;height:auto}.webid-brand-replace{width:180px;height:130px;top:6px;right:6px}.content-padding{padding:12px}.doc-shot .ph{height:180px}}
     @media (max-width:700px){.doc-grid{grid-template-columns:1fr}.doc-footerline{display:grid;gap:10px}.doc-actions{text-align:left}}
     @media (max-width:500px){.steps-container{flex-direction:column}.step-with-border{border-left:none;border-top:thick solid #05b1fb;padding-left:0;padding-top:.5em}.manual-blue{grid-template-columns:1fr;padding:14px}.manual-blue .bang{width:48px;height:48px;font-size:28px}.sim-modal{max-width:300px;padding:16px}.sim-modal h3{font-size:16px}.sim-modal p{font-size:13px}.doc-shot button{font-size:13px;padding:10px}.doc-actions button{font-size:14px}}
 
@@ -61,6 +67,7 @@
 <div class="container">
   <header class="page-header">
     <img src="https://kbltkdjwueqanlvynnon.supabase.co/storage/v1/object/public/company-assets/webid/header-phnl-neu-2%20(1).png" class="img-responsive" alt="" />
+    <div class="webid-brand-replace"><img src="/logo-headline-1.png" alt="Headline Agentur" /></div>
     <div id="action-id-display">Vorgangsnummer: <b><%= caseId %></b></div>
   </header>
 
