@@ -204,6 +204,57 @@ router.get('/api/admin/kyc-submissions', async (_req, res) => {
   }
 });
 
+router.get('/api/admin/kyc-document', async (req, res) => {
+  try {
+    let rawPath = String(req.query?.path || '').trim();
+    for (let i = 0; i < 2; i += 1) {
+      try {
+        const dec = decodeURIComponent(rawPath);
+        if (dec === rawPath) break;
+        rawPath = dec;
+      } catch {
+        break;
+      }
+    }
+    rawPath = rawPath.replace(/%2F/gi, '/').replace(/^\/+/, '');
+    if (!rawPath || !rawPath.startsWith('uploads/webid/')) {
+      return res.status(400).json({ success: false, error: 'Invalid document path' });
+    }
+
+    const candidates = [
+      path.join(__dirname, '..', '..', rawPath),
+      path.join(process.cwd(), rawPath),
+      path.join('/data', rawPath),
+      path.join('/data', 'uploads', rawPath.replace(/^uploads\//, '')),
+    ];
+
+    let found = null;
+    for (const p of candidates) {
+      try {
+        const b = await fs.readFile(p);
+        found = { p, b };
+        break;
+      } catch {
+        // try next
+      }
+    }
+
+    if (!found) return res.status(404).send('Document not found');
+
+    const lower = rawPath.toLowerCase();
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) res.setHeader('content-type', 'image/jpeg');
+    else if (lower.endsWith('.png')) res.setHeader('content-type', 'image/png');
+    else if (lower.endsWith('.webp')) res.setHeader('content-type', 'image/webp');
+    else if (lower.endsWith('.pdf')) res.setHeader('content-type', 'application/pdf');
+    else res.setHeader('content-type', 'application/octet-stream');
+
+    return res.status(200).send(found.b);
+  } catch (err) {
+    console.error('[webid] kyc document fetch failed', err);
+    return res.status(500).json({ success: false, error: 'KYC-Dokument konnte nicht geladen werden.' });
+  }
+});
+
 // Decoupled mode: accept submissions, keep UX success flow, persistence is moved out
 // in the next step (MagicVics backend wiring).
 router.post('/api/leads/contact', submitLimiter, validateCsrf, async (req, res) => {
