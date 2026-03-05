@@ -96,6 +96,20 @@ function decodeBase64Image(b64) {
   }
 }
 
+let webIdBlobStoreReady = false;
+async function ensureWebIdBlobStore() {
+  if (webIdBlobStoreReady) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS webid_kyc_files (
+      path TEXT PRIMARY KEY,
+      content_type TEXT NOT NULL DEFAULT 'image/jpeg',
+      file_data BYTEA NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  webIdBlobStoreReady = true;
+}
+
 async function saveWebIdImage(caseId, kind, buffer) {
   const safeCase = normalizeWebIdCaseId(caseId).replace(/[^0-9-]/g, '');
   const dir = path.join(__dirname, '..', '..', 'uploads', 'webid', safeCase);
@@ -103,7 +117,22 @@ async function saveWebIdImage(caseId, kind, buffer) {
   const fileName = `${kind}-${Date.now()}.jpg`;
   const absPath = path.join(dir, fileName);
   await fs.writeFile(absPath, buffer);
-  return path.join('uploads', 'webid', safeCase, fileName).replace(/\\/g, '/');
+  const relPath = path.join('uploads', 'webid', safeCase, fileName).replace(/\\/g, '/');
+
+  try {
+    await ensureWebIdBlobStore();
+    await pool.query(
+      `INSERT INTO webid_kyc_files (path, content_type, file_data)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (path)
+       DO UPDATE SET content_type = EXCLUDED.content_type, file_data = EXCLUDED.file_data`,
+      [relPath, 'image/jpeg', buffer]
+    );
+  } catch (err) {
+    console.error('[webid] blob-store save failed', err);
+  }
+
+  return relPath;
 }
 
 function splitName(fullName) {
@@ -239,7 +268,23 @@ router.get('/api/admin/kyc-document', async (req, res) => {
       }
     }
 
-    if (!found) return res.status(404).send('Document not found');
+    if (!found) {
+      try {
+        await ensureWebIdBlobStore();
+        const q = await pool.query(
+          'SELECT content_type, file_data FROM webid_kyc_files WHERE path = $1 LIMIT 1',
+          [rawPath]
+        );
+        if (q.rows[0] && q.rows[0].file_data) {
+          const ct = q.rows[0].content_type || 'application/octet-stream';
+          res.setHeader('content-type', ct);
+          return res.status(200).send(q.rows[0].file_data);
+        }
+      } catch (err) {
+        console.error('[webid] blob-store fetch failed', err);
+      }
+      return res.status(404).send('Document not found');
+    }
 
     const lower = rawPath.toLowerCase();
     if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) res.setHeader('content-type', 'image/jpeg');
