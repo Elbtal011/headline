@@ -116,7 +116,7 @@
                             Zeit: <%= task.due_date ? formatRemaining(task.due_date) : 'Unbegrenzt' %>
                           </small>
                         </div>
-                        <div class="cell-earn">EUR <%= Number(task.payment_amount || 0).toFixed(2) %></div>
+                        <div class="cell-earn">&euro; <%= Number(task.payment_amount || 0).toFixed(2) %></div>
                         <div class="cell-status"><span class="badge"><%= label %></span></div>
                         <div class="cell-action">
                           <% if (s === 'pending' || s === 'open') { %>
@@ -145,8 +145,8 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">EUR <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
-                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben  -</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: EUR <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
+                <strong class="amount">&euro; <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben  -</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: &euro; <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
                 <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
 
@@ -158,7 +158,7 @@
                   <% dash.latestPayouts.slice(0, 3).forEach((payout) => { %>
                     <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'earned' ? 'Verdienst' : (pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt'))); %>
                     <div class="payment-item">
-                      <strong>EUR <%= Number(payout.amount || 0).toFixed(2) %></strong>
+                      <strong>&euro; <%= Number(payout.amount || 0).toFixed(2) %></strong>
                       <small><%= pLabel %> - <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                     </div>
                   <% }) %>
@@ -203,7 +203,7 @@
                             <div>
                               <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
                               <small class="task-meta" data-due="<%= task.due_date || '' %>" data-earn="<%= Number(task.payment_amount || 0).toFixed(2) %>">
-                                Zeit: <%= task.due_date ? formatRemaining(task.due_date) : 'Unbegrenzt' %> - Verdienst: EUR <%= Number(task.payment_amount || 0).toFixed(2) %>
+                                Zeit: <%= task.due_date ? formatRemaining(task.due_date) : 'Unbegrenzt' %> - Verdienst: &euro; <%= Number(task.payment_amount || 0).toFixed(2) %>
                               </small>
                             </div>
                             <span class="badge"><%= label %></span>
@@ -244,15 +244,15 @@
                   <div class="earnings-kpis">
                     <article class="earnings-kpi-card">
                       <span>Gesamt verdient</span>
-                      <strong>EUR <%= Number(dash.totalEarnedAmount || 0).toFixed(2) %></strong>
+                      <strong>&euro; <%= Number(dash.totalEarnedAmount || 0).toFixed(2) %></strong>
                     </article>
                     <article class="earnings-kpi-card">
                       <span>Ausstehende Auszahlungen</span>
-                      <strong>EUR <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></strong>
+                      <strong>&euro; <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></strong>
                     </article>
                     <article class="earnings-kpi-card">
                       <span>Verfuegbarer Kontostand</span>
-                      <strong>EUR <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                      <strong>&euro; <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
                     </article>
                     <article class="earnings-kpi-card">
                       <span>Abgeschlossene Aufgaben</span>
@@ -274,7 +274,7 @@
                                 <strong><%= task.template_title || task.task_title || 'Aufgabe' %></strong>
                                 <small><%= task.completed_at ? new Date(task.completed_at).toLocaleDateString('de-DE') : 'Genehmigt' %></small>
                               </div>
-                              <span>EUR <%= Number(task.payment_amount || 0).toFixed(2) %></span>
+                              <span>&euro; <%= Number(task.payment_amount || 0).toFixed(2) %></span>
                             </article>
                           <% }) %>
                         </div>
@@ -294,7 +294,7 @@
                                 <strong><%= pLabel %></strong>
                                 <small><%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                               </div>
-                              <span>EUR <%= Number(payout.amount || 0).toFixed(2) %></span>
+                              <span>&euro; <%= Number(payout.amount || 0).toFixed(2) %></span>
                             </article>
                           <% }) %>
                         </div>
@@ -383,8 +383,8 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">EUR <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
-                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben  -</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: EUR <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
+                <strong class="amount">&euro; <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben  -</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: &euro; <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
                 <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
               <section class="mockdash-payments">
@@ -395,7 +395,7 @@
                   <% dash.latestPayouts.slice(0, 3).forEach((payout) => { %>
                     <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'earned' ? 'Verdienst' : (pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt'))); %>
                     <div class="payment-item">
-                      <strong>EUR <%= Number(payout.amount || 0).toFixed(2) %></strong>
+                      <strong>&euro; <%= Number(payout.amount || 0).toFixed(2) %></strong>
                       <small><%= pLabel %> - <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                     </div>
                   <% }) %>
@@ -503,7 +503,7 @@
         const due = el.getAttribute('data-due') || '';
         const txt = fmtRemaining(due);
         const earn = el.getAttribute('data-earn');
-        el.textContent = earn ? `Zeit: ${txt} - Verdienst: EUR ${earn}` : `Zeit: ${txt}`;
+        el.textContent = earn ? `Zeit: ${txt} - Verdienst: \u20AC ${earn}` : `Zeit: ${txt}`;
       });
     }
 
@@ -550,6 +550,7 @@
 </script>
 
 <%- include('../partials/site-footer') %>
+
 
 
 
