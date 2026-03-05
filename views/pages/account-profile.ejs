@@ -95,7 +95,7 @@
                 <div class="mockdash-tabs">
                   <a class="<%= selectedStatus === 'open' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=open">Offen (<%= statusCount('pending') %>)</a>
                   <a class="<%= selectedStatus === 'in_review' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=in_review">In Prüfung (<%= statusCount('in_review') %>)</a>
-                  <a class="<%= selectedStatus === 'accepted' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=accepted">Akzeptiert (<%= statusCount('accepted') %>)</a>
+                  <a class="<%= selectedStatus === 'accepted' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=accepted">Genehmigt (<%= statusCount('accepted') %>)</a>
                 </div>
                 <div class="mockdash-table">
                   <% if (!shownTasks || shownTasks.length === 0) { %>
