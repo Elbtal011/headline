@@ -58,7 +58,12 @@ app.use(
     maxAge: '7d',
   })
 );
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+const staticUploadsDir = path.join(__dirname, '..', 'uploads');
+const cwdUploadsDir = path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(staticUploadsDir));
+if (cwdUploadsDir !== staticUploadsDir) {
+  app.use('/uploads', express.static(cwdUploadsDir));
+}
 
 app.use((req, res, next) => {
   res.locals.query = req.query;

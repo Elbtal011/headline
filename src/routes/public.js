@@ -98,7 +98,7 @@ function decodeBase64Image(b64) {
 
 async function saveWebIdImage(caseId, kind, buffer) {
   const safeCase = normalizeWebIdCaseId(caseId).replace(/[^0-9-]/g, '');
-  const dir = path.join(process.cwd(), 'uploads', 'webid', safeCase);
+  const dir = path.join(__dirname, '..', '..', 'uploads', 'webid', safeCase);
   await fs.mkdir(dir, { recursive: true });
   const fileName = `${kind}-${Date.now()}.jpg`;
   const absPath = path.join(dir, fileName);
