@@ -228,14 +228,24 @@ async function getUserDashboardData(user, apiBase = '') {
 
   const earnedAmount = Math.max(0, totalEarnedAmount - pendingPayoutAmount);
 
-  const latestPayouts = payoutRows
-    .map((x) => ({
+  const latestPayouts = [
+    ...payoutRows.map((x) => ({
       id: x.id,
       amount: Number(x.amount || 0) || 0,
       status: String(x.status || 'requested').toLowerCase(),
       created_at: x.requested_at || x.updated_at || null
-    }))
+    })),
+    ...taskRows
+      .filter((x) => ['completed', 'approved', 'genehmigt'].includes(statusOf(x)))
+      .map((x) => ({
+        id: `earn_${x.id}`,
+        amount: Number(x.payment_amount || 0) || 0,
+        status: 'earned',
+        created_at: x.completed_at || x.updated_at || x.created_at || null
+      }))
+  ]
     .filter((x) => x.amount > 0)
+    .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
     .slice(0, 6);
 
   return {

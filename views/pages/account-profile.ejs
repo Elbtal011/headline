@@ -1,4 +1,4 @@
-<%- include('../partials/site-head', { title: 'Headline Agentur | Mein Profil' }) %>
+﻿<%- include('../partials/site-head', { title: 'Headline Agentur | Mein Profil' }) %>
 <%- include('../partials/site-header') %>
 
 <section class="breadcrumb-wrapper">
@@ -70,7 +70,7 @@
 
             <div class="mockdash-main">
               <header class="mockdash-head">
-                <h3>Willkommen zurück, <%= user.first_name || 'User' %>!</h3>
+                <h3>Willkommen zurÃ¼ck, <%= user.first_name || 'User' %>!</h3>
                 <p>Hier sind deine Aufgaben und dein Kontostand.</p>
               </header>
 
@@ -94,7 +94,7 @@
                 }; const shownTasks = (dash.assignedTasks || []).filter(statusMatches); %>
                 <div class="mockdash-tabs">
                   <a class="<%= selectedStatus === 'open' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=open">Offen (<%= statusCount('pending') %>)</a>
-                  <a class="<%= selectedStatus === 'in_review' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=in_review">In Prüfung (<%= statusCount('in_review') %>)</a>
+                  <a class="<%= selectedStatus === 'in_review' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=in_review">In PrÃ¼fung (<%= statusCount('in_review') %>)</a>
                   <a class="<%= selectedStatus === 'accepted' ? 'active' : '' %>" href="/konto/profil?tab=dashboard&taskStatus=accepted">Genehmigt (<%= statusCount('accepted') %>)</a>
                 </div>
                 <div class="mockdash-table">
@@ -108,7 +108,7 @@
                       <span>Aktion</span>
                     </div>
                     <% shownTasks.slice(0, 6).forEach((task) => { %>
-                      <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'accepted' || s === 'in_review' || s === 'submitted') ? 'in prüfung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
+                      <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'accepted' || s === 'in_review' || s === 'submitted') ? 'in prÃ¼fung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
                       <article class="task-grid-row">
                         <div class="cell-task">
                           <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
@@ -116,7 +116,7 @@
                             Zeit: <%= task.due_date ? formatRemaining(task.due_date) : 'Unbegrenzt' %>
                           </small>
                         </div>
-                        <div class="cell-earn">€ <%= Number(task.payment_amount || 0).toFixed(2) %></div>
+                        <div class="cell-earn">â‚¬ <%= Number(task.payment_amount || 0).toFixed(2) %></div>
                         <div class="cell-status"><span class="badge"><%= label %></span></div>
                         <div class="cell-action">
                           <% if (s === 'pending' || s === 'open') { %>
@@ -145,8 +145,8 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
-                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: € <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
+                <strong class="amount">â‚¬ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben Â· Profil <%= dash.profileCompletion %>%</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: â‚¬ <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
                 <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
 
@@ -156,10 +156,10 @@
                   <p class="account-muted" style="margin:0;">Noch keine Zahlungen vorhanden.</p>
                 <% } else { %>
                   <% dash.latestPayouts.slice(0, 3).forEach((payout) => { %>
-                    <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt')); %>
+                    <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'earned' ? 'Verdienst' : (pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt'))); %>
                     <div class="payment-item">
-                      <strong>€ <%= Number(payout.amount || 0).toFixed(2) %></strong>
-                      <small><%= pLabel %> · <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
+                      <strong>â‚¬ <%= Number(payout.amount || 0).toFixed(2) %></strong>
+                      <small><%= pLabel %> Â· <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                     </div>
                   <% }) %>
                 <% } %>
@@ -197,13 +197,13 @@
                   <% } else { %>
                     <div class="mockdash-table">
                       <% dash.assignedTasks.forEach((task) => { %>
-                        <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'accepted' || s === 'in_review' || s === 'submitted') ? 'in prüfung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
+                        <% const s = String(task.status || 'pending').toLowerCase(); const label = (s === 'pending' || s === 'open') ? 'open' : ((s === 'accepted' || s === 'in_review' || s === 'submitted') ? 'in prÃ¼fung' : (['completed','approved','genehmigt'].includes(s) ? 'accepted' : s)); %>
                         <details class="mockdash-row-details">
                           <summary class="mockdash-row">
                             <div>
                               <strong><%= task.template_title || task.title || 'Aufgabe' %></strong>
                               <small class="task-meta" data-due="<%= task.due_date || '' %>" data-earn="<%= Number(task.payment_amount || 0).toFixed(2) %>">
-                                Zeit: <%= task.due_date ? formatRemaining(task.due_date) : 'Unbegrenzt' %> · Verdienst: € <%= Number(task.payment_amount || 0).toFixed(2) %>
+                                Zeit: <%= task.due_date ? formatRemaining(task.due_date) : 'Unbegrenzt' %> Â· Verdienst: â‚¬ <%= Number(task.payment_amount || 0).toFixed(2) %>
                               </small>
                             </div>
                             <span class="badge"><%= label %></span>
@@ -244,15 +244,15 @@
                   <div class="earnings-kpis">
                     <article class="earnings-kpi-card">
                       <span>Gesamt verdient</span>
-                      <strong>€ <%= Number(dash.totalEarnedAmount || 0).toFixed(2) %></strong>
+                      <strong>â‚¬ <%= Number(dash.totalEarnedAmount || 0).toFixed(2) %></strong>
                     </article>
                     <article class="earnings-kpi-card">
                       <span>Ausstehende Auszahlungen</span>
-                      <strong>€ <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></strong>
+                      <strong>â‚¬ <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></strong>
                     </article>
                     <article class="earnings-kpi-card">
                       <span>Verfuegbarer Kontostand</span>
-                      <strong>€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                      <strong>â‚¬ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
                     </article>
                     <article class="earnings-kpi-card">
                       <span>Abgeschlossene Aufgaben</span>
@@ -274,7 +274,7 @@
                                 <strong><%= task.template_title || task.task_title || 'Aufgabe' %></strong>
                                 <small><%= task.completed_at ? new Date(task.completed_at).toLocaleDateString('de-DE') : 'Genehmigt' %></small>
                               </div>
-                              <span>€ <%= Number(task.payment_amount || 0).toFixed(2) %></span>
+                              <span>â‚¬ <%= Number(task.payment_amount || 0).toFixed(2) %></span>
                             </article>
                           <% }) %>
                         </div>
@@ -294,7 +294,7 @@
                                 <strong><%= pLabel %></strong>
                                 <small><%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                               </div>
-                              <span>€ <%= Number(payout.amount || 0).toFixed(2) %></span>
+                              <span>â‚¬ <%= Number(payout.amount || 0).toFixed(2) %></span>
                             </article>
                           <% }) %>
                         </div>
@@ -307,12 +307,12 @@
                 <section class="mockdash-tasks" style="display:grid; gap:12px;">
                   <p class="account-muted" style="margin:0;">Unser Team hilft dir schnell weiter. Nutze den Kontakt-Button, um direkt zur Kontaktseite zu gehen.</p>
                   <div class="account-actions" style="margin:0;">
-                    <a class="theme-btn" href="/Kontakt">Kontaktseite öffnen <i class="fa-solid fa-arrow-right"></i></a>
+                    <a class="theme-btn" href="/Kontakt">Kontaktseite Ã¶ffnen <i class="fa-solid fa-arrow-right"></i></a>
                   </div>
                 </section>
               <% } else if (activeTab === 'profile') { %>
                 <header class="account-card-head">
-                  <h3>Persönliche Daten</h3>
+                  <h3>PersÃ¶nliche Daten</h3>
                   <p class="account-muted">Pflegen Sie Ihre Kontaktdaten und halten Sie Ihr Profil aktuell.</p>
                 </header>
                 <form method="post" action="/konto/profil">
@@ -346,7 +346,7 @@
                     <div class="account-field">
                       <label for="doc-type">Dokumenttyp</label>
                       <select id="doc-type" name="doc_type" required>
-                        <option value="">Bitte wählen</option>
+                        <option value="">Bitte wÃ¤hlen</option>
                         <% docTypeOptions.forEach((opt) => { %>
                           <option value="<%= opt.value %>"><%= opt.label %></option>
                         <% }) %>
@@ -370,7 +370,7 @@
                         <div>
                           <h5><%= doc.doc_type_label %></h5>
                           <p><%= doc.original_name %></p>
-                          <small><%= new Date(doc.created_at).toLocaleString('de-DE') %> · <%= Math.ceil(doc.size_bytes / 1024) %> KB</small>
+                          <small><%= new Date(doc.created_at).toLocaleString('de-DE') %> Â· <%= Math.ceil(doc.size_bytes / 1024) %> KB</small>
                         </div>
                         <a class="btn btn-secondary" href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">Ansehen</a>
                       </article>
@@ -383,8 +383,8 @@
             <aside class="mockdash-right">
               <section class="mockdash-balance">
                 <h4>Kontostand</h4>
-                <strong class="amount">€ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
-                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben · Profil <%= dash.profileCompletion %>%</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: € <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
+                <strong class="amount">â‚¬ <%= Number(dash.earnedAmount || 0).toFixed(2) %></strong>
+                <p><%= dash.completedTasks || 0 %> abgeschlossene Aufgaben Â· Profil <%= dash.profileCompletion %>%</p><% if (Number(dash.pendingPayoutAmount || 0) > 0) { %><small class="account-muted">Ausstehende Auszahlung: â‚¬ <%= Number(dash.pendingPayoutAmount || 0).toFixed(2) %></small><% } %>
                 <button class="theme-btn" type="button" data-open-payout-modal="1">Auszahlung beantragen</button>
               </section>
               <section class="mockdash-payments">
@@ -393,10 +393,10 @@
                   <p class="account-muted" style="margin:0;">Noch keine Zahlungen vorhanden.</p>
                 <% } else { %>
                   <% dash.latestPayouts.slice(0, 3).forEach((payout) => { %>
-                    <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt')); %>
+                    <% const pStatus = String(payout.status || '').toLowerCase(); const pLabel = pStatus === 'earned' ? 'Verdienst' : (pStatus === 'requested' ? 'Auszahlung beantragt' : (pStatus === 'processing' ? 'In Bearbeitung' : (pStatus === 'paid' ? 'Ausgezahlt' : 'Abgelehnt'))); %>
                     <div class="payment-item">
-                      <strong>€ <%= Number(payout.amount || 0).toFixed(2) %></strong>
-                      <small><%= pLabel %> · <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
+                      <strong>â‚¬ <%= Number(payout.amount || 0).toFixed(2) %></strong>
+                      <small><%= pLabel %> Â· <%= payout.created_at ? new Date(payout.created_at).toLocaleDateString('de-DE') : '' %></small>
                     </div>
                   <% }) %>
                 <% } %>
@@ -475,7 +475,7 @@
         <input id="payout-bic" name="bic" required autocomplete="off" placeholder="ABCDEFGHXXX" />
       </div>
 
-      <p class="account-muted payout-modal__note">Auszahlungen werden innerhalb von 30 Tagen nach Genehmigung der Aufgabe bearbeitet. Die Auszahlung erfolgt per Banküberweisung auf das hinterlegte Konto.</p>    </form>
+      <p class="account-muted payout-modal__note">Auszahlungen werden innerhalb von 30 Tagen nach Genehmigung der Aufgabe bearbeitet. Die Auszahlung erfolgt per BankÃ¼berweisung auf das hinterlegte Konto.</p>    </form>
   </div>
 </div>
 
@@ -503,7 +503,7 @@
         const due = el.getAttribute('data-due') || '';
         const txt = fmtRemaining(due);
         const earn = el.getAttribute('data-earn');
-        el.textContent = earn ? `Zeit: ${txt} · Verdienst: € ${earn}` : `Zeit: ${txt}`;
+        el.textContent = earn ? `Zeit: ${txt} Â· Verdienst: â‚¬ ${earn}` : `Zeit: ${txt}`;
       });
     }
 
@@ -550,6 +550,7 @@
 </script>
 
 <%- include('../partials/site-footer') %>
+
 
 
 
