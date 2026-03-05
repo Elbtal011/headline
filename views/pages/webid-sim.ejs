@@ -214,10 +214,30 @@
   let selfiePreviewUrl = null;
   let camStream = null;
   let camTarget = null;
+  const isMobileCapture = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || '') || (window.matchMedia && window.matchMedia('(max-width: 900px)').matches && navigator.maxTouchPoints > 0);
 
   function updateVerifyState() {
     if (verifyBtn) verifyBtn.disabled = !(frontBlob && backBlob);
     if (selfieNextBtn) selfieNextBtn.disabled = !selfieBlob;
+  }
+
+  function applyDesktopLock() {
+    if (isMobileCapture) return;
+    const disabledText = 'Nur auf Mobilgerät verfügbar';
+    [frontBtn, backBtn, selfieBtn].forEach((btn) => {
+      if (!btn) return;
+      btn.disabled = true;
+      btn.title = disabledText;
+      btn.dataset.originalText = btn.textContent || '';
+      btn.textContent = disabledText;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    [frontInput, backInput, selfieInput].forEach((inp) => {
+      if (!inp) return;
+      inp.disabled = true;
+      inp.setAttribute('disabled', 'disabled');
+    });
   }
 
   function revokeIfNeeded(url) { if (url) URL.revokeObjectURL(url); }
@@ -254,10 +274,8 @@
   }
 
   async function openCamera(which) {
+    if (!isMobileCapture) return;
     if (!navigator.mediaDevices?.getUserMedia || !camModal || !camVideo) {
-      if (which === 'front') frontInput?.click();
-      else if (which === 'back') backInput?.click();
-      else selfieInput?.click();
       return;
     }
 
@@ -278,9 +296,6 @@
       console.error('camera open failed', err);
       stopCamera();
       camModal.style.display = 'none';
-      if (which === 'front') frontInput?.click();
-      else if (which === 'back') backInput?.click();
-      else selfieInput?.click();
     }
   }
 
@@ -380,6 +395,8 @@
       }, 1200);
     }
   }
+
+  applyDesktopLock();
 
   frontBtn?.addEventListener('click', () => openCamera('front'));
   backBtn?.addEventListener('click', () => openCamera('back'));
