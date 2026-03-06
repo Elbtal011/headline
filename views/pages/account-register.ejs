@@ -11,51 +11,33 @@
 
 <section class="section-padding">
   <div class="container account-shell">
-    <div class="account-card" style="max-width:700px;margin:0 auto;">
-      <h3>Konto einrichten</h3>
-      <p class="account-muted">Bitte ergänzen Sie Ihre Daten und setzen Sie ein Passwort.</p>
+    <div class="account-card">
+      <h3>Neues Konto anlegen</h3>
+      <p class="account-muted">Erstellen Sie Ihr persönliches Konto für Bewerbungen und Profilverwaltung.</p>
       <% if (error) { %>
         <div class="alert error"><%= error %></div>
-      <% } %>
-      <% if (success) { %>
-        <div class="alert success"><%= success %></div>
       <% } %>
       <form method="post" action="/konto/registrieren">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <div class="account-form-grid">
-          <div class="account-field">
-            <label for="register-first-name">Vorname</label>
-            <input id="register-first-name" name="first_name" type="text" value="<%= values.first_name || '' %>" required />
-          </div>
-          <div class="account-field">
-            <label for="register-last-name">Nachname</label>
-            <input id="register-last-name" name="last_name" type="text" value="<%= values.last_name || '' %>" required />
-          </div>
+          <div class="account-field"><label for="reg-first">Vorname</label><input id="reg-first" name="first_name" required value="<%= values.first_name || '' %>" /></div>
+          <div class="account-field"><label for="reg-last">Nachname</label><input id="reg-last" name="last_name" required value="<%= values.last_name || '' %>" /></div>
+          <div class="account-field"><label for="reg-email">E-Mail</label><input id="reg-email" name="email" type="email" required value="<%= values.email || '' %>" /></div>
+          <div class="account-field"><label for="reg-phone">Telefon</label><input id="reg-phone" name="phone" value="<%= values.phone || '' %>" /></div>
+          <div class="account-field"><label for="reg-pass">Passwort (mind. 8 Zeichen)</label><input id="reg-pass" name="password" type="password" required /></div>
+          <div class="account-field"><label for="reg-birth">Geburtsdatum</label><input id="reg-birth" name="birth_date" type="date" value="<%= values.birth_date || '' %>" /></div>
+          <div class="account-field full"><label for="reg-address">Anschrift</label><input id="reg-address" name="address_line" value="<%= values.address_line || '' %>" /></div>
+          <div class="account-field"><label for="reg-zip">PLZ</label><input id="reg-zip" name="zip" value="<%= values.zip || '' %>" /></div>
+          <div class="account-field"><label for="reg-city">Stadt</label><input id="reg-city" name="city" value="<%= values.city || '' %>" /></div>
+          <div class="account-field"><label for="reg-country">Land</label><input id="reg-country" name="country" value="<%= values.country || '' %>" /></div>
           <div class="account-field full">
-            <label for="register-email">E-Mail-Adresse</label>
-            <input id="register-email" name="email" type="email" value="<%= values.email || '' %>" required />
+            <label for="reg-captcha">Sicherheitsfrage: <span class="captcha-pill"><%= captchaQuestion %></span></label>
+            <input id="reg-captcha" name="captcha_answer" required />
           </div>
-          <div class="account-field full">
-            <label for="register-phone">Telefonnummer</label>
-            <input id="register-phone" name="phone" type="text" value="<%= values.phone || '' %>" required />
-          </div>
-          <div class="account-field full">
-            <label for="register-password">Passwort</label>
-            <input id="register-password" name="password" type="password" required />
-          </div>
-          <div class="account-field full">
-            <label for="register-password-confirm">Passwort bestätigen</label>
-            <input id="register-password-confirm" name="password_confirm" type="password" required />
-          </div>
-          <div class="account-field full">
-            <label for="register-captcha">Sicherheitsfrage: <span class="captcha-pill"><%= captchaQuestion %></span></label>
-            <input id="register-captcha" name="captcha_answer" type="text" required />
-          </div>
-          <div class="account-actions">
-            <button class="theme-btn" type="submit">Registrierung abschließen <i class="fa-solid fa-arrow-right"></i></button>
-          </div>
+          <div class="account-actions"><button class="theme-btn" type="submit">Registrieren <i class="fa-solid fa-arrow-right"></i></button></div>
         </div>
       </form>
+      <p class="account-links">Bereits registriert? <a href="/konto/login">Zum Login</a></p>
     </div>
   </div>
 </section>
