@@ -97,7 +97,7 @@
   .register-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 22px}
   .register-step{border:1px solid #d2dfec;background:#f7fbff;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;color:#4b647f}
   .register-step span{width:26px;height:26px;border-radius:999px;background:#dce9f7;color:#2b4f74;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
-  .register-step small{font-size:13px;font-weight:600}
+  .register-step small{font-size:13px;font-weight:600;line-height:1.2}
   .register-step.is-active{border-color:#9fbee0;background:#eaf3fd;color:#103e67}
   .register-step.is-active span{background:#0d4f9b;color:#fff}
   .register-pane{display:none}
@@ -129,6 +129,13 @@
     font-weight:700;
   }
   .register-back-btn:hover{background:#dceafb !important; color:#0b447f !important;}
+
+  @media (max-width: 640px){
+    .register-steps{gap:8px;margin-bottom:14px}
+    .register-step{padding:8px 8px;min-height:44px;border-radius:10px;gap:7px}
+    .register-step span{width:22px;height:22px;font-size:12px}
+    .register-step small{font-size:11px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  }
 </style>
 
 <script>
