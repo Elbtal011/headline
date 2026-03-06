@@ -51,7 +51,7 @@
             <div class="account-field full"><label for="reg-country">Land</label><input id="reg-country" name="country" value="<%= values.country || 'Deutschland' %>" /></div>
           </div>
           <div class="account-actions">
-            <button class="theme-btn style-border" type="button" data-prev-step="1">Zurück</button>
+            <button class="theme-btn register-back-btn" type="button" data-prev-step="1">Zurück</button>
             <button class="theme-btn" type="button" data-next-step="3">Weiter <i class="fa-solid fa-arrow-right"></i></button>
           </div>
         </div>
@@ -82,7 +82,7 @@
           </div>
 
           <div class="account-actions">
-            <button class="theme-btn style-border" type="button" data-prev-step="2">Zurück</button>
+            <button class="theme-btn register-back-btn" type="button" data-prev-step="2">Zurück</button>
             <button class="theme-btn" type="submit">Registrierung abschließen <i class="fa-solid fa-arrow-right"></i></button>
           </div>
         </div>
@@ -114,6 +114,15 @@
   #signature-pad{width:100%;height:180px;border:1px dashed #b9cee3;border-radius:10px;background:#fcfeff;touch-action:none}
   .register-signature-hint{margin:8px 0 0;font-size:13px;color:#5a7490}
   .register-signature-error{margin:8px 0 0;color:#c12525;font-size:13px;font-weight:600}
+  .register-back-btn{
+    background:#e9f1fb !important;
+    color:#0d4f9b !important;
+    border:1px solid #b9d0e8 !important;
+    box-shadow:none !important;
+    min-width:112px;
+    justify-content:center;
+  }
+  .register-back-btn:hover{background:#dceafb !important; color:#0b447f !important;}
 </style>
 
 <script>
