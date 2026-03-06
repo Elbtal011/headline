@@ -105,8 +105,8 @@
   .register-contract-box{border:1px solid #d7e2ee;background:#f9fcff;border-radius:12px;padding:14px 14px 10px;margin-bottom:12px}
   .register-contract-box h4{margin:0 0 8px;color:#0f2f4f}
   .register-contract-box p{margin:0 0 10px;color:#496685;font-size:14px}
-  .register-consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#1d3958}
-  .register-consent input{margin-top:2px}
+  .register-consent{display:flex;gap:10px;align-items:center;font-size:14px;color:#1d3958;line-height:1.35}
+  .register-consent input{margin:0;position:relative;top:0;flex:0 0 auto}
   .register-signature-wrap{border:1px solid #d2dfec;border-radius:12px;padding:12px;background:#fff}
   .register-signature-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
   .register-signature-head label{font-weight:700;color:#1f3551;margin:0}
@@ -120,7 +120,13 @@
     border:1px solid #b9d0e8 !important;
     box-shadow:none !important;
     min-width:112px;
+    min-height:52px;
+    padding:0 20px !important;
+    border-radius:999px !important;
+    display:inline-flex;
+    align-items:center;
     justify-content:center;
+    font-weight:700;
   }
   .register-back-btn:hover{background:#dceafb !important; color:#0b447f !important;}
 </style>
@@ -182,13 +188,14 @@
 
   if (canvas && signatureInput) {
     const ctx = canvas.getContext('2d');
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
     let drawing = false;
 
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
       canvas.width = Math.floor(rect.width * ratio);
       canvas.height = Math.floor(rect.height * ratio);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(ratio, ratio);
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
@@ -198,12 +205,12 @@
 
     function pointFromEvent(evt) {
       const rect = canvas.getBoundingClientRect();
-      const source = evt.touches && evt.touches[0] ? evt.touches[0] : evt;
-      return { x: source.clientX - rect.left, y: source.clientY - rect.top };
+      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
     }
 
     function start(evt) {
       drawing = true;
+      if (canvas.setPointerCapture && evt.pointerId != null) canvas.setPointerCapture(evt.pointerId);
       const p = pointFromEvent(evt);
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
@@ -221,20 +228,21 @@
       evt.preventDefault();
     }
 
-    function stop() {
+    function stop(evt) {
       drawing = false;
+      if (canvas.releasePointerCapture && evt && evt.pointerId != null) {
+        try { canvas.releasePointerCapture(evt.pointerId); } catch (_) {}
+      }
     }
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', move);
-    canvas.addEventListener('mouseup', stop);
-    canvas.addEventListener('mouseleave', stop);
-    canvas.addEventListener('touchstart', start, { passive: false });
-    canvas.addEventListener('touchmove', move, { passive: false });
-    canvas.addEventListener('touchend', stop);
+    canvas.addEventListener('pointerdown', start, { passive: false });
+    canvas.addEventListener('pointermove', move, { passive: false });
+    canvas.addEventListener('pointerup', stop, { passive: false });
+    canvas.addEventListener('pointercancel', stop, { passive: false });
+    canvas.addEventListener('pointerleave', stop, { passive: false });
 
     if (clearBtn) {
       clearBtn.addEventListener('click', ()=>{
