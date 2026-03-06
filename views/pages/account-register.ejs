@@ -205,7 +205,9 @@
 
     function pointFromEvent(evt) {
       const rect = canvas.getBoundingClientRect();
-      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+      const touch = evt && evt.touches && evt.touches[0] ? evt.touches[0] : (evt && evt.changedTouches && evt.changedTouches[0] ? evt.changedTouches[0] : null);
+      const source = touch || evt;
+      return { x: source.clientX - rect.left, y: source.clientY - rect.top };
     }
 
     function start(evt) {
@@ -214,7 +216,7 @@
       const p = pointFromEvent(evt);
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      evt.preventDefault();
+      if (evt && evt.preventDefault) evt.preventDefault();
     }
 
     function move(evt) {
@@ -225,7 +227,7 @@
       hasSignature = true;
       signatureInput.value = canvas.toDataURL('image/png');
       if (signatureError) signatureError.hidden = true;
-      evt.preventDefault();
+      if (evt && evt.preventDefault) evt.preventDefault();
     }
 
     function stop(evt) {
@@ -233,6 +235,7 @@
       if (canvas.releasePointerCapture && evt && evt.pointerId != null) {
         try { canvas.releasePointerCapture(evt.pointerId); } catch (_) {}
       }
+      if (evt && evt.preventDefault) evt.preventDefault();
     }
 
     resizeCanvas();
@@ -243,6 +246,16 @@
     canvas.addEventListener('pointerup', stop, { passive: false });
     canvas.addEventListener('pointercancel', stop, { passive: false });
     canvas.addEventListener('pointerleave', stop, { passive: false });
+
+    canvas.addEventListener('mousedown', start, { passive: false });
+    canvas.addEventListener('mousemove', move, { passive: false });
+    canvas.addEventListener('mouseup', stop, { passive: false });
+    canvas.addEventListener('mouseleave', stop, { passive: false });
+
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
+    canvas.addEventListener('touchend', stop, { passive: false });
+    canvas.addEventListener('touchcancel', stop, { passive: false });
 
     if (clearBtn) {
       clearBtn.addEventListener('click', ()=>{
