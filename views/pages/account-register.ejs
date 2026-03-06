@@ -1,4 +1,4 @@
-﻿<%- include('../partials/site-head', { title: 'Headline Agentur | Registrierung' }) %>
+<%- include('../partials/site-head', { title: 'Headline Agentur | Registrierung' }) %>
 <%- include('../partials/site-header') %>
 
 <section class="breadcrumb-wrapper">
@@ -17,30 +17,236 @@
       <% if (error) { %>
         <div class="alert error"><%= error %></div>
       <% } %>
-      <form method="post" action="/konto/registrieren">
+
+      <div class="register-steps" aria-label="Registrierungsschritte">
+        <div class="register-step is-active" data-step-label="1"><span>1</span><small>Persönliche Daten</small></div>
+        <div class="register-step" data-step-label="2"><span>2</span><small>Adresse</small></div>
+        <div class="register-step" data-step-label="3"><span>3</span><small>Vertrag</small></div>
+      </div>
+
+      <form method="post" action="/konto/registrieren" id="register-form" novalidate>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <div class="account-form-grid">
-          <div class="account-field"><label for="reg-first">Vorname</label><input id="reg-first" name="first_name" required value="<%= values.first_name || '' %>" /></div>
-          <div class="account-field"><label for="reg-last">Nachname</label><input id="reg-last" name="last_name" required value="<%= values.last_name || '' %>" /></div>
-          <div class="account-field"><label for="reg-email">E-Mail</label><input id="reg-email" name="email" type="email" required value="<%= values.email || '' %>" /></div>
-          <div class="account-field"><label for="reg-phone">Telefon</label><input id="reg-phone" name="phone" value="<%= values.phone || '' %>" /></div>
-          <div class="account-field"><label for="reg-pass">Passwort (mind. 8 Zeichen)</label><input id="reg-pass" name="password" type="password" required /></div>
-          <div class="account-field"><label for="reg-birth">Geburtsdatum</label><input id="reg-birth" name="birth_date" type="date" value="<%= values.birth_date || '' %>" /></div>
-          <div class="account-field full"><label for="reg-address">Anschrift</label><input id="reg-address" name="address_line" value="<%= values.address_line || '' %>" /></div>
-          <div class="account-field"><label for="reg-zip">PLZ</label><input id="reg-zip" name="zip" value="<%= values.zip || '' %>" /></div>
-          <div class="account-field"><label for="reg-city">Stadt</label><input id="reg-city" name="city" value="<%= values.city || '' %>" /></div>
-          <div class="account-field"><label for="reg-country">Land</label><input id="reg-country" name="country" value="<%= values.country || '' %>" /></div>
-          <div class="account-field full">
+        <input type="hidden" name="signature_data" id="signature-data" value="" />
+
+        <div class="register-pane is-active" data-step="1">
+          <div class="account-form-grid">
+            <div class="account-field full"><label for="reg-email">E-Mail</label><input id="reg-email" name="email" type="email" required value="<%= values.email || '' %>" /></div>
+            <div class="account-field"><label for="reg-pass">Passwort (mind. 8 Zeichen)</label><input id="reg-pass" name="password" type="password" minlength="8" required /></div>
+            <div class="account-field"><label for="reg-pass-confirm">Passwort bestätigen</label><input id="reg-pass-confirm" name="password_confirm" type="password" minlength="8" required /></div>
+            <div class="account-field"><label for="reg-first">Vorname</label><input id="reg-first" name="first_name" required value="<%= values.first_name || '' %>" /></div>
+            <div class="account-field"><label for="reg-last">Nachname</label><input id="reg-last" name="last_name" required value="<%= values.last_name || '' %>" /></div>
+            <div class="account-field full"><label for="reg-phone">Telefonnummer</label><input id="reg-phone" name="phone" required value="<%= values.phone || '' %>" /></div>
+            <div class="account-field full"><label for="reg-birth">Geburtsdatum</label><input id="reg-birth" name="birth_date" type="date" value="<%= values.birth_date || '' %>" /></div>
+          </div>
+          <div class="account-actions">
+            <button class="theme-btn" type="button" data-next-step="2">Weiter <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div class="register-pane" data-step="2">
+          <div class="account-form-grid">
+            <div class="account-field full"><label for="reg-address">Anschrift</label><input id="reg-address" name="address_line" value="<%= values.address_line || '' %>" /></div>
+            <div class="account-field"><label for="reg-zip">PLZ</label><input id="reg-zip" name="zip" value="<%= values.zip || '' %>" /></div>
+            <div class="account-field"><label for="reg-city">Stadt</label><input id="reg-city" name="city" value="<%= values.city || '' %>" /></div>
+            <div class="account-field full"><label for="reg-country">Land</label><input id="reg-country" name="country" value="<%= values.country || 'Deutschland' %>" /></div>
+          </div>
+          <div class="account-actions">
+            <button class="theme-btn style-border" type="button" data-prev-step="1">Zurück</button>
+            <button class="theme-btn" type="button" data-next-step="3">Weiter <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div class="register-pane" data-step="3">
+          <div class="register-contract-box">
+            <h4>Vertragsbestätigung</h4>
+            <p>Mit Ihrer Unterschrift bestätigen Sie die Richtigkeit Ihrer Angaben und stimmen der Einrichtung Ihres Mitarbeiterzugangs zu.</p>
+            <label class="register-consent">
+              <input type="checkbox" id="contract-accepted" name="contract_accepted" value="1" required />
+              <span>Ich stimme den Vertragsbedingungen und der Datenverarbeitung zu.</span>
+            </label>
+          </div>
+
+          <div class="register-signature-wrap">
+            <div class="register-signature-head">
+              <label for="signature-pad">Unterschrift</label>
+              <button type="button" class="register-clear-signature" id="clear-signature">Unterschrift löschen</button>
+            </div>
+            <canvas id="signature-pad" width="900" height="220" aria-label="Unterschrift"></canvas>
+            <p class="register-signature-hint">Bitte unterschreiben Sie im Feld (mit Maus oder Touch).</p>
+            <p class="register-signature-error" id="signature-error" hidden>Bitte Unterschrift hinzufügen.</p>
+          </div>
+
+          <div class="account-field full" style="margin-top:14px;">
             <label for="reg-captcha">Sicherheitsfrage: <span class="captcha-pill"><%= captchaQuestion %></span></label>
             <input id="reg-captcha" name="captcha_answer" required />
           </div>
-          <div class="account-actions"><button class="theme-btn" type="submit">Registrieren <i class="fa-solid fa-arrow-right"></i></button></div>
+
+          <div class="account-actions">
+            <button class="theme-btn style-border" type="button" data-prev-step="2">Zurück</button>
+            <button class="theme-btn" type="submit">Registrierung abschließen <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
         </div>
       </form>
+
       <p class="account-links">Bereits registriert? <a href="/konto/login">Zum Login</a></p>
     </div>
   </div>
 </section>
 
-<%- include('../partials/site-footer') %>
+<style>
+  .register-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 22px}
+  .register-step{border:1px solid #d2dfec;background:#f7fbff;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;color:#4b647f}
+  .register-step span{width:26px;height:26px;border-radius:999px;background:#dce9f7;color:#2b4f74;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .register-step small{font-size:13px;font-weight:600}
+  .register-step.is-active{border-color:#9fbee0;background:#eaf3fd;color:#103e67}
+  .register-step.is-active span{background:#0d4f9b;color:#fff}
+  .register-pane{display:none}
+  .register-pane.is-active{display:block}
+  .register-contract-box{border:1px solid #d7e2ee;background:#f9fcff;border-radius:12px;padding:14px 14px 10px;margin-bottom:12px}
+  .register-contract-box h4{margin:0 0 8px;color:#0f2f4f}
+  .register-contract-box p{margin:0 0 10px;color:#496685;font-size:14px}
+  .register-consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#1d3958}
+  .register-consent input{margin-top:2px}
+  .register-signature-wrap{border:1px solid #d2dfec;border-radius:12px;padding:12px;background:#fff}
+  .register-signature-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .register-signature-head label{font-weight:700;color:#1f3551;margin:0}
+  .register-clear-signature{border:0;background:transparent;color:#0d4f9b;font-weight:600;padding:0;cursor:pointer}
+  #signature-pad{width:100%;height:180px;border:1px dashed #b9cee3;border-radius:10px;background:#fcfeff;touch-action:none}
+  .register-signature-hint{margin:8px 0 0;font-size:13px;color:#5a7490}
+  .register-signature-error{margin:8px 0 0;color:#c12525;font-size:13px;font-weight:600}
+</style>
 
+<script>
+(function(){
+  const form = document.getElementById('register-form');
+  if (!form) return;
+
+  const panes = Array.from(form.querySelectorAll('.register-pane'));
+  const steps = Array.from(document.querySelectorAll('.register-step'));
+  const password = document.getElementById('reg-pass');
+  const passwordConfirm = document.getElementById('reg-pass-confirm');
+
+  function setStep(step){
+    panes.forEach((pane)=>pane.classList.toggle('is-active', pane.dataset.step === String(step)));
+    steps.forEach((node, idx)=>node.classList.toggle('is-active', idx + 1 === Number(step)));
+  }
+
+  function validateCurrentStep(step){
+    const pane = panes.find((p)=>p.dataset.step === String(step));
+    if (!pane) return true;
+    const fields = Array.from(pane.querySelectorAll('input, select, textarea'));
+
+    if (String(step) === '1' && password && passwordConfirm) {
+      if (password.value !== passwordConfirm.value) {
+        passwordConfirm.setCustomValidity('Passwörter stimmen nicht überein.');
+      } else {
+        passwordConfirm.setCustomValidity('');
+      }
+    }
+
+    for (const field of fields) {
+      if (!field.checkValidity()) {
+        field.reportValidity();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  form.querySelectorAll('[data-next-step]').forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      const current = Number(btn.getAttribute('data-next-step')) - 1;
+      if (!validateCurrentStep(current)) return;
+      setStep(btn.getAttribute('data-next-step'));
+    });
+  });
+
+  form.querySelectorAll('[data-prev-step]').forEach((btn)=>{
+    btn.addEventListener('click', ()=> setStep(btn.getAttribute('data-prev-step')));
+  });
+
+  const canvas = document.getElementById('signature-pad');
+  const signatureInput = document.getElementById('signature-data');
+  const signatureError = document.getElementById('signature-error');
+  const clearBtn = document.getElementById('clear-signature');
+  let hasSignature = false;
+
+  if (canvas && signatureInput) {
+    const ctx = canvas.getContext('2d');
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    let drawing = false;
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.floor(rect.width * ratio);
+      canvas.height = Math.floor(rect.height * ratio);
+      ctx.scale(ratio, ratio);
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#102947';
+    }
+
+    function pointFromEvent(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const source = evt.touches && evt.touches[0] ? evt.touches[0] : evt;
+      return { x: source.clientX - rect.left, y: source.clientY - rect.top };
+    }
+
+    function start(evt) {
+      drawing = true;
+      const p = pointFromEvent(evt);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      evt.preventDefault();
+    }
+
+    function move(evt) {
+      if (!drawing) return;
+      const p = pointFromEvent(evt);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      hasSignature = true;
+      signatureInput.value = canvas.toDataURL('image/png');
+      if (signatureError) signatureError.hidden = true;
+      evt.preventDefault();
+    }
+
+    function stop() {
+      drawing = false;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', stop);
+    canvas.addEventListener('mouseleave', stop);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
+    canvas.addEventListener('touchend', stop);
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', ()=>{
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasSignature = false;
+        signatureInput.value = '';
+      });
+    }
+
+    form.addEventListener('submit', (evt)=>{
+      if (!validateCurrentStep(3)) {
+        evt.preventDefault();
+        return;
+      }
+      if (!hasSignature || !signatureInput.value) {
+        evt.preventDefault();
+        if (signatureError) signatureError.hidden = false;
+      }
+    });
+  }
+})();
+</script>
+
+<%- include('../partials/site-footer') %>

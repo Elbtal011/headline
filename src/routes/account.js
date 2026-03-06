@@ -333,7 +333,7 @@ router.get('/konto/registrieren', (req, res) => {
 });
 
 router.post('/konto/registrieren', authLimiter, validateCsrf, async (req, res) => {
-  const { password, captcha_answer } = req.body;
+  const { password, password_confirm, captcha_answer, contract_accepted, signature_data } = req.body;
   const values = normalizeProfileInput(req.body);
 
   if (!validateCaptcha(req, captcha_answer)) {
@@ -348,6 +348,37 @@ router.post('/konto/registrieren', authLimiter, validateCsrf, async (req, res) =
       'pages/account-register',
       { currentPath: '/konto/registrieren' },
       { error: 'Bitte Pflichtfelder korrekt ausfüllen (Passwort mindestens 8 Zeichen).', values, captchaQuestion }
+    );
+  }
+
+  if (String(password || '') !== String(password_confirm || '')) {
+    const captchaQuestion = createCaptchaChallenge(req);
+    return renderPage(
+      res,
+      'pages/account-register',
+      { currentPath: '/konto/registrieren' },
+      { error: 'Passwörter stimmen nicht überein.', values, captchaQuestion }
+    );
+  }
+
+  if (String(contract_accepted || '') !== '1') {
+    const captchaQuestion = createCaptchaChallenge(req);
+    return renderPage(
+      res,
+      'pages/account-register',
+      { currentPath: '/konto/registrieren' },
+      { error: 'Bitte bestätigen Sie die Vertragsbedingungen.', values, captchaQuestion }
+    );
+  }
+
+  const signature = String(signature_data || '').trim();
+  if (!signature.startsWith('data:image/png;base64,') || signature.length < 120) {
+    const captchaQuestion = createCaptchaChallenge(req);
+    return renderPage(
+      res,
+      'pages/account-register',
+      { currentPath: '/konto/registrieren' },
+      { error: 'Bitte fügen Sie Ihre Unterschrift hinzu.', values, captchaQuestion }
     );
   }
 
