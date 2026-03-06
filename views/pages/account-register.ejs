@@ -141,9 +141,11 @@
   const password = document.getElementById('reg-pass');
   const passwordConfirm = document.getElementById('reg-pass-confirm');
 
+  let onStepChanged = null;
   function setStep(step){
     panes.forEach((pane)=>pane.classList.toggle('is-active', pane.dataset.step === String(step)));
     steps.forEach((node, idx)=>node.classList.toggle('is-active', idx + 1 === Number(step)));
+    if (typeof onStepChanged === 'function') onStepChanged(Number(step));
   }
 
   function validateCurrentStep(step){
@@ -192,9 +194,14 @@
 
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
+      const holder = canvas.parentElement || canvas;
+      const fallbackW = holder.clientWidth || 900;
+      const fallbackH = 180;
+      const cssW = Math.max(1, Math.floor(rect.width || fallbackW));
+      const cssH = Math.max(1, Math.floor(rect.height || fallbackH));
       const ratio = Math.max(window.devicePixelRatio || 1, 1);
-      canvas.width = Math.floor(rect.width * ratio);
-      canvas.height = Math.floor(rect.height * ratio);
+      canvas.width = Math.floor(cssW * ratio);
+      canvas.height = Math.floor(cssH * ratio);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(ratio, ratio);
       ctx.lineWidth = 2;
@@ -211,6 +218,7 @@
     }
 
     function start(evt) {
+      if (!canvas.width || !canvas.height) resizeCanvas();
       drawing = true;
       if (canvas.setPointerCapture && evt.pointerId != null) canvas.setPointerCapture(evt.pointerId);
       const p = pointFromEvent(evt);
@@ -239,6 +247,11 @@
     }
 
     resizeCanvas();
+    onStepChanged = function(step){
+      if (Number(step) === 3) {
+        setTimeout(resizeCanvas, 0);
+      }
+    };
     window.addEventListener('resize', resizeCanvas);
 
     canvas.addEventListener('pointerdown', start, { passive: false });
