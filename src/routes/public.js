@@ -22,6 +22,145 @@ const navItems = [
   { href: '/Kontakt', label: 'Kontakt / Kundendienst' },
 ];
 
+const WEBID_PROVIDER = String(process.env.WEBID_PROVIDER || 'simulated').trim().toLowerCase();
+const WEBID_OFFICIAL_ENABLED = WEBID_PROVIDER === 'signicat';
+const SIGNICAT_BASE_URL = String(process.env.SIGNICAT_BASE_URL || '').trim().replace(/\/$/, '');
+const SIGNICAT_CLIENT_ID = String(process.env.SIGNICAT_CLIENT_ID || '').trim();
+const SIGNICAT_CLIENT_SECRET = String(process.env.SIGNICAT_CLIENT_SECRET || '').trim();
+const SIGNICAT_SCOPE = String(process.env.SIGNICAT_SCOPE || 'assure.api').trim();
+const SIGNICAT_DEFAULT_PROCESS_TYPE = String(process.env.SIGNICAT_WEBID_PROCESS_TYPE || 'accountid').trim().toLowerCase();
+const WEBID_EVENTS_SECRET = String(process.env.WEBID_EVENTS_SECRET || '').trim();
+
+let signicatTokenCache = { token: null, expiresAt: 0 };
+let webIdProviderStoreReady = false;
+
+function hasOfficialWebIdConfig() {
+  return !!(WEBID_OFFICIAL_ENABLED && SIGNICAT_BASE_URL && SIGNICAT_CLIENT_ID && SIGNICAT_CLIENT_SECRET);
+}
+
+function getPublicBaseUrl(req) {
+  const proto = String(req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0].trim();
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  if (!host) return '';
+  return `${proto}://${host}`;
+}
+
+async function ensureWebIdProviderStore() {
+  if (webIdProviderStoreReady) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS webid_provider_processes (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      provider TEXT NOT NULL,
+      case_id TEXT NOT NULL,
+      dossier_id TEXT,
+      process_id TEXT UNIQUE,
+      process_type TEXT,
+      status TEXT,
+      redirect_url TEXT,
+      raw_create_response JSONB,
+      raw_event JSONB,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_webid_provider_case_id ON webid_provider_processes(case_id)');
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_webid_provider_process_id ON webid_provider_processes(process_id)');
+  webIdProviderStoreReady = true;
+}
+
+async function upsertWebIdProviderProcess(data = {}) {
+  await ensureWebIdProviderStore();
+  const {
+    provider = 'signicat',
+    caseId,
+    dossierId = null,
+    processId = null,
+    processType = null,
+    status = null,
+    redirectUrl = null,
+    rawCreateResponse = null,
+    rawEvent = null,
+  } = data;
+
+  if (!caseId && !processId) return;
+
+  await pool.query(
+    `INSERT INTO webid_provider_processes
+      (provider, case_id, dossier_id, process_id, process_type, status, redirect_url, raw_create_response, raw_event)
+     VALUES ($1, COALESCE($2, ''), $3, $4, $5, $6, $7, $8, $9)
+     ON CONFLICT (process_id)
+     DO UPDATE SET
+      case_id = COALESCE(NULLIF(EXCLUDED.case_id, ''), webid_provider_processes.case_id),
+      dossier_id = COALESCE(EXCLUDED.dossier_id, webid_provider_processes.dossier_id),
+      process_type = COALESCE(EXCLUDED.process_type, webid_provider_processes.process_type),
+      status = COALESCE(EXCLUDED.status, webid_provider_processes.status),
+      redirect_url = COALESCE(EXCLUDED.redirect_url, webid_provider_processes.redirect_url),
+      raw_create_response = COALESCE(EXCLUDED.raw_create_response, webid_provider_processes.raw_create_response),
+      raw_event = COALESCE(EXCLUDED.raw_event, webid_provider_processes.raw_event),
+      updated_at = NOW()`,
+    [provider, caseId || '', dossierId, processId, processType, status, redirectUrl, rawCreateResponse, rawEvent]
+  );
+}
+
+async function getSignicatAccessToken() {
+  const now = Date.now();
+  if (signicatTokenCache.token && signicatTokenCache.expiresAt > now + 15_000) {
+    return signicatTokenCache.token;
+  }
+
+  const tokenUrl = `${SIGNICAT_BASE_URL}/auth/open/connect/token`;
+  const body = new URLSearchParams({
+    grant_type: 'client_credentials',
+    scope: SIGNICAT_SCOPE,
+  });
+
+  const auth = Buffer.from(`${SIGNICAT_CLIENT_ID}:${SIGNICAT_CLIENT_SECRET}`).toString('base64');
+  const resp = await fetch(tokenUrl, {
+    method: 'POST',
+    headers: {
+      authorization: `Basic ${auth}`,
+      'content-type': 'application/x-www-form-urlencoded',
+      accept: 'application/json',
+    },
+    body,
+  });
+
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok || !json?.access_token) {
+    const msg = json?.error_description || json?.error || `Token request failed (${resp.status})`;
+    throw new Error(msg);
+  }
+
+  const expiresIn = Number(json.expires_in || 300);
+  signicatTokenCache = {
+    token: String(json.access_token),
+    expiresAt: now + Math.max(30, expiresIn - 30) * 1000,
+  };
+
+  return signicatTokenCache.token;
+}
+
+async function signicatAssureRequest(method, endpointPath, payload) {
+  const token = await getSignicatAccessToken();
+  const url = `${SIGNICAT_BASE_URL}${endpointPath}`;
+  const resp = await fetch(url, {
+    method,
+    headers: {
+      authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'content-type': 'application/json',
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    const msg = json?.detail || json?.message || json?.error || `Signicat API error (${resp.status})`;
+    throw new Error(msg);
+  }
+  return json;
+}
+
 function renderPage(res, view, pageData = {}) {
   res.render(view, {
     navItems,
@@ -151,7 +290,177 @@ router.get('/webid', (req, res) => {
 router.get('/webid/:caseId', (req, res) => {
   const caseId = normalizeWebIdCaseId(req.params.caseId);
   const actionId = caseId.replace(/[^0-9]/g, '');
+
+  if (hasOfficialWebIdConfig()) {
+    return res.render('pages/webid-official', {
+      caseId,
+      actionId,
+      processType: SIGNICAT_DEFAULT_PROCESS_TYPE,
+      officialMode: true,
+    });
+  }
+
   return res.render('pages/webid-sim', { caseId, actionId });
+});
+
+router.post('/api/webid/start', submitLimiter, async (req, res) => {
+  if (!hasOfficialWebIdConfig()) {
+    return res.status(503).json({ ok: false, error: 'Official WebID ist nicht konfiguriert.' });
+  }
+
+  try {
+    const caseId = normalizeWebIdCaseId(req.body?.caseId);
+    const processType = String(req.body?.processType || SIGNICAT_DEFAULT_PROCESS_TYPE || 'accountid').toLowerCase();
+
+    if (!['accountid', 'videoid'].includes(processType)) {
+      return res.status(400).json({ ok: false, error: 'Ungültiger processType (accountid|videoid).' });
+    }
+
+    const firstName = String(req.body?.firstName || 'Max').trim() || 'Max';
+    const lastName = String(req.body?.lastName || 'Mustermann').trim() || 'Mustermann';
+    const dateOfBirth = String(req.body?.dateOfBirth || '1990-01-01').trim();
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const mobile = String(req.body?.mobile || '').trim();
+
+    const publicBase = getPublicBaseUrl(req);
+    const redirectUrl = `${publicBase}/webid/callback/success?caseId=${encodeURIComponent(caseId)}`;
+    const redirectCancelUrl = `${publicBase}/webid/callback/cancel?caseId=${encodeURIComponent(caseId)}`;
+    const redirectMismatchUrl = `${publicBase}/webid/callback/mismatch?caseId=${encodeURIComponent(caseId)}`;
+    const redirectDeclineUrl = `${publicBase}/webid/callback/decline?caseId=${encodeURIComponent(caseId)}`;
+
+    const dossier = await signicatAssureRequest('POST', '/assure/dossiers', {});
+    const dossierId = dossier?.dossierId || dossier?.id;
+
+    if (!dossierId) {
+      throw new Error('Dossier konnte nicht erstellt werden.');
+    }
+
+    const processBody = {
+      provider: 'webid',
+      processType,
+      processParameters: {
+        webid: {
+          user: {
+            firstName,
+            lastName,
+            dateOfBirth,
+            contact: {
+              ...(email ? { email } : {}),
+              ...(mobile ? { mobile } : {}),
+            },
+          },
+          userActionParameters: {
+            productType: 'employment',
+            clientName: 'Headline',
+            redirectUrl,
+            redirectCancelUrl,
+            redirectMismatchUrl,
+            redirectDeclineUrl,
+          },
+          ...(processType === 'accountid' ? { idDocument: { nationality: 'DEU' } } : {}),
+        },
+      },
+    };
+
+    const process = await signicatAssureRequest('POST', `/assure/dossiers/${encodeURIComponent(dossierId)}/processes`, processBody);
+
+    await upsertWebIdProviderProcess({
+      provider: 'signicat',
+      caseId,
+      dossierId,
+      processId: process?.processId || null,
+      processType: process?.processType || processType,
+      status: process?.status || 'pending',
+      redirectUrl: process?.redirectUrl || null,
+      rawCreateResponse: process,
+    });
+
+    return res.json({
+      ok: true,
+      caseId,
+      dossierId,
+      processId: process?.processId || null,
+      status: process?.status || 'pending',
+      redirectUrl: process?.redirectUrl || null,
+      provider: 'signicat/webid',
+    });
+  } catch (err) {
+    console.error('[webid] official start failed', err);
+    return res.status(500).json({ ok: false, error: err?.message || 'WebID Prozess konnte nicht gestartet werden.' });
+  }
+});
+
+router.get('/api/webid/process/:processId', async (req, res) => {
+  if (!hasOfficialWebIdConfig()) {
+    return res.status(503).json({ ok: false, error: 'Official WebID ist nicht konfiguriert.' });
+  }
+
+  try {
+    const processId = String(req.params?.processId || '').trim();
+    if (!processId) return res.status(400).json({ ok: false, error: 'processId fehlt.' });
+
+    const process = await signicatAssureRequest('GET', `/assure/processes/${encodeURIComponent(processId)}`);
+
+    await upsertWebIdProviderProcess({
+      provider: 'signicat',
+      caseId: String(req.query?.caseId || '').trim() || null,
+      processId,
+      processType: process?.processType || null,
+      status: process?.status || null,
+      redirectUrl: process?.redirectUrl || null,
+      rawCreateResponse: process,
+    });
+
+    return res.json({ ok: true, process });
+  } catch (err) {
+    console.error('[webid] get process failed', err);
+    return res.status(500).json({ ok: false, error: err?.message || 'Status konnte nicht geladen werden.' });
+  }
+});
+
+router.post('/api/webid/events', async (req, res) => {
+  try {
+    if (WEBID_EVENTS_SECRET) {
+      const given = String(req.headers['x-webid-events-secret'] || '').trim();
+      if (!given || given !== WEBID_EVENTS_SECRET) {
+        return res.status(401).json({ ok: false, error: 'unauthorized' });
+      }
+    }
+
+    const event = req.body || {};
+    const processId = String(
+      event?.processId || event?.data?.processId || event?.resourceId || event?.id || ''
+    ).trim();
+    const status = String(event?.status || event?.data?.status || '').trim() || null;
+    const caseId = normalizeWebIdCaseId(event?.caseId || event?.data?.caseId || '');
+
+    if (processId) {
+      await upsertWebIdProviderProcess({
+        provider: 'signicat',
+        caseId: caseId || null,
+        processId,
+        status,
+        rawEvent: event,
+      });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('[webid] events handler failed', err);
+    return res.status(500).json({ ok: false, error: 'event handling failed' });
+  }
+});
+
+router.get('/webid/callback/:result', (req, res) => {
+  const caseId = normalizeWebIdCaseId(req.query?.caseId || req.params?.caseId || '');
+  const result = String(req.params?.result || 'unknown').trim().toLowerCase();
+  return res.render('pages/webid-official', {
+    caseId,
+    actionId: caseId.replace(/[^0-9]/g, ''),
+    processType: SIGNICAT_DEFAULT_PROCESS_TYPE,
+    officialMode: true,
+    callbackResult: result,
+  });
 });
 
 router.post('/api/webid/submit', submitLimiter, async (req, res) => {

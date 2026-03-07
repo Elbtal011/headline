@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebID Verifizierung</title>
+  <style>
+    body{font-family:Inter,Arial,sans-serif;background:#f4f7fb;margin:0;color:#1c2536}
+    .wrap{max-width:820px;margin:24px auto;padding:0 14px}
+    .card{background:#fff;border:1px solid #d9e3f1;border-radius:12px;padding:18px}
+    h1{margin:0 0 8px;font-size:24px}
+    .muted{color:#5d6a83;font-size:14px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    label{display:block;font-size:13px;color:#4e5a73;margin-bottom:5px}
+    input,select,button{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:8px;border:1px solid #c9d8ef;font-size:14px}
+    button{background:#1677ff;color:#fff;border:0;font-weight:600;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .row{margin-top:12px}
+    .status{margin-top:14px;padding:10px;border-radius:8px;background:#eef6ff;border:1px solid #c9ddff}
+    code{background:#f2f5fa;padding:2px 6px;border-radius:6px}
+    .ok{background:#e9fff1;border-color:#b9f1cf}
+    .warn{background:#fff6e8;border-color:#ffdeab}
+    .err{background:#ffeef0;border-color:#ffc2ca}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>WebID Verifizierung (Official)</h1>
+      <p class="muted">Vorgangsnummer: <code><%= caseId %></code></p>
+
+      <% if (typeof callbackResult !== 'undefined' && callbackResult) { %>
+        <div class="status <%= callbackResult === 'success' ? 'ok' : (callbackResult === 'cancel' ? 'warn' : 'err') %>">
+          Rückmeldung von WebID: <strong><%= callbackResult %></strong>
+        </div>
+      <% } %>
+
+      <form id="start-form" class="row">
+        <div class="grid">
+          <div>
+            <label>Vorname</label>
+            <input id="firstName" value="Max" required />
+          </div>
+          <div>
+            <label>Nachname</label>
+            <input id="lastName" value="Mustermann" required />
+          </div>
+          <div>
+            <label>Geburtsdatum (YYYY-MM-DD)</label>
+            <input id="dateOfBirth" value="1990-01-01" required />
+          </div>
+          <div>
+            <label>E-Mail</label>
+            <input id="email" type="email" placeholder="name@example.com" />
+          </div>
+          <div>
+            <label>Mobil (optional)</label>
+            <input id="mobile" placeholder="+49123456789" />
+          </div>
+          <div>
+            <label>Prozess-Typ</label>
+            <select id="processType">
+              <option value="accountid" <%= processType === 'accountid' ? 'selected' : '' %>>accountid</option>
+              <option value="videoid" <%= processType === 'videoid' ? 'selected' : '' %>>videoid</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="start-btn" type="submit">Official WebID-Prozess starten</button>
+        </div>
+      </form>
+
+      <div id="status" class="status" style="display:none"></div>
+    </div>
+  </div>
+
+  <script>
+    const caseId = '<%= caseId %>';
+    const form = document.getElementById('start-form');
+    const startBtn = document.getElementById('start-btn');
+    const statusEl = document.getElementById('status');
+
+    function setStatus(text, kind = 'info') {
+      statusEl.style.display = 'block';
+      statusEl.className = 'status ' + (kind === 'ok' ? 'ok' : kind === 'warn' ? 'warn' : kind === 'err' ? 'err' : '');
+      statusEl.textContent = text;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      startBtn.disabled = true;
+      setStatus('WebID-Prozess wird gestartet …');
+      try {
+        const payload = {
+          caseId,
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName: document.getElementById('lastName').value.trim(),
+          dateOfBirth: document.getElementById('dateOfBirth').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          mobile: document.getElementById('mobile').value.trim(),
+          processType: document.getElementById('processType').value,
+        };
+
+        const resp = await fetch('/api/webid/start', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data?.ok) {
+          throw new Error(data?.error || 'WebID-Prozess konnte nicht gestartet werden.');
+        }
+
+        if (!data.redirectUrl) {
+          throw new Error('Keine redirectUrl von Provider erhalten.');
+        }
+
+        setStatus('Weiterleitung zu WebID …', 'ok');
+        window.location.href = data.redirectUrl;
+      } catch (err) {
+        setStatus(err?.message || 'Fehler beim Starten der WebID-Verifizierung.', 'err');
+      } finally {
+        startBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
