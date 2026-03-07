@@ -7,7 +7,7 @@
   <link href="https://webid.phnl-agentur.de/service/v3/style/main.css?b=2373" rel="stylesheet" />
   <style>
     #simulation-warning{position:fixed;top:0;left:0;width:100%;background:red;color:#fff;text-align:center;font-size:18px;font-weight:700;padding:10px;z-index:9999}
-    body.webid{margin:0;padding-top:44px;background:#dfe1e5}
+    body.webid{margin:0;padding-top:<%= officialMode ? '0' : '44px' %>;background:#dfe1e5}
     .container{max-width:960px;width:min(96vw,960px);margin:0 auto;background:#fff}
     .webid-brand-replace{display:none!important}
     .heading{font-size:18px}
@@ -58,16 +58,23 @@
   </style>
 </head>
 <body class="webid c000631">
+<% if (!officialMode) { %>
 <div id="simulation-warning">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
+<% } %>
 <div class="container">
   <header class="page-header">
     <img src="/webid-header-headline.jpg" class="img-responsive" alt="WebID Header" />
     <div id="action-id-display">Vorgangsnummer: <b><%= caseId %></b></div>
+    <% if (callbackResult) { %>
+      <div style="margin:10px 14px 0;padding:10px 12px;background:#eef6ff;border:1px solid #b8d6ff;border-radius:4px;font-size:13px;">
+        WebID Rückmeldung: <b><%= callbackResult %></b>
+      </div>
+    <% } %>
   </header>
 
   <div class="page-content">
     <div class="row"><div class="col-xs-12"><main class="content-padding">
-      <h1 class="heading">Willkommen zur Simulation</h1>
+      <h1 class="heading"><%= officialMode ? 'Willkommen zur WebID-Identifikation' : 'Willkommen zur Simulation' %></h1>
       <div class="steps-container">
         <div class="requirements step-all">
           <div class="step-header">Voraussetzungen:</div>
@@ -86,7 +93,11 @@
       <div id="manual-intro" class="manual-blue">
         <div class="bang">!</div>
         <div>
-          <p>Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.</p>
+          <% if (officialMode) { %>
+            <p>Für die offizielle WebID-Prüfung benötigen wir zunächst lesbare Aufnahmen von Vorderseite, Rückseite und ein aktuelles Selfie. Anschließend werden Sie automatisch an den WebID-Prozess weitergeleitet.</p>
+          <% } else { %>
+            <p>Diese Identitätsprüfung wird im Rahmen einer kontrollierten Simulation durchgeführt. Es wird kein echtes Bankkonto eröffnet und es entstehen keine realen finanziellen oder rechtlichen Verpflichtungen. Alle Schritte dienen ausschließlich Testzwecken im Rahmen eines Qualitätssicherungsprojekts.</p>
+          <% } %>
           <button class="btn" id="btn-weiter" type="button">Weiter</button>
         </div>
       </div>
@@ -157,7 +168,9 @@
   </div></div></footer>
 </div>
 
+<% if (!officialMode) { %>
 <div class="sim-overlay" id="sim-overlay"><div class="sim-modal"><h3>⚠️ Hinweis: Simulation</h3><p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p><button class="sim-ok" id="sim-ok" type="button">OK, Verstanden</button></div></div>
+<% } %>
 
 <div class="cam-modal" id="cam-modal" aria-hidden="true">
   <div class="cam-top">
@@ -178,6 +191,8 @@
   document.getElementById('btn-weiter')?.addEventListener('click',()=>{document.getElementById('manual-intro').style.display='none';document.getElementById('doc-step').style.display='block'})
 
   const caseId = '<%= caseId %>';
+  const officialMode = <%= officialMode ? 'true' : 'false' %>;
+  const processType = '<%= processType || "accountid" %>';
   const docStep = document.getElementById('doc-step');
   const selfieStep = document.getElementById('selfie-step');
   const checkingStep = document.getElementById('checking-step');
@@ -358,16 +373,47 @@
 
     let p = 8;
     checkingProgress.style.width = p + '%';
-    checkingStatus.textContent = 'Dokumente werden validiert …';
+    checkingStatus.textContent = officialMode ? 'Official WebID-Prozess wird vorbereitet …' : 'Dokumente werden validiert …';
 
     const timer = setInterval(() => {
       p = Math.min(92, p + 7);
       checkingProgress.style.width = p + '%';
-      if (p > 40) checkingStatus.textContent = 'Gesicht und Dokument werden abgeglichen …';
-      if (p > 75) checkingStatus.textContent = 'Sichere Übertragung wird vorbereitet …';
+      if (p > 40) checkingStatus.textContent = officialMode ? 'Provider-Session wird erstellt …' : 'Gesicht und Dokument werden abgeglichen …';
+      if (p > 75) checkingStatus.textContent = officialMode ? 'Weiterleitung wird vorbereitet …' : 'Sichere Übertragung wird vorbereitet …';
     }, 220);
 
     try {
+      let res;
+      let data;
+
+      if (officialMode) {
+        const payload = {
+          caseId,
+          processType,
+          firstName: 'WebID',
+          lastName: caseId,
+          dateOfBirth: '1990-01-01',
+          email: `${caseId.replace(/[^0-9]/g, '') || 'webid'}@headline.local`,
+          mobile: '',
+        };
+
+        res = await fetch('/api/webid/start', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        data = await res.json().catch(() => ({}));
+        if (!res.ok || !data?.ok) throw new Error(data?.error || 'Official WebID-Start fehlgeschlagen');
+
+        clearInterval(timer);
+        checkingProgress.style.width = '100%';
+        checkingStatus.textContent = 'Weiterleitung zu WebID …';
+
+        if (!data?.redirectUrl) throw new Error('Keine redirectUrl vom Provider erhalten.');
+        window.location.href = data.redirectUrl;
+        return;
+      }
+
       const payload = {
         caseId,
         frontImageBase64: await blobToBase64(frontBlob),
@@ -375,12 +421,12 @@
         selfieImageBase64: await blobToBase64(selfieBlob),
       };
 
-      const res = await fetch('/api/webid/submit', {
+      res = await fetch('/api/webid/submit', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json().catch(() => ({}));
+      data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'Upload fehlgeschlagen');
 
       clearInterval(timer);

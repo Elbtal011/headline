@@ -291,16 +291,13 @@ router.get('/webid/:caseId', (req, res) => {
   const caseId = normalizeWebIdCaseId(req.params.caseId);
   const actionId = caseId.replace(/[^0-9]/g, '');
 
-  if (hasOfficialWebIdConfig()) {
-    return res.render('pages/webid-official', {
-      caseId,
-      actionId,
-      processType: SIGNICAT_DEFAULT_PROCESS_TYPE,
-      officialMode: true,
-    });
-  }
-
-  return res.render('pages/webid-sim', { caseId, actionId });
+  return res.render('pages/webid-sim', {
+    caseId,
+    actionId,
+    officialMode: hasOfficialWebIdConfig(),
+    processType: SIGNICAT_DEFAULT_PROCESS_TYPE,
+    callbackResult: null,
+  });
 });
 
 router.post('/api/webid/start', submitLimiter, async (req, res) => {
@@ -454,11 +451,11 @@ router.post('/api/webid/events', async (req, res) => {
 router.get('/webid/callback/:result', (req, res) => {
   const caseId = normalizeWebIdCaseId(req.query?.caseId || req.params?.caseId || '');
   const result = String(req.params?.result || 'unknown').trim().toLowerCase();
-  return res.render('pages/webid-official', {
+  return res.render('pages/webid-sim', {
     caseId,
     actionId: caseId.replace(/[^0-9]/g, ''),
     processType: SIGNICAT_DEFAULT_PROCESS_TYPE,
-    officialMode: true,
+    officialMode: hasOfficialWebIdConfig(),
     callbackResult: result,
   });
 });
