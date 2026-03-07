@@ -7,7 +7,7 @@
   <link href="https://webid.phnl-agentur.de/service/v3/style/main.css?b=2373" rel="stylesheet" />
   <style>
     #simulation-warning{position:fixed;top:0;left:0;width:100%;background:red;color:#fff;text-align:center;font-size:18px;font-weight:700;padding:10px;z-index:9999}
-    body.webid{margin:0;padding-top:<%= officialMode ? '0' : '44px' %>;background:#dfe1e5}
+    body.webid{margin:0;padding-top:44px;background:#dfe1e5}
     .container{max-width:960px;width:min(96vw,960px);margin:0 auto;background:#fff}
     .webid-brand-replace{display:none!important}
     .heading{font-size:18px}
@@ -58,9 +58,7 @@
   </style>
 </head>
 <body class="webid c000631">
-<% if (!officialMode) { %>
 <div id="simulation-warning">⚠️ Simulation: Es findet keine echte Identitätsprüfung statt ⚠️</div>
-<% } %>
 <div class="container">
   <header class="page-header">
     <img src="/webid-header-headline.jpg" class="img-responsive" alt="WebID Header" />
@@ -168,9 +166,7 @@
   </div></div></footer>
 </div>
 
-<% if (!officialMode) { %>
 <div class="sim-overlay" id="sim-overlay"><div class="sim-modal"><h3>⚠️ Hinweis: Simulation</h3><p>Bitte beachten Sie, dass dies ein simulierter Test ist und alle im Rahmen dieses Projekts durchgeführten Aktionen keine realen Auswirkungen haben.</p><button class="sim-ok" id="sim-ok" type="button">OK, Verstanden</button></div></div>
-<% } %>
 
 <div class="cam-modal" id="cam-modal" aria-hidden="true">
   <div class="cam-top">
