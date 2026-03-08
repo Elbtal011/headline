@@ -156,6 +156,34 @@ async function fetchMessages(chatId) {
   return messagesResult.rows.map((m) => ({ ...m, attachments: byMessage.get(m.id) || [] }));
 }
 
+function toLegacyMessages(messages) {
+  return (messages || []).map((m) => ({
+    id: m.id,
+    sender_type: m.sender_type === 'visitor' ? 'user' : 'assistant',
+    sender_label: m.sender_label,
+    content: m.message || '',
+    created_at: m.created_at,
+    attachments: m.attachments || [],
+  }));
+}
+
+function getLegacyUserId(req) {
+  return String(req.body?.userId || req.query?.userId || '').trim();
+}
+
+function legacyTokenForUser(userId) {
+  return `legacy:${userId}`;
+}
+
+async function resolveLegacyChatForWrite(conversationId, userId) {
+  if (!conversationId || !userId) return null;
+  const result = await pool.query('SELECT id, chat_token_hash FROM chats WHERE id = $1', [conversationId]);
+  if (result.rowCount === 0) return null;
+  const chat = result.rows[0];
+  if (chat.chat_token_hash !== hashToken(legacyTokenForUser(userId))) return null;
+  return chat;
+}
+
 router.post('/chat/start', requireDb, chatStartLimiter, validateCsrf, async (req, res) => {
   const { source_page } = req.body;
   const token = crypto.randomBytes(32).toString('hex');
@@ -178,6 +206,71 @@ router.post('/chat/start', requireDb, chatStartLimiter, validateCsrf, async (req
     chat_id: result.rows[0].id,
     chat_token: token,
     chat: result.rows[0],
+  });
+});
+
+// Legacy compatibility (used by older/frontend bundle)
+router.post('/chat/conversations', requireDb, chatStartLimiter, async (req, res) => {
+  const userId = getLegacyUserId(req);
+  if (!userId) return res.status(400).json({ error: 'userId ist erforderlich.' });
+
+  const tokenHash = hashToken(legacyTokenForUser(userId));
+  const sourcePage = (req.body?.source_page || req.body?.title || 'legacy-widget').toString().slice(0, 255);
+
+  const existing = await pool.query('SELECT id FROM chats WHERE chat_token_hash = $1 ORDER BY created_at DESC LIMIT 1', [tokenHash]);
+  if (existing.rowCount > 0) {
+    return res.status(200).json({ conversation: { id: existing.rows[0].id } });
+  }
+
+  const result = await pool.query(
+    `INSERT INTO chats (visitor_name, visitor_email, visitor_phone, chat_token_hash, source_page, onboarding_step, status, last_message_at)
+     VALUES (NULL, NULL, NULL, $1, $2, 'done', 'open', NOW())
+     RETURNING id`,
+    [tokenHash, sourcePage || null]
+  );
+
+  await pool.query(
+    `INSERT INTO chat_messages (chat_id, sender_type, sender_label, message)
+     VALUES ($1, 'admin', 'Support', $2)`,
+    [result.rows[0].id, promptGreeting]
+  );
+
+  return res.status(201).json({ conversation: { id: result.rows[0].id } });
+});
+
+router.get('/chat/conversations/:chatId/messages', requireDb, async (req, res) => {
+  const messages = await fetchMessages(req.params.chatId);
+  return res.json({ messages: toLegacyMessages(messages) });
+});
+
+router.post('/chat/messages', requireDb, chatMessageLimiter, async (req, res) => {
+  const conversationId = String(req.body?.conversationId || '').trim();
+  const userId = getLegacyUserId(req);
+  const content = String(req.body?.content || '').trim();
+
+  if (!conversationId || !userId || !content) {
+    return res.status(400).json({ error: 'conversationId, userId und content sind erforderlich.' });
+  }
+
+  const chat = await resolveLegacyChatForWrite(conversationId, userId);
+  if (!chat) return res.status(401).json({ error: 'Ungueltiger Chat-Zugriff.' });
+
+  const messageResult = await pool.query(
+    `INSERT INTO chat_messages (chat_id, sender_type, sender_label, message)
+     VALUES ($1, 'visitor', 'Besucher', $2)
+     RETURNING id, created_at`,
+    [conversationId, content]
+  );
+
+  await pool.query(`UPDATE chats SET last_message_at = NOW(), updated_at = NOW(), status = 'open' WHERE id = $1`, [conversationId]);
+
+  return res.status(201).json({
+    message: {
+      id: messageResult.rows[0].id,
+      sender_type: 'user',
+      content,
+      created_at: messageResult.rows[0].created_at,
+    },
   });
 });
 
