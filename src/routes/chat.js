@@ -219,7 +219,11 @@ router.post('/chat/conversations', requireDb, chatStartLimiter, async (req, res)
 
   const existing = await pool.query('SELECT id FROM chats WHERE chat_token_hash = $1 ORDER BY created_at DESC LIMIT 1', [tokenHash]);
   if (existing.rowCount > 0) {
-    return res.status(200).json({ conversation: { id: existing.rows[0].id } });
+    return res.status(200).json({
+      success: true,
+      isExisting: true,
+      conversation: { id: existing.rows[0].id, title: sourcePage || 'Projektleitung Chat', created_at: new Date().toISOString() },
+    });
   }
 
   const result = await pool.query(
@@ -235,12 +239,16 @@ router.post('/chat/conversations', requireDb, chatStartLimiter, async (req, res)
     [result.rows[0].id, promptGreeting]
   );
 
-  return res.status(201).json({ conversation: { id: result.rows[0].id } });
+  return res.status(201).json({
+    success: true,
+    isExisting: false,
+    conversation: { id: result.rows[0].id, title: sourcePage || 'Projektleitung Chat', created_at: new Date().toISOString() },
+  });
 });
 
 router.get('/chat/conversations/:chatId/messages', requireDb, async (req, res) => {
   const messages = await fetchMessages(req.params.chatId);
-  return res.json({ messages: toLegacyMessages(messages) });
+  return res.json({ success: true, messages: toLegacyMessages(messages) });
 });
 
 router.post('/chat/messages', requireDb, chatMessageLimiter, async (req, res) => {
@@ -265,11 +273,16 @@ router.post('/chat/messages', requireDb, chatMessageLimiter, async (req, res) =>
   await pool.query(`UPDATE chats SET last_message_at = NOW(), updated_at = NOW(), status = 'open' WHERE id = $1`, [conversationId]);
 
   return res.status(201).json({
-    message: {
+    success: true,
+    userMessage: {
       id: messageResult.rows[0].id,
-      sender_type: 'user',
       content,
       created_at: messageResult.rows[0].created_at,
+    },
+    aiMessage: {
+      id: `pending-${messageResult.rows[0].id}`,
+      content: 'Nachricht gesendet. Ein Support-Mitarbeiter meldet sich in Kürze.',
+      created_at: new Date().toISOString(),
     },
   });
 });
