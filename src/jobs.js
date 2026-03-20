@@ -181,7 +181,7 @@ function normalizeJobs(input) {
       const employmentType = job.type_of_employment || job.employment_type || job.employmentType || '';
       const workModel = job.working_model || job.workingModel || job.work_model || job.workModel || '';
       const location = job.location || '';
-      const salaryDisplay = job.ad_text || job.adText || job.salary_display || job.salaryDisplay || '';
+      const salaryDisplay = job.salary_display || job.salaryDisplay || job.ad_text || job.adText || '';
       const minSalary = job.min_salary ?? job.minSalary ?? 0;
       const maxSalary = job.max_salary ?? job.maxSalary ?? 0;
 
