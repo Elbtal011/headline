@@ -35,8 +35,9 @@ const defaultJobs = [
     ],
     facts: {
       date: '18.11.2025',
-      salary: '603EUR p.M.',
-      employment: 'Minijob',
+      salary: '603€ / Monat',
+      employment: 'Home Office',
+      weekly_hours: '6 h / Woche',
       experience: 'keine noetig',
       deadline: '01.04.2026',
     },
@@ -62,8 +63,9 @@ const defaultJobs = [
     ],
     facts: {
       date: '05.12.2025',
-      salary: 'ab 15EUR / Stunde',
+      salary: 'ab 15€ / Stunde',
       employment: 'Teilzeit',
+      weekly_hours: '20 h / Woche',
       experience: 'erste Erfahrung von Vorteil',
       deadline: '31.03.2026',
     },
@@ -91,6 +93,7 @@ const defaultJobs = [
       date: '10.01.2026',
       salary: 'nach Vereinbarung',
       employment: 'Teilzeit / Werkstudent',
+      weekly_hours: '15 h / Woche',
       experience: 'nicht erforderlich',
       deadline: '30.04.2026',
     },
@@ -146,6 +149,7 @@ function normalizeFacts(input = {}, fallback = {}) {
     date: String(input.date || '').trim() || String(fallback.date || '').trim() || '-',
     salary: String(input.salary || '').trim() || String(fallback.salary || '').trim() || '-',
     employment: String(input.employment || '').trim() || String(fallback.employment || '').trim() || '-',
+    weekly_hours: String(input.weekly_hours || input.weeklyHours || '').trim() || String(fallback.weekly_hours || fallback.weeklyHours || '').trim() || '-',
     experience: String(input.experience || '').trim() || String(fallback.experience || '').trim() || '-',
     deadline: String(input.deadline || '').trim() || String(fallback.deadline || '').trim() || '-',
   };
@@ -184,6 +188,9 @@ function normalizeJobs(input) {
       const facts = normalizeFacts(job.facts, {
         employment: employmentType || undefined,
         salary: salaryDisplay || undefined,
+        weekly_hours: job.weekly_hours || job.weeklyHours || undefined,
+        deadline: job.application_deadline || job.applicationDeadline || undefined,
+        date: job.posted_at || job.postedAt || job.created_at || undefined,
       });
       if (location) facts.location = location;
 

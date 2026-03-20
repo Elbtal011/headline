@@ -21,8 +21,14 @@
     <% const employmentType = job.type_of_employment || job.employment_type || job.employmentType || jobFacts.employment || '-'; %>
     <% const workingModel = job.working_model || job.workingModel || '-'; %>
     <% const location = job.location || jobFacts.location || '-'; %>
-    <% const salaryText = job.ad_text || job.adText || jobFacts.salary || '-'; %>
-    <% const salaryRange = ((job.min_salary || job.minSalary || job.max_salary || job.maxSalary) ? `${job.min_salary || job.minSalary || 0} - ${job.max_salary || job.maxSalary || 0} EUR` : '-'); %>
+    <% const salaryText = job.ad_text || job.adText || job.salary_display || job.salaryDisplay || jobFacts.salary || '-'; %>
+    <% const salaryRange = ((job.min_salary || job.minSalary || job.max_salary || job.maxSalary) ? `${job.min_salary || job.minSalary || 0} - ${job.max_salary || job.maxSalary || 0} €` : '-'); %>
+    <% const formatDate = (value) => { if (!value) return '-'; const d = new Date(value); if (Number.isNaN(d.getTime())) return value; const day = String(d.getDate()).padStart(2,'0'); const month = String(d.getMonth()+1).padStart(2,'0'); const year = d.getFullYear(); return `${day}.${month}.${year}`; }; %>
+    <% const factDate = jobFacts.date || job.posted_at || job.postedAt || job.created_at || '-'; %>
+    <% const factSalary = jobFacts.salary || salaryText || salaryRange || '-'; %>
+    <% const factEmployment = jobFacts.employment || workingModel || employmentType || '-'; %>
+    <% const factWeekly = jobFacts.weekly_hours || jobFacts.weeklyHours || job.weekly_hours || job.weeklyHours || '-'; %>
+    <% const factDeadline = jobFacts.deadline || job.application_deadline || job.applicationDeadline || '-'; %>
     <% if (query.ok) { %>
       <div class="form-success">Vielen Dank. Ihre Bewerbung wurde erfolgreich uebermittelt.</div>
     <% } %>
@@ -103,14 +109,15 @@
       </div>
 
       <div class="col-xl-4 col-lg-5">
-        <div class="codex-contact-items" style="padding:0 28px 28px;">
-          <h3 style="font-size:28px; line-height:1.25; margin:0 0 18px;">Stellen Details</h3>
+        <div class="codex-contact-items" style="padding:24px; background:#f1f4f6; border-radius:12px;">
+          <h3 style="font-size:26px; line-height:1.25; margin:0 0 6px;">Zahlen & Fakten</h3>
+          <div style="width:44px; height:3px; background:#111827; margin:8px 0 18px;"></div>
           <div style="display:grid; gap:14px;">
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Anstellung:</strong><span><%= employmentType %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Arbeitsmodell:</strong><span><%= workingModel %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Standort:</strong><span><%= location %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Gehaltstext:</strong><span><%= salaryText %></span></div>
-            <div style="display:flex; justify-content:space-between; gap:12px; background:#f1f4f6; border-radius:10px; padding:14px 16px;"><strong>Gehaltsrahmen:</strong><span><%= salaryRange %></span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px;"><span style="color:#4b5563; font-weight:600;">Ausgeschrieben:</span><strong><%= formatDate(factDate) %></strong></div>
+            <div style="display:flex; justify-content:space-between; gap:12px;"><span style="color:#4b5563; font-weight:600;">Gehalt:</span><strong><%= factSalary %></strong></div>
+            <div style="display:flex; justify-content:space-between; gap:12px;"><span style="color:#4b5563; font-weight:600;">Anstellung:</span><strong><%= factEmployment %></strong></div>
+            <div style="display:flex; justify-content:space-between; gap:12px;"><span style="color:#4b5563; font-weight:600;">Wochenstunden:</span><strong><%= factWeekly %></strong></div>
+            <div style="display:flex; justify-content:space-between; gap:12px;"><span style="color:#4b5563; font-weight:600;">Bewerbungsfrist:</span><strong><%= formatDate(factDeadline) %></strong></div>
           </div>
         </div>
       </div>
