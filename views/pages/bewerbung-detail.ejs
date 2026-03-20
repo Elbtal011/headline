@@ -25,7 +25,7 @@
     <% const salaryRange = ((job.min_salary || job.minSalary || job.max_salary || job.maxSalary) ? `${job.min_salary || job.minSalary || 0} - ${job.max_salary || job.maxSalary || 0} €` : '-'); %>
     <% const formatDate = (value) => { if (!value) return '-'; const d = new Date(value); if (Number.isNaN(d.getTime())) return value; const day = String(d.getDate()).padStart(2,'0'); const month = String(d.getMonth()+1).padStart(2,'0'); const year = d.getFullYear(); return `${day}.${month}.${year}`; }; %>
     <% const factDate = jobFacts.date || job.posted_at || job.postedAt || job.created_at || '-'; %>
-    <% const factSalary = jobFacts.salary || salaryText || salaryRange || '-'; %>
+    <% const factSalary = salaryText || jobFacts.salary || salaryRange || '-'; %>
     <% const factEmployment = jobFacts.employment || workingModel || employmentType || '-'; %>
     <% const factWeekly = jobFacts.weekly_hours || jobFacts.weeklyHours || job.weekly_hours || job.weeklyHours || '-'; %>
     <% const factDeadline = jobFacts.deadline || job.application_deadline || job.applicationDeadline || '-'; %>
