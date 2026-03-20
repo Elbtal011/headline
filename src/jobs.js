@@ -267,6 +267,32 @@ async function getJobs() {
   }
 }
 
+async function debugJobsSource() {
+  const magicvicsBase = String(process.env.MAGICVICS_API_BASE || 'https://portal.headline-agentur.com').trim().replace(/\/$/, '');
+  const meta = {
+    magicvicsBase,
+    magicvicsOk: false,
+    magicvicsCount: 0,
+    magicvicsError: null,
+  };
+  if (magicvicsBase) {
+    try {
+      const resp = await fetch(`${magicvicsBase}/api/public/job-listings`);
+      meta.magicvicsOk = resp.ok;
+      if (resp.ok) {
+        const payload = await resp.json();
+        const rows = Array.isArray(payload?.data) ? payload.data : [];
+        meta.magicvicsCount = rows.length;
+      } else {
+        meta.magicvicsError = `HTTP ${resp.status}`;
+      }
+    } catch (err) {
+      meta.magicvicsError = err?.message || String(err);
+    }
+  }
+  return meta;
+}
+
 async function saveJobs(jobs) {
   const normalized = normalizeJobs(jobs);
   if (!legacyBackendEnabled || !appState.dbAvailable || !pool) {
@@ -324,4 +350,5 @@ module.exports = {
   getJobBySlug,
   upsertJob,
   deleteJob,
+  debugJobsSource,
 };

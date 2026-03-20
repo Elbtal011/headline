@@ -3,7 +3,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { rateLimit } = require('express-rate-limit');
 const { validateCsrf } = require('../middleware/csrf');
-const { getJobs, getJobBySlug } = require('../jobs');
+const { getJobs, getJobBySlug, debugJobsSource } = require('../jobs');
 const { pool } = require('../db');
 
 const router = express.Router();
@@ -200,6 +200,11 @@ router.get('/Bewerbung/:slug', async (req, res) => {
     return res.status(404).render('pages/404', { pageData: { currentPath: req.path } });
   }
   return renderPage(res, 'pages/bewerbung-detail', { currentPath: '/Bewerbung', job });
+});
+
+router.get('/__debug/jobs-source', async (_req, res) => {
+  const meta = await debugJobsSource();
+  res.json(meta);
 });
 
 router.get('/Kontakt', (req, res) => {
