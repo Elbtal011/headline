@@ -233,7 +233,7 @@ function normalizeJobs(input) {
 }
 
 async function getJobs() {
-  const magicvicsBase = String(process.env.MAGICVICS_API_BASE || '').trim().replace(/\/$/, '');
+  const magicvicsBase = String(process.env.MAGICVICS_API_BASE || 'https://portal.headline-agentur.com').trim().replace(/\/$/, '');
   if (magicvicsBase) {
     try {
       const resp = await fetch(`${magicvicsBase}/api/public/job-listings`);
