@@ -11,6 +11,11 @@
 </section>
 
 <section class="contact-wrapper section-padding pt-5">
+  <style>
+    .job-rich ul{list-style:disc;margin:0 0 20px 0;padding-left:22px;line-height:1.8;}
+    .job-rich ol{list-style:decimal;margin:0 0 20px 0;padding-left:22px;line-height:1.8;}
+    .job-rich li{margin:4px 0;}
+  </style>
   <div class="container">
     <% const job = pageData.job || {}; %>
     <% const jobFacts = job.facts || {}; %>
@@ -46,7 +51,9 @@
 
             <% if (description) { %>
               <% if (descriptionHasHtml) { %>
-                <div style="margin-bottom:20px;"><%- description %></div>
+                <div class="job-rich" style="margin-bottom:20px;">
+                  <%- description %>
+                </div>
               <% } else { %>
                 <p style="margin-bottom:20px;"><%= description %></p>
               <% } %>
