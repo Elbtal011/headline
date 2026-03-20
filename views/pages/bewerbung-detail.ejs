@@ -14,7 +14,9 @@
   <div class="container">
     <% const job = pageData.job || {}; %>
     <% const jobFacts = job.facts || {}; %>
-    <% const description = job.description || job.summary || ''; %>
+    <% const shortDescription = job.short_description || job.summary || ''; %>
+    <% const description = job.description || ''; %>
+    <% const descriptionHasHtml = /<\/?[a-z][\s\S]*>/i.test(description); %>
     <% const requirements = (job.requirements && job.requirements.length ? job.requirements : job.profile) || []; %>
     <% const tasks = (job.tasks && job.tasks.length ? job.tasks : []) || []; %>
     <% const benefits = (job.benefits && job.benefits.length ? job.benefits : job.offer) || []; %>
@@ -38,11 +40,19 @@
         <div class="codex-contact-items">
           <div style="margin-bottom:32px;">
             <h3 style="margin-bottom:20px;"><%= job.title %></h3>
-            <% if (description) { %>
-              <p style="margin-bottom:20px;"><%= description %></p>
+            <% if (shortDescription) { %>
+              <p style="margin-bottom:16px;"><%= shortDescription %></p>
             <% } %>
 
-            <% if (tasks.length) { %>
+            <% if (description) { %>
+              <% if (descriptionHasHtml) { %>
+                <div style="margin-bottom:20px;"><%- description %></div>
+              <% } else { %>
+                <p style="margin-bottom:20px;"><%= description %></p>
+              <% } %>
+            <% } %>
+
+            <% if (!descriptionHasHtml && tasks.length) { %>
               <h4 style="margin-bottom:12px;">Aufgaben</h4>
               <ul style="list-style:disc; padding-left:22px; margin-bottom:20px; line-height:1.8;">
                 <% tasks.forEach((entry) => { %>
@@ -51,7 +61,7 @@
               </ul>
             <% } %>
 
-            <% if (requirements.length) { %>
+            <% if (!descriptionHasHtml && requirements.length) { %>
               <h4 style="margin-bottom:12px;">Anforderungen</h4>
               <ul style="list-style:disc; padding-left:22px; margin-bottom:20px; line-height:1.8;">
                 <% requirements.forEach((entry) => { %>
@@ -60,7 +70,7 @@
               </ul>
             <% } %>
 
-            <% if (benefits.length) { %>
+            <% if (!descriptionHasHtml && benefits.length) { %>
               <h4 style="margin-bottom:12px;">Benefits</h4>
               <ul style="list-style:disc; padding-left:22px; margin-bottom:0; line-height:1.8;">
                 <% benefits.forEach((entry) => { %>
