@@ -2,6 +2,10 @@
 
 Professional website and backend platform for Headline Agentur, including lead management, live chat, user accounts, document handling, and admin operations.
 
+## Production Domains
+- Public website front-end: `https://headlineagentur.com`
+- Magic Portal backend, admin, and logged-in applicant portal: `https://portal.headlineagentur.com`
+
 ## Tech Stack
 - Node.js
 - Express
@@ -51,6 +55,8 @@ Professional website and backend platform for Headline Agentur, including lead m
 - `ADMIN_PASSWORD`
 - `PORT`
 - `NODE_ENV`
+- `MAGICVICS_API_BASE` (production default: `https://portal.headlineagentur.com`)
+- `MAGICVICS_CHAT_URL` (production default: `https://portal.headlineagentur.com/support`)
 
 ## Optional SMTP (Kontakt notifications)
 - `SMTP_HOST`
