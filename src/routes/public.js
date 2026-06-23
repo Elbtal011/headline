@@ -620,8 +620,9 @@ router.get('/api/admin/kyc-document', async (req, res) => {
 // in the next step (MagicVics backend wiring).
 router.post('/api/leads/contact', submitLimiter, validateCsrf, async (req, res) => {
   const { full_name, name, email, message, source_page, website } = req.body || {};
+  const redirectTarget = normalizeRedirect(source_page, '/Kontakt');
 
-  if (website) return res.redirect('/Kontakt?ok=1');
+  if (website) return res.redirect(`${redirectTarget}${redirectTarget.includes('?') ? '&' : '?'}ok=1`);
 
   const contactName = String(full_name || name || '').trim();
   const contactEmail = String(email || '').trim().toLowerCase();
@@ -631,8 +632,8 @@ router.post('/api/leads/contact', submitLimiter, validateCsrf, async (req, res) 
     return res.status(400).send('Bitte alle Pflichtfelder ausfüllen.');
   }
 
-  console.log('[decoupled] contact form accepted', { contactEmail, source_page: source_page || '/Kontakt' });
-  return res.redirect('/Kontakt?ok=1');
+  console.log('[decoupled] contact form accepted', { contactEmail, source_page: redirectTarget });
+  return res.redirect(`${redirectTarget}${redirectTarget.includes('?') ? '&' : '?'}ok=1`);
 });
 
 router.post('/api/leads/application', submitLimiter, validateCsrf, async (req, res) => {
