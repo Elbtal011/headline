@@ -45,7 +45,7 @@
   <div class="container">
     <div class="codex-about-wrapper-3">
       <div class="row g-4 align-items-center">
-        <div class="col-lg-12">
+        <div class="col-lg-6">
           <div class="codex-about-content">
             <div class="section-title mb-0">
               <h2>Qualitätssicherung an der Schnittstelle von Compliance und User Experience</h2>
@@ -53,6 +53,9 @@
             <p class="about-text">Als spezialisierter Partner für digitale Prozessoptimierung pflegt die Headlineagentur strategische Kooperationen mit führenden deutschen Banken und Fintech-Plattformen. Unser Auftrag umfasst die lückenlose Analyse, Validierung und Optimierung kritischer Workflows innerhalb der bankeigenen Applikationen.</p>
             <p class="about-text">Im Rahmen dieser Zusammenarbeit testen wir Anwendungen unter Realbedingungen aus Sicht des Endverbrauchers, ohne dabei regulatorische und datenschutzrechtliche Vorgaben aus den Augen zu verlieren. Das Ergebnis sind datengestützte Optimierungsberichte, die es Instituten erlauben, Reibungspunkte in der digitalen Kundenansprache vollständig zu eliminieren.</p>
           </div>
+        </div>
+        <div class="col-lg-6">
+          <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=80" loading="lazy" decoding="async" class="img-fluid kooperation-about-image" alt="Digitale Banking-Prozesse und mobile Zahlung" />
         </div>
       </div>
     </div>
@@ -246,6 +249,14 @@
     box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
   }
 
+  .kooperation-about-image {
+    width: 100%;
+    min-height: 420px;
+    object-fit: cover;
+    border: 2px solid var(--theme);
+    border-radius: 25px;
+  }
+
   @keyframes kooperationLogoScroll {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
@@ -276,6 +287,10 @@
       min-width: 150px;
       height: 56px;
       font-size: 14px;
+    }
+
+    .kooperation-about-image {
+      min-height: 280px;
     }
   }
 </style>
