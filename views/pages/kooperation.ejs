@@ -19,15 +19,15 @@
             <h6>Kooperation & Qualitätssicherung</h6>
             <h2>Interoperabilität & Exzellenz: Die digitale Zukunft der deutschen Bankenlandschaft.</h2>
           </div>
-          <p class="kooperation-intro-text">headlineagentur.com optimiert in direkter Kooperation mit deutschen Kreditinstituten die Customer Journey im Mobile- und Online-Banking. Durch tiefgreifende End-to-End-Audits schaffen wir intuitive, sichere und zukunftsfähige Bankprozesse.</p>
+          <p class="kooperation-intro-text">headlineagentur.com optimiert in direkter Kooperation mit deutschen Kreditinstituten die Kundenreise im Mobile- und Online-Banking. Durch tiefgreifende End-to-End-Audits schaffen wir intuitive, sichere und zukunftsfähige Bankprozesse.</p>
         </div>
         <div class="col-lg-4">
           <div class="kooperation-intro-focus">
             <span>Audit-Fokus</span>
             <ul>
-              <li>Mobile- & Online-Banking</li>
-              <li>End-to-End Customer Journey</li>
-              <li>Sicherheit, UX & Compliance</li>
+              <li><i class="fa-solid fa-mobile-screen-button"></i><span>Mobile- & Online-Banking</span></li>
+              <li><i class="fa-solid fa-route"></i><span>Ganzheitliche Kundenreise</span></li>
+              <li><i class="fa-solid fa-shield-halved"></i><span>Sicherheit, Nutzererlebnis & Compliance</span></li>
             </ul>
           </div>
         </div>
@@ -204,8 +204,11 @@
   }
 
   .kooperation-intro-focus {
-    border-left: 3px solid var(--theme);
-    padding: 8px 0 8px 22px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 79, 68, 0.12);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 12px 30px rgba(20, 21, 25, 0.05);
   }
 
   .kooperation-intro-focus span {
@@ -219,13 +222,29 @@
 
   .kooperation-intro-focus ul {
     display: grid;
-    gap: 10px;
+    gap: 12px;
   }
 
   .kooperation-intro-focus li {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    align-items: center;
+    gap: 12px;
     color: var(--header);
     font-size: 15px;
     line-height: 1.45;
+  }
+
+  .kooperation-intro-focus li i {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 79, 68, 0.08);
+    color: var(--theme);
+    font-size: 14px;
   }
 
   .kooperation-logo-marquee {
@@ -282,9 +301,7 @@
     }
 
     .kooperation-intro-focus {
-      border-left: 0;
-      border-top: 3px solid var(--theme);
-      padding: 18px 0 0;
+      padding: 20px;
     }
 
     .kooperation-logo-placeholder {
