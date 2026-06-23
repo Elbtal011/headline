@@ -18,6 +18,7 @@ const navItems = [
   { href: '/index.php', label: 'Startseite' },
   { href: '/Unternehmen', label: 'Unternehmen' },
   { href: '/Fachgebiete', label: 'Fachgebiete' },
+  { href: '/Kooperation', label: 'Kooperation' },
   { href: '/Bewerbung', label: 'Karriere & Stellen' },
   { href: '/Kontakt', label: 'Kontakt / Kundendienst' },
 ];
@@ -187,6 +188,10 @@ router.get('/Unternehmen', (req, res) => {
 
 router.get('/Fachgebiete', (req, res) => {
   renderPage(res, 'pages/fachgebiete', { currentPath: '/Fachgebiete' });
+});
+
+router.get('/Kooperation', (req, res) => {
+  renderPage(res, 'pages/kooperation', { currentPath: '/Kooperation' });
 });
 
 router.get('/Bewerbung', async (req, res) => {
