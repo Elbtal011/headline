@@ -25,8 +25,8 @@ if (legacyBackendEnabled && isProd && (!process.env.ADMIN_USERNAME || !process.e
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 app.set('trust proxy', 1);
-app.locals.magicvicsChatUrl = process.env.MAGICVICS_CHAT_URL || 'https://portal.headlineagentur.com/support';
-app.locals.magicvicsApiBase = process.env.MAGICVICS_API_BASE || 'https://portal.headlineagentur.com';
+app.locals.magicvicsChatUrl = process.env.MAGICVICS_CHAT_URL || 'https://portal.headlinegp.com/support';
+app.locals.magicvicsApiBase = process.env.MAGICVICS_API_BASE || 'https://portal.headlinegp.com';
 
 app.use(
   helmet({
